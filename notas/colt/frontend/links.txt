@@ -1,0 +1,9 @@
+Links:
+https://codepen.io 
+https://developer.mozilla.org 
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element 
+https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+https://www.lipsum.com 
+https://loremipsum.io
+https://loremipsum.io/
+https://www.shortcutfoo.com/app/dojos/sublime-text-3-win/cheatsheet

@@ -1,0 +1,17 @@
+Issues:
+issue1
+===========================
+<!-- ISSUE: image is not visible when referencing online with https protocol, because of CORB
+
+issue when referencing to image online (visible in dev tools in browser when image is not loaded):
+WebAssignment.html:9 Cross-Origin Read Blocking (CORB) blocked cross-origin response https://www.catsendogs.be/ with MIME type text/html. See https://www.chromestatus.com/feature/5629709824032768 for more details
+
+FIX_1: R-muis 'Adres van afbeelding copieren' and past in src
+dont use R-muis 'Linkadres copieren'
+tip site for images
+https://unsplash.com/s/photos/dog
+
+FIX_2: use refs to local (downloaded) image like
+<img src="dog.jpg">
+	-->
+==============================

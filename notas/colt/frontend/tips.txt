@@ -1,0 +1,8 @@
+Tips:
+Ctrl-U = show page source in the browser (chrome) 
+F12 = open dev tools in the browser 
+file:///c:/WebDev/colt/firstPage.htlm = open file on disk from browser 
+Ctrl-/ = set in comment/uncomment line or selected block in html (in sublime editor) 
+Ctrl-Shift-D = sublime duplicate line 
+lorem+tab= sublime generate random text lorem ipsum
+Ctrl+klick+klick+klick...+write= multi write on sublime

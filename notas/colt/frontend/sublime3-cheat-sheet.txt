@@ -1,0 +1,39 @@
+Text Editing Beginner
+ctrl+XCut line
+ctrl+?Insert line after
+shift+ctrl+?Insert line before
+shift+ctrl+UPMove line/selection up
+shift+ctrl+DOWNMove line/selection down
+ctrl+LSelect line - Repeat to select next lines
+ctrl+DSelect word - repeat select other occurrences
+ctrl+MGo to matching parentheses
+shift+ctrl+MSelect all contents of the current parentheses
+
+Text Editing Intermediate
+ctrl+Kctrl+KDelete from cursor to end of line
+ctrl+Kctrl+BACKSPACEDelete from cursor to start of line
+ctrl+]Indent current line(s)
+ctrl+[Un-indent current line(s)
+shift+ctrl+DDuplicate line(s)
+ctrl+JJoin line below to the end of the current line
+ctrl+/Comment/un-comment current line
+shift+ctrl+/Block comment current selection
+ctrl+YRedo or repeat last keyboard shortcut command
+shift+ctrl+VPaste and indent correctly
+ctrl+[SPACE]Select next auto-complete suggestion
+ctrl+USoft undo
+
+Text Navigation/Goto Anywhere
+ctrl+PQuick-open files by name
+ctrl+;Goto word in current file
+ctrl+RGoto symbol
+ctrl+GGoto line in current file
+
+General
+alt+.Close tag
+ctrl+Kctrl+CScroll to selection
+shift+ctrl+ASelect tag
+shift+ctrl+JSelect indentation
+shift+ctrl+[SPACE]Select scope
+ctrl+Kctrl+BToggle side bar
+shift+ctrl+PCommand prompt

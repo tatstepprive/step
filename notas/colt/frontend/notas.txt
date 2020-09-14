@@ -13,16 +13,22 @@ JS= behaviour, action (verb of the webpage)
 
 MDN= mozilla developer network
 
-Tips:
-Ctrl-U = show page source in the browser (chrome)
-F12 = open dev tools in the browser
-file:///c:/WebDev/colt/firstPage.htlm = open file on disk from browser
-Ctrl-/ = set in comment/uncomment line or selected block in html (in sublime editor)
+Tips: 
+Ctrl-U = show page source in the browser (chrome) 
+F12 = open dev tools in the browser 
+file:///c:/WebDev/colt/firstPage.htlm = open file on disk from browser 
+Ctrl-/ = set in comment/uncomment line or selected block in html (in sublime editor) 
+Ctrl-Shift-D = sublime duplicate line 
+lorem+tab= sublime generate random text lorem ipsum
+Ctrl+klick+klick+klick...+write= multi write on sublime
 
 Links: 
-https://codepen.io
-https://developer.mozilla.org
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+https://codepen.io 
+https://developer.mozilla.org 
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element 
+https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+https://www.lipsum.com 
+https://loremipsum.io
 
 HTML blocks:
 ===========================
@@ -39,3 +45,150 @@ HTML blocks:
 
 Comment 
 <!-- -->
+
+Block level element= gets his own line like <h1>-<h6>,<p>,<div> 
+                     even if you put them on 1 line they will be
+                     displayed each on his line
+
+Inline element= no nuw line like <a>,<span>
+
+Styling:
+<b></b> = bold text (deprecated)
+<strong></strong>= bold text
+<i></i>= italic text (deprecated)
+<em></em>= italic text
+
+Ordered list <ol> with list items <li> and numbers
+<ol>
+<li></li>
+<li></li>
+<li></li>
+</ol>
+
+Unordered list <ul> with list items <li> and bullets
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+
+Div and span tags = are containers 
+f: group content together to style things
+<div> is block level element
+<span> is inline level element
+
+
+Attributes in html= are key="value" pairs (see MDN attribure reference url)
+
+Url:
+<img src="url to file online or local">
+<a href="url to page online or local"> Link text </a>
+
+CORB issue
+
+Table:
+<tr> table row
+<td> table cell
+<th> table header
+<thead> table head
+<tbody> table body
+
+<thead> and <tbody> and <tfoot> can be removed as tags
+<table>
+  <thead>
+    <tr>
+      <th>Header content 1</th>
+      <th>Header content 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Body content 1</td>
+      <td>Body content 2</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td>Footer content 1</td>
+      <td>Footer content 2</td>
+    </tr>
+  </tfoot>
+</table>
+
+
+
+Form:
+f: get user input
+form is container
+<form>
+
+form: action: the url where send the form data to 
+             (if no action, sends to the same page 
+             and visible as refresh of page)
+from: method: type of html request (get, post)
+              (if no method, get request by default)
+
+Input:
+<input type="text">
+<input type="date">
+<input type="color">
+<input type="file">
+<input type="checkbox">
+<input type="radio">
+<input type="submit">
+etc
+
+Same look:
+<button> Submit <button>
+<input type="submit">
+
+placeholder="TextBeforeInput" (attribute)
+
+query string:
+<url>?<queryString>
+<url>?name1=value1&name2=value2
+when using name="name" attribute
+visible when using get reguest (not visible when using post request)
+
+Label:
+f: used by screenreaders for blind persons to indicate input fields
+
+2 ways of using:
+<label for="name">Address</label>
+<input id="name" type="text">
+
+<label><input type="text">Address</label>
+
+Question: diff between id and name attribute
+Answer: 
+ name: for form controls like <input> or <select> 
+ 		and used in GET/POST to get input when form submission, unique per <form>
+ id: to address html element with CSS, JS of fragment identifier 		like 'for' used in <label>, 
+ 	 unique within page
+
+
+Validation:
+not empty: add attribure 'required' to <input> tag
+other: depends on input type like type="email"
+Up to browser to implement how to treate
+
+Checkbox vs Radio button:
+checkbox: select/unselect
+radio: select only
+
+Single radio button selection:
+Different id by the same name attribure for type="radio"
+and value="data" for each radiobutton to store value in name 
+to send in form, if no value the name="on" when selected is send
+
+Dropdown (combobox) list:
+<select>
+ <option></option>
+ <option></option>
+</select>
+
+Textarea
+
+titel attribure= error message to display
+
+pattern attrubute
