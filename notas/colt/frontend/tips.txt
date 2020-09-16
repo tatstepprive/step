@@ -1,4 +1,4 @@
-Tips:
+Tips shortcuts:
 Ctrl-U = show page source in the browser (chrome) 
 F12 = open dev tools in the browser 
 file:///c:/WebDev/colt/firstPage.htlm = open file on disk from browser 
@@ -6,3 +6,12 @@ Ctrl-/ = set in comment/uncomment line or selected block in html (in sublime edi
 Ctrl-Shift-D = sublime duplicate line 
 lorem+tab= sublime generate random text lorem ipsum
 Ctrl+klick+klick+klick...+write= multi write on sublime
+
+
+Tips css:
+
+text-decoration: line-through;
+f: crossed out text
+
+<input type="checkbox" checked>
+f: checkbox attribute to make checkbox on

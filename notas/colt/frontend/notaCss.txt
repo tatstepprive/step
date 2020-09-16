@@ -1,0 +1,294 @@
+CSS
+
+css=cascading style sheets
+
+general rule:
+
+selector{
+	property: value;
+	otherproperty: value;
+}
+
+Location 1/3: inline
+<h1 style="color: red;">Hello</h1>
+
+Location2/3: style tag
+<html>
+  <head>
+    <title>Hey<title>
+    <style type="text/css">
+    h1{
+    color: red;
+    }
+    </style>
+   </head>
+...   
+
+Location3/3: link tag and separate css file 
+<html>
+  <head>
+    <title>Hey<title>
+    <link rel="stylesheet" type="text/css" href="app.css">
+   </head>
+   ...
+
+   --------------------------------------------
+
+   Color:
+   hexadecimal (6 numbers 0->F)
+   #000000   black
+   #FF0000   red
+   #00FF00   green
+   #0000FF   blue
+   #FFFFFF   white (white contains all colors 
+                    so max red, max green, max blue)
+   
+   general: #RRGGBB
+   RR= how much red in color
+   GG= how much green in color
+   BB= now much blue in color
+
+   DECIMAL base 10
+   0 1 2 3 4 5 6 7 8 9 
+
+   _ _ (min 00 max 99)
+
+   BINARY base 2
+   0 1 
+
+   _ _ (min 00 max 11)
+
+   HEXADECIMAL base 16
+   0 1 2 3 4 5 6 7 8 9 A B C D E F 
+
+   _ _ (min 00 max FF)
+
+color picker
+
+RGB = 3 channels: red green blue 0->255
+h1{
+	color: rgb(0,255,0);  <!-- green-->
+}
+
+RGBA = like RGB + alpha (transparency) channel 0.0->1.0
+1.0 = non transporant
+0.5 = half transporant
+0.0 = transporant (not visible)
+
+h1{
+	color: rgba(255,0,0,0.5);
+}
+h1{
+	color: rgba(255,0,0,.5);
+}
+
+------------------------------------------------------
+Background
+
+div{
+	background: rgba(0,0,0,.7);
+}
+
+with image
+
+div{
+	background: url(http://...);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+------------------------------------------------------
+Border
+all parameters should be set:
+width npx
+color
+style
+
+h1{
+	border-width: 5px;
+	bolder-color: red;
+	border-style: solid;
+}
+the same as:
+h1{
+	border: 5px solid red;
+}
+---------------------------------------------------------
+Element/id/class
+
+html		 			css
+id="special" 			#special{
+						color: red;
+						}
+
+class="special"      	.special{
+						color: red;
+						}
+
+----------------------------------------------------------
+Selectors
+==============
+Element
+li{
+	
+}
+===============
+Class
+.hello{
+	
+}
+===============
+id
+#hello{
+	
+}
+===============
+Star f: select all on the page
+*{
+	
+}
+===============
+Descendent selectors f: select inside a tag, 
+						used by nested elements, look inside
+li a{
+	
+}
+f: select every <a> in <li>
+=================
+Adjacent selector f: not nested, after selector, same level
+h1 + ul{
+	
+}
+f: select <ul> coming after <h1>
+=================
+Attribute selector
+a[href="http://www.google.com"]{
+	
+}
+f: select <a> with attribute containing url
+input[type="checkbox"]{
+	
+}
+f: select all checkboxes
+=================
+nth of type
+ul:nth-of-type(3){
+	
+}
+li:nth-of-type(even){
+	
+}
+
+=================
+-----------------------------------------------
+Some tips:
+text-decoration: line-through;
+f: crossed out text
+
+<input type="checkbox" checked>
+f: checkbox attribute to make checkbox on
+
+<hr>
+horizontal line
+
+text-transform: uppercase;
+f: set to all chars to capital
+
+letter-spacing: 10rem;
+f: space between letters;
+------------------------------------------------
+Text related css
+
+Font
+  font-family
+  font-size
+  font-weight
+  line-height
+  text-align
+  text-decoration
+  text-transform
+
+www.cssfontstack.com
+f: font usage in os
+
+same:
+font-family: Arial;
+font-family: "Arial";
+font-family: 'Arial';
+
+font-size: Npx (abs in pixels) or Nem (relatif to parent font-size)
+
+font-weight: bold or normal or 100->800 (meaning light->havy)
+
+line-height: 2;
+f: double space between lines;
+
+text-align: right or left or center
+
+text-decoration: underline or line-through (crossed out)
+
+Google fonts:
+https://fonts.google.com
+<link rel="stylesheet" 
+      type="text/css" 
+      href="https://fonts.google.com/css?...">
+
+text-transfor: uppercase;
+f: set all chars to capitals
+
+letter-spacing: 10rem;
+f: space between letters;
+
+Qustion:
+diff between rem and em? rem vs em?
+em is relative to the font-size of its direct or nearest parent
+rem is only relative to the html (root) font-size
+
+For most users (and browsers), a font-size of 100% would default to 16px
+
+h1 {
+  font-size: 2em; /* 1em = 16px */
+  margin-bottom: 1em; /* 1em = 32px */
+}
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem; /* 1rem = 16px */
+}
+
+EM is always calculated on base what is already set in element, 
+REM is always the same to root size, which only set once and defaults to 16px.
+
+------------------------------------
+Box model
+
+In a document each element is represented as a rectangular box,
+each of these boxes is described using a box model wiht 4 edges:
+-margin edge (m) (orange box in browser dev tools)
+-border edge (b) (white? box in browser dev tools)
+-padding edge (p) (geen box in browser dev tools)
+-content edge (c) (blue box in browser dev tools)
+element=m+b+p+c (e) 
+		m
+		b
+		p
+m b p content p b m
+		p
+		b
+		m
+
+margin is most outside
+padding is most inside
+
+margin: top right boddem left
+
+        top->					----->---  (clockwise)
+  left    		right        			|
+        bodem<-					-----<---			
+
+
+same:
+margin: 0 auto 0 auto;
+margin: 0 auto;
+margin: auto;
+f: to center content
+

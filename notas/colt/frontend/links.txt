@@ -7,3 +7,8 @@ https://www.lipsum.com
 https://loremipsum.io
 https://loremipsum.io/
 https://www.shortcutfoo.com/app/dojos/sublime-text-3-win/cheatsheet
+
+css:
+https://code.tutsplus.com/tutorials/the-30-css-selectors-you-must-memorize--net-16048
+http://www.csszengarden.com/
+https://fonts.google.com
