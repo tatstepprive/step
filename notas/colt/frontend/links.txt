@@ -12,3 +12,6 @@ css:
 https://code.tutsplus.com/tutorials/the-30-css-selectors-you-must-memorize--net-16048
 http://www.csszengarden.com/
 https://fonts.google.com
+
+free fotos:
+https://unsplash.com/
