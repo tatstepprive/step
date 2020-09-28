@@ -21,6 +21,20 @@ Maven bootstrap via org.webjars dependency
     <version>4.5.2</version>
 </dependency>
 
+bootstrap js depends on jquery so add jquery also:
+ <dependency>
+     <groupId>org.webjars</groupId>
+     <artifactId>jquery</artifactId>
+     <version>3.1.1</version>
+ </dependency>
+ 
+ and maybe:
+
+    <dependency>
+       <groupId>org.webjars</groupId>
+       <artifactId>jquery-ui</artifactId>
+       <version>1.12.1</version>
+   </dependency>
 
 4.5.2 aug 2020
 4.0.0 jan 2018
@@ -38,7 +52,15 @@ for maven projects in index.html
 <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 Trivia, Holmes are using *.html
-Itinera is using *.xhtml
+Itinera is using *.
+
+for thymeleaf springboot:
+in <head>
+  <link rel="stylesheet"th:href="@{webjars/bootstrap/4.4.1/css/bootstrap.min.css}" >
+
+in <body>
+<script th:src="@{webjars/jquery/3.1.1/jquery.min.js}"></script>
+<script th:src="@{webjars/bootstrap/4.4.1/js/bootstrap.min.js}"></script>
 ---------------------------------------------------------
 Jumbotron
 Navbar
@@ -59,4 +81,31 @@ Grid is always inside of div class="container"
     <div class="col-lg-<nbr-of units>" 
     ex: for 2 columns 50% wide each use 6 units so "col-lg-6" 
 
------------------------------------------------------------    
+   
+col-lg- = large device (>=1200px)
+col-md- = medium device(desktop)
+col-sm- = small device (tablets)
+col-xs- = extra small device (phone)
+
+--------------------------------------------------
+Icons
+bootstrap glyphicon
+using bootstrap glyphicon in html by adding <span> tag next to text with class of icon you want::
+<span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+
+font-awesome icons
+https://fontawesome.com
+f: more icons then in bootstrap glyphicon
+
+maven and fontawesome add dep in pom.xml:
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>font-awesome</artifactId>
+			<version>5.12.0</version>
+		</dependency>
+
+using fontawesome icon in html by adding <i> tag next to text with class of icon you want:
+<button class="btn btn-default btn-lg"><i class="fa fa-paw"></i>  Get Started!</button>
+
+-----------------------------------------------------

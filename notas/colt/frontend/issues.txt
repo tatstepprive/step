@@ -15,3 +15,18 @@ FIX_2: use refs to local (downloaded) image like
 <img src="dog.jpg">
 	-->
 ==============================
+Issue2
+==============================
+bootstrap glyphicon shows as a rectangle
+FIX1: copy fonts dir and css an js dirs from bootstrap zip to folder and change links to href="./css/bootstrap.css"
+==============================
+Issue3
+==============================
+burger menu is not working
+FIX1: the bootstrap js script refs is not working, change url to match the script location. Be sure too that jquery js is added also.
+==============================
+Issue4
+==============================
+layout of navbar is bad
+FIX1: use correct bootstrap version 4 versus 3 
+==============================

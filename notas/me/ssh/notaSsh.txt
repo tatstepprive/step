@@ -1,0 +1,31 @@
+Create a key:
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_sysadmin -C "sysadmin-key" -N ''
+===================
+Login in git and add id_rsa_sysadmin.pub in ssh keys of the user
+======================
+Entry in .ssh/config:
+Host sys
+  HostName <hostname.domain>
+  User git
+  IdentityFile ~/.ssh/id_rsa_sysadmin
+  LogLevel DEBUG3
+  PubkeyAuthentication yes
+======================
+Attention: no other entries before that will give conflict to this 
+config like
+Other key, this is way it's in comment now
+Host *
+#  IdentityFile ~/.ssh/id_rsa_other
+  StrictHostKeyChecking no
+======================
+restart ssh after configuration:
+sudo service ssh restart
+
+======================
+#this should work when login with user dev to clone sysadmin repo
+git clone sys:sysadmin/config-dev-host.git
+======================
+If everything works set in comment log entry in /home/dev/.ssh/config to 
+avoid a lot of outprint when executing git commands via cli:
+#  LogLevel DEBUG3
+
