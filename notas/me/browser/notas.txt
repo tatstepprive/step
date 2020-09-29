@@ -1,0 +1,2 @@
+incognito browser openen in chrome:
+Ctrl-Shift-N
