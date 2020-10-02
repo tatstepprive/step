@@ -15,3 +15,33 @@ f: crossed out text
 
 <input type="checkbox" checked>
 f: checkbox attribute to make checkbox on
+
+Tips bootstrap thymeleaf:
+==========================
+Working with fragments, parameters, and index
+Example:
+1st document (include fragment from 2nd document):
+ <div th:insert="fragments/card :: card (title='PRODUCTION', allEnvs=${prodEnvironments}, appIndex=0)"></div>
+ 
+2nd document is card.html
+<div th:fragment="card" class="card">
+...
+ <tr th:each="oneEnv : ${allEnvs}">
+    <td class="big">
+      <h3>
+       <a th:href="@{'/environment/'+${oneEnv.id }}" >
+        <span th:text="${oneEnv.name}"
+         th:class="${oneEnv.issue == null ? 'text-default' : 'text-danger'}">
+         </span>
+       </a>
+      </h3>
+      <h6 th:text="*{oneEnv.applications.get(appIndex).getVersion()}"></h6>
+     </td>
+ </tr>
+...
+</div>
+
+In general:
+insert=htmlname :: fragment-name (vars)
+include=htmlname :: fragment-name (vars) (include is deprecated)
+=========================

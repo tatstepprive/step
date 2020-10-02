@@ -1,0 +1,5 @@
+# tip: if zoom of ie is different precent then 100% 
+# like 
+#Unexpected error launching Internet Explorer. Browser zoom level was set to 110%. It should be set to 100%
+#it will go to 'localhost' in browser
+# but when change it to 100% it will go to correct host like 'spartacus9' without changes on the properties or sourcecode

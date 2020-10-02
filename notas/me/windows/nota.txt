@@ -1,0 +1,27 @@
+#memory usage windows
+#Run
+resmon
+#of Run
+perfmon
+======================
+#system info command line
+systeminfo
+=====================
+#memory usage command line 
+tasklist | sort /+58 /R
+====================
+#find executable
+WHERE /R C:\ jp2launcher
+====================
+#remove some dirs
+hostname
+cd C:\Users\90069914\AppData\Local\Temp
+echo "Temp directory BEFORE the cleanup"
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+dir
+echo "remove selenium temp test files"
+del IE*.tmp /s
+echo "Temp directory AFTER the cleanup"
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+dir
+=======================

@@ -1,0 +1,21 @@
+#Revert added file or dir
+git reset <dirname>
+git reset <filename>
+---------------
+#Gitignore tips (sequence of actions to ignore file/dir)
+#Config .gitignore Tip, if the file/dir already added via git add, the 
+#changes to ignore this file/dir in .gitignore is not applied
+#test
+git status
+mkdir bla
+nano bla\bla.test
+git add bla
+nano .gitignore
+#add line for directory like
+#bla/
+git status
+#bla dir is still there
+git reset bla
+git status
+#bla is not more visible, gitignore is applied
+-------------------
