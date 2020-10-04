@@ -1,0 +1,63 @@
+-- total number of slots per facility in September 2012, sorted by the 
+number of slots
+select b.facid, f.name, sum(b.slots) 
+from cd.bookings as b
+inner join cd.facilities as f on b.facid=f.facid 
+where extract(year from b.starttime) = '2012' and extract(month from 
+b.starttime)='9'
+group by b.facid, f.name 
+order by sum(b.slots);
+========
+corrections:
+where b.starttime >='2012-09-01' and b.starttime <='2012-10-01'
+#attention b.starttime <='2012-10-01' and not '2012-09-30' or use 
+between
+------------------------
+-- total number of slots per facility with more than 1000 slots, sorted 
+by facility
+select b.facid, f.name, sum(b.slots) 
+from cd.bookings as b
+inner join cd.facilities as f on b.facid=f.facid 
+group by b.facid, f.name 
+having sum(b.slots)>=1000
+order by b.facid;
+=====
+correction aggregate function can not be used in where, but should be 
+used in having clausule
+-------------
+--list of starttimes for tennis on 21/09/2012 sorted by starttime
+select b.facid, f.name, b.starttime
+from cd.bookings as b
+inner join cd.facilities as f on b.facid=f.facid 
+--where f.name ilike '%tennis%'
+where f.name ilike '%tennis court%'
+--and b.starttime='2012-09-21'
+and b.starttime >='2012-09-21' and b.starttime <='2012-09-22'
+order by b.starttime;
+====
+correction
+# to show on date you should compare with date and date+one_day 
+#(TODO to check or  b.starttime < '2012-09-22' is correct) 
+and b.starttime >='2012-09-21' and b.starttime <='2012-09-22'
+# show only tennis courts and not all tennis or you can use where id in 
+(tennis courts id's)
+where f.name ilike '%tennis court%'
+# other way to select without alias select <schema>.<table>.<colom> ex: 
+select cd.bookings.starttime
+# but using alias is better
+
+=========
+create tables with fkeys
+create table account(
+	user_id serial primary key,
+	username varchar(50) unique not null,
+	password varchar(50) not null,
+	email varchar (250) unique not null,
+	created_on timestamp not null,
+	last_login timestamp 
+)
+
+create table job(
+	job_id serial primary key,
+	jobname varchar(200) unique not null
+	)

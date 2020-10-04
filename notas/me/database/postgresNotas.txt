@@ -1,0 +1,20 @@
+PostgreSQL=database, default port 5432
+PgAdmin=gui to connect (not running on ie11, use chrome or firefox)
+urls:
+https://www.postgresql.org/
+https://www.pgadmin.org/
+
+sql:
+-select
+-distinct
+-count
+-where
+-order by
+-limit
+-between
+-in
+-like
+-ilike
+-group by
+=================================
+
