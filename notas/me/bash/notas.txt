@@ -1,4 +1,8 @@
 #rename link
 for i in $(find -iname privORINT-BCSSKSZ.ppk -type l); do mv $(dirname $i)/$(basename $i) $(dirname $i)/privORINT-BCSSKSZ.ppk; done
+#==============================
 # find broken soft links
 find . | xargs file | grep -i "broken symbolic link"
+#==============================
+#show cpu
+sudo lshw| grep -i cpu
