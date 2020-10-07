@@ -6,3 +6,21 @@ find . | xargs file | grep -i "broken symbolic link"
 #==============================
 #show cpu
 sudo lshw| grep -i cpu
+#============================== 
+#quit bash shell without saving history: kill console
+kill -9 $$
+#quit bash shell without saving history: unset HISTFILE
+unset HISTFILE && exit
+#============================== 
+#test sftp connection
+sftp -vvvv -oIdentityFile=/path/to/private/keyfile.ppk user@host
+#==============================
+#test ftp connection, can not use user@host
+#give user as input, give
+#consult man ftp 
+ftp --vvvv host
+#=============================
+# tree versus on window is find, 
+#go to dir to execute list of dirs and files and execute find
+find
+#=============================

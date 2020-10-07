@@ -28,4 +28,13 @@ git clone sys:sysadmin/config-dev-host.git
 If everything works set in comment log entry in /home/dev/.ssh/config to 
 avoid a lot of outprint when executing git commands via cli:
 #  LogLevel DEBUG3
+======================
 
+git config core.sshCommand "ssh -i ~/.ssh/id_rsa_example -F /dev/null"
+
+git config core.sshCommand "ssh -i ~/.ssh/id_rsa_scriptura"
+
+#to have entry in .git/config
+[core]
+...
+sshCommand = ssh -i ~/.ssh/id_rsa_scriptura
