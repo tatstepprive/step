@@ -1,0 +1,120 @@
+body {
+	background-color: #232323;
+	margin: 0;
+	font-family: "Montserrat", "Avenir";
+}
+
+.square {
+	width: 30%;
+	background: purple;
+	padding-bottom: 30%;
+	float: left;
+	margin: 1.66%;
+	border-radius: 15%;
+	transition: background 0.6s;
+	-webkit-transition: background 0.6s;
+	-moz-transition: background 0.6s;
+}
+
+.generalWord{
+	font-size: 3rem;
+	font-weight: 900;
+}
+
+#test {
+	margin: 20px auto;
+	max-width: 70%;
+	text-align: center;
+}
+
+.container {
+	/*border: 5px solid red;*/
+	margin: 20px auto;
+	max-width: 70%;
+	text-align: center;
+	color: white;
+}
+
+
+.inputField{
+	border: 5px solid steelblue;
+	margin: 20px auto;
+	width: 30%;
+	height: 30%;
+	min-height: 75px;
+	font-size: 2rem;
+}
+
+h1 {
+	text-align: center;
+	line-height: 1.1;
+	font-weight: normal;
+	color: white;
+	background: steelblue;
+	margin: 0;
+	text-transform: uppercase;
+	padding: 20px 0;
+}
+span{
+	text-align: center;
+	line-height: 1.1;
+
+	text-transform: uppercase;
+	padding: 20px 30px ;
+}
+p{
+	border: 5px solid blue;
+	font-size: 2.5rem;
+	font-weight: bold;
+}
+
+.correct{
+	color: green;
+}
+
+#colorDisplay {
+	font-size: 200%;
+}
+
+#message {
+	display: inline-block;
+	width: 20%;
+}
+
+#stripe {
+	background: white;
+	height: 30px;
+	text-align: center;
+	color: black;
+}
+
+.rButtons {
+	color: white;
+	margin-bottom: 2%;
+	font-size: 1.5rem;
+}
+
+.selected {
+	color: white;
+	background: steelblue;
+}
+
+button {
+    border-radius: 25%;
+    background: steelblue;
+	text-transform: uppercase;
+	height: 100%;
+	font-weight: 100;
+	color: white;
+	letter-spacing: 1px;
+	font-size: 1.5rem;
+	transition: all 0.3s;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+}
+
+button:hover {
+	color: steelblue;
+	background: white;
+	border-radius: 25%;
+}

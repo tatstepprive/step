@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Latin</title>
+	<link rel="stylesheet" type="text/css" href="latin.css">
+</head>
+
+<body>
+
+	<h1>
+		<br>
+		<span class="generalWord" id="wordNl">TEST</span>
+		<br>
+	</h1>
+	<div id="stripe">
+		<span id="message"></span>
+	</div>
+	<div id="test" class="container">
+		<form method="post" action="/form" autocomplete="off">
+
+			<label for="latin1"></label>
+			<input class="inputField" type="text" id="latin1" placeholder="latin first column" required>
+
+
+			<label for="latin2"></label>
+			<input class="inputField" type="text" id="latin2" placeholder="latin second column" required>
+
+			<div class="rButtons">
+				<input class="form-check-input" type="radio" name="gender"  id="inlineRadio1"
+					value="m" required>
+				<label class="radio-inline" for="inlineRadio1">M</label>
+
+				<input class="form-check-input" type="radio" name="gender" id="inlineRadio2"
+					value="v" required>
+				<label class="radio-inline" for="inlineRadio2">V</label>
+
+				<input class="form-check-input" type="radio" name="gender" id="inlineRadio3"
+					value="o" required>
+				<label class="radio-inline" for="inlineRadio3">O</label>
+			</div>
+			<button id="checkBtn">CHECK</button>
+		</form>
+
+
+	</div>
+	<div id="check" class="container">
+			<p >
+				<span id="lat1Answer">?</span>
+				<span id="lat2Answer">?</span> 
+				<span id="genderAnswer">?</span> 
+			</p>
+			<p class="correct">
+				<span id="lat1Correct" >lat1</span>
+				<span id="lat2Correct">lat2</span> 
+				<span id="genderCorrect">gender</span> 
+			</p>
+		    <button id="nextBtn">NEXT</button>
+	</div>
+	<script type="text/javascript" src="latin.js"></script>
+</body>
+
+</html>
