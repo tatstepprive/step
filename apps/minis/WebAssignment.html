@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Woof</title>
+</head>
+<body>
+<h1>Rusty Steel</h1>
+<p>Hi, I'm a dog. Woof!</p>
+<img src="https://images.unsplash.com/photo-1544568100-847a948585b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60">
+
+<!-- ISSUE: image is not visible when referencing online with https protocol, because of CORB
+
+issue when referencing to image online (visible in dev tools in browser when image is not loaded):
+WebAssignment.html:9 Cross-Origin Read Blocking (CORB) blocked cross-origin response https://www.catsendogs.be/ with MIME type text/html. See https://www.chromestatus.com/feature/5629709824032768 for more details
+
+FIX_1: R-muis 'Adres van afbeelding copieren' and past in src
+dont use R-muis 'Linkadres copieren'
+site for images
+https://unsplash.com/s/photos/dog
+
+FIX_2: use refs to local (downloaded) image like
+<img src="dog.jpg">
+	-->
+
+<h4>Some of my favorite places</h4>
+<ul>
+	<li>The beach</li>
+	<li>The dog park</li>
+	<li>The fire hydrant</li>
+</ul>
+
+<p>Make sure to follow me on <a href="https://www.google.be"> Google </a></p>
+</body>
+</html>

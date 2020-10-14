@@ -1,0 +1,16 @@
+body{
+	border: 20px solid #c7c9c8;
+	width: 70%;
+	margin: 20px auto;
+	padding: 25px;
+}
+
+h3{
+	color: #7ba1ed;
+	text-transform: uppercase;
+}
+
+.vertical{
+	border-left: 5px solid #c7c9c8;
+	padding-left: 10px;
+}
