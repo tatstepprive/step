@@ -19,3 +19,29 @@ git reset bla
 git status
 #bla is not more visible, gitignore is applied
 -------------------
+# default push
+git push origin master
+# to make shorter 
+git push
+# execute config
+git config --global push.default current
+# it will add in .gitconfig for user
+[push]
+        default = current
+-------------------
+#rename git project, what to do on local hosts
+Summary of commands releated on renaming mediris to eva projects to 
+execute on localhost:
+#open terminal
+cd workspace-intellij/mediris-ui
+git remote set-url origin 
+git@itinera-git-dev.rkw-onafts.be:dev/eva-ui.git
+cd ..
+mv mediris-ui eva-ui
+cd mediris
+git remote set-url origin git@itinera-git-dev.rkw-onafts.be:dev/eva.git
+cd ..
+mv mediris eva
+#close terminal !!! If  you dont want always get notifications 'Please 
+update your Git remote' ... 
+-------------------

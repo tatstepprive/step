@@ -1,0 +1,20 @@
+#find shortkeys command line
+gsettings list-recursively | awk '/hotkey/||/keybinding/||/media-key/' | 
+less
+#find terminal shortkey
+gsettings list-recursively | awk '/hotkey/||/keybinding/||/media-key/' | 
+grep -i terminal
+================================
+Shortcuts conflicts
+shortcut 		UBUNTU 			IntelliJ
+Ctrl-Alt-S		shade window action	open settings dialog
+Ctrl-Alt-L		lock screen		reformat code
+Ctrl-Alt-T		launch terminal		surround with
+Ctrl-Alt-arrow key      switch workspace	navigation
+Alt-F7			move window		find usages
+Alt-F8			resize window		evaluate expression
+
+Solution the keys are disabled. Some of them are reassigned to other 
+combination
+Ctrl-Alt-T         Ctrl-Alt-1
+Ctrl-Alt-L	   Ctrl-Alt-2
