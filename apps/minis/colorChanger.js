@@ -26,7 +26,11 @@ function getRandomColor(){
 	var red=Math.floor(Math.random()*256);
 	var green=Math.floor(Math.random()*256);
 	var blue=Math.floor(Math.random()*256);
-	return "rgb("+red +", "+green+", "+ blue +")";
+	//return "rgb("+red +", "+green+", "+ blue +")";
+	//other way to return is:
+	return `rgb(${red}, ${green}, ${blue})`;
+	// changing backstiks to $() DOES NOT WORK!!!, like it possible in bash scripts
+	//return $(rgb(${red}, ${green}, ${blue}));
 }
 
 myButton.addEventListener("click", randomColor);
