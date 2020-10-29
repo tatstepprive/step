@@ -25,3 +25,5 @@ echo "Temp directory AFTER the cleanup"
 echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 dir
 =======================
+#show graphic card and other info, run like you run cmd
+dxdiag
