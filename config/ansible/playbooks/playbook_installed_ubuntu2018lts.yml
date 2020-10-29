@@ -1,0 +1,188 @@
+--- 
+-
+  hosts: localhost
+#  hosts: all
+  become: true
+  tasks:
+    -
+      apt: 
+         update_cache: yes
+         cache_valid_time: 3600
+      name: "Run apt-get update if it is was longer than 3600 seconds ago."
+    -
+      apt: "name=imagemagick state=installed"
+      name: "Ensure imagemagick is installed."
+    -
+      apt: "name=sshfs state=installed"
+      name: "Ensure sshfs is installed."
+    -
+      apt: "name=xvfb state=installed"
+      name: "Ensure xvfb is installed."
+    -
+      apt: "name=samba state=installed"
+      name: "Ensure samba is installed."
+    -
+      apt: "name=gimp state=installed"
+      name: "Ensure gimp is installed."
+    -
+      apt: "name=emacs state=installed"
+      name: "Ensure emacs is installed."
+    -
+      apt: "name=meld state=installed"
+      name: "Ensure meld is installed."
+    -
+      apt: "name=unrar state=installed"
+      name: "Ensure unrar is installed."
+    -
+      apt: "name=synaptic state=installed"
+      name: "Ensure synaptic is installed."
+    -
+      apt: "name=dkms state=installed"
+      name: "Ensure dkms is installed."
+    -
+      apt: "name=gconf-editor state=installed"
+      name: "Ensure gconf-editor is installed."
+    -
+      apt: "name=dconf-editor state=installed"
+      name: "Ensure dconf-editor is installed."
+    -
+      apt: "name=curl state=installed"
+      name: "Ensure curl is installed."
+    -
+      apt: "name=aptitude state=installed"
+      name: "Ensure aptitude is installed."
+    -
+      apt: "name=nmon state=installed"
+      name: "Ensure nmon is installed."
+    -
+      apt: "name=iotop state=installed"
+      name: "Ensure iotop is installed."
+    -
+      apt: "name=compizconfig-settings-manager state=installed"
+      name: "Ensure compizconfig-settings-manager is installed."
+    -
+      apt: "name=virtualbox state=installed"
+      name: "Ensure virtualbox is installed."
+    -
+      apt: "name=unity-tweak-tool state=installed"
+      name: "Ensure unity-tweak-tool is installed."
+    -
+      apt: "name=git state=installed"
+      name: "Ensure git is installed."
+    -
+      apt: "name=gitk state=installed"
+      name: "Ensure gitk is installed."
+    -
+      apt: "name=mesa-utils state=installed"
+      name: "Ensure mesa-utils is installed."
+    -
+      apt: "name=keepass2 state=installed"
+      name: "Ensure keepass2 is installed."
+    -
+      apt: "name=xrdp state=installed"
+      name: "Ensure xrdp is installed."
+    -
+      apt: "name=postfix state=installed"
+      name: "Ensure postfix is installed."
+    -
+      apt: "name=mailutils state=installed"
+      name: "Ensure mailutils is installed."
+    -
+      apt: "name=alacarte state=installed"
+      name: "Ensure alacarte is installed."
+    -
+      apt: "name=ntp state=installed"
+      name: "Ensure NTP (for time synchronization) is installed."
+    -
+      name: "Ensure NTP is running."
+      service: "name=ntp state=started enabled=yes"
+# Dont install: blocked time sync with ntp
+#    -
+#      apt: "name=ntpdate state=installed"
+#      name: "Ensure ntpdate is installed."
+# Deinstall: ntpdate
+    -
+      apt: "name=ntpdate state=absent purge=yes force=yes"
+      name: "Ensure ntpdate is NOT installed."
+    -
+      apt: "name=traceroute state=installed"
+      name: "Ensure traceroute is installed."
+    -
+      apt: "name=cifs-utils state=installed"
+      name: "Ensure cifs-utils is installed."
+    -
+      apt: "name=xdotool state=installed"
+      name: "Ensure xdotool is installed."
+    -
+      apt: "name=wmctrl state=installed"
+      name: "Ensure wmctrl is installed."
+    -
+      apt: "name=nmap state=installed"
+      name: "Ensure nmap is installed."
+    -
+      apt: "name=tree state=installed"
+      name: "Ensure tree is installed."
+    -
+      apt: "name=xtightvncviewer state=installed"
+      name: "Ensure xtightvncviewer is installed."
+# To view selenium tests running in buffered xvfb: install vncviewer (default xtightvncviewer), x11vnc
+    -
+      apt: "name=xtightvncviewer state=installed"
+      name: "Ensure xtightvncviewer is installed."
+#install vncviewer not working in ubuntu18.04lts 'vncviewer' has no installation candidate
+#    -
+#      apt: "name=vncviewer state=installed"
+#      name: "Ensure vncviewer is installed."
+    -
+      apt: "name=x11vnc state=installed"
+      name: "Ensure x11vnc is installed."
+    -
+      apt: "name=gawk state=installed"
+      name: "Ensure gawk is installed. Used in scripts to compare jks"
+    -
+      apt: "name=resolvconf state=installed"
+      name: "Ensure resolvconf is installed. Used to configure resolv.conf"
+    -
+      apt: "name=net-tools state=installed"
+      name: "Ensure net-tools is installed. Used to view ifconfig"
+    -
+      apt: "name=libcanberra-gtk-module state=installed"
+      name: "Ensure libcanberra-gtk-module is installed. Dependency for sqldeveloper"
+    -
+      apt: "name=libcanberra-gtk3-module state=installed"
+      name: "Ensure libcanberra-gtk3-module is installed. Dependency for sqldeveloper"
+    -
+      apt: "name=gnome-tweak-tool state=installed"
+      name: "Ensure gnome-tweak-tool is installed. To customise date and time"
+    -
+      apt: "name=ldap-utils state=installed"
+      name: "Ensure ldap-utils is installed. To test ldap connection command line"
+    -
+      apt: "name=vinagre state=installed"
+      name: "Ensure vinagre is installed remote desktop tool like VNC server to view the client machine remotely (used for Famicontrol)"
+    -
+      apt: "name=fluxbox state=installed"
+      name: "Ensure fluxbox is installed. Fluxbox is for the X Window System"                                                                                                                     
+    -
+      apt: "name=rdesktop state=installed"
+      name: "Ensure rdesktop is installed. To connect to windows test slaves via command line"
+    -
+      apt: "name=freerdp2-x11 state=installed"
+      name: "Ensure freerdp2-x11 is installed. To connect to windows test slaves via command line. Support Win10"
+    -
+      apt: "name=npm state=installed"
+      name: "Ensure npm is installed."
+    -
+      apt: "name=phantomjs state=installed"
+      name: "Ensure phantomjs is installed."
+
+    -
+      apt: "name=cntlm state=installed"
+      name: "Ensure cntlm is installed. To support proxy config locally"
+    -
+      apt: "name=apache2 state=installed"
+      name: "Ensure apache2 is installed. To support proxy pac locally"
+    -
+      apt: "name=s-nail state=installed"
+      name: "Ensure s-nail is installed. To support send msg via command line"
+
