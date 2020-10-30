@@ -1,0 +1,30 @@
+--- 
+-
+  hosts: localhost
+#  hosts: all
+  become: true
+  vars:
+      JAVA_INSTALL_DIR: /usr/lib/jvm/java-8-sun
+  tasks:
+    -
+      name: "Update-alternatives install java 8."
+      shell:
+          cmd: "for i in $(ls -p {{ JAVA_INSTALL_DIR }}/bin/ | grep -v /); do echo i=$i; update-alternatives --install /usr/bin/$i $i {{ JAVA_INSTALL_DIR }}/bin/$i 1; done"
+      register: out
+    -
+      name: debug out             
+      debug: var=out             
+    -
+      name: debug out
+      debug: 'msg="{{ out.stdout }}"'
+    -
+      name: "Update-alternatives set java 8."
+      shell:
+          cmd: "for i in $(ls -p {{ JAVA_INSTALL_DIR }}/bin/ | grep -v /); do echo i=$i; update-alternatives --set $i {{ JAVA_INSTALL_DIR }}/bin/$i; done"
+      register: out
+    -
+      name: debug out
+      debug: var=out
+    -
+      name: debug out
+      debug: 'msg="{{ out.stdout }}"'

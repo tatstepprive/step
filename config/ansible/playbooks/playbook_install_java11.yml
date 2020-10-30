@@ -1,0 +1,67 @@
+--- 
+-
+  hosts: localhost
+#  hosts: all
+  become: true
+  vars:
+      JAVA_FILE: jdk-11.0.9_linux-x64_bin.tar.gz
+      LINK_NAME: java-11-sun
+      SOURCE_DIR: ~/Downloads
+      JAVA_INSTALLS_DIR: /usr/lib/jvm
+  tasks:
+    -
+      name: "Make java install dirs."
+      file:
+          path: "{{JAVA_INSTALLS_DIR}}"
+          owner: root
+          group: root
+          state: directory
+      tags:
+          mk_dir
+    -
+      name: "Unarchive java {{JAVA_FILE}} artifact to dir {{JAVA_INSTALLS_DIR}} on host."
+      unarchive:
+          dest: "{{ item.dest }}"
+          src: "{{ item.src }}"
+          list_files: yes
+      with_items:
+          - {
+              dest: "{{JAVA_INSTALLS_DIR}}",
+              src: "{{SOURCE_DIR}}/{{JAVA_FILE}}"
+            }
+      register: archive_contents
+      tags:
+          cp_artifact
+
+    -
+      name: debug archive_contents
+      debug: var=archive_contents
+      tags:
+          cp_artifact
+    -
+      name: debug archive_contents
+      debug: 'msg="Subfolder: {{archive_contents.results[0].files[0].split("/")[0]}}"'
+      tags:
+          cp_artifact
+ 
+    - 
+      name: "Make soft links."
+      file: 
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: root
+          group: root
+          state: link
+      with_items: 
+          - {
+              src: "{{ archive_contents.results[0].files[0].split('/')[0] }}",
+              dest: "{{JAVA_INSTALLS_DIR}}/{{LINK_NAME}}"
+            }
+          - {
+              src: "{{ archive_contents.results[0].files[0].split('/')[0] }}",
+              dest: "{{JAVA_INSTALLS_DIR}}/java"
+            }
+
+      tags:
+         make_links
+

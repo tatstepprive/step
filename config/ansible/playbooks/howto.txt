@@ -1,0 +1,1 @@
+ ansible-playbook playbook_install_java11.yml --tags mk_dir --limit localhost --ask-become-pass
