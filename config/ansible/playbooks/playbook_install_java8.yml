@@ -40,7 +40,7 @@
           cp_artifact
     -
       name: debug archive_contents
-      debug: 'msg="Subfolder: {{archive_contents.results[0].files[0]}}"'
+      debug: 'msg="Subfolder: {{archive_contents.results[0].files[0].split("/")[0]}}"'
       tags:
           cp_artifact
  
@@ -70,11 +70,11 @@
           state: link
       with_items: 
           - {
-              src: "{{ archive_contents.results[0].files[0] }}",
+              src: "{{ archive_contents.results[0].files[0].split('/')[0] }}",
               dest: "{{JAVA_INSTALLS_DIR}}/{{LINK_NAME}}"
             }
           - {
-              src: "{{ archive_contents.results[0].files[0] }}",
+              src: "{{ archive_contents.results[0].files[0].split('/')[0] }}",
               dest: "{{JAVA_INSTALLS_DIR}}/java"
             }
 

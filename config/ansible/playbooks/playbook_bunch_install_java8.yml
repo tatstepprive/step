@@ -1,0 +1,12 @@
+--- 
+- name: include show version
+  include: playbook_show_java_version.yml
+
+- name: Include install
+  include: playbook_install_java8.yml
+
+- name: Include set as default
+  include: playbook_set_java_default8.yml
+
+- name: include show version
+  include: playbook_show_java_version.yml
