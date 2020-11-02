@@ -36,16 +36,18 @@ var gender="";
 checkBlock.style.display="none";
 
 latin1Input.addEventListener("change", function(){
-	wordLat1AnswerDisplay.textContent=this.value;
-	var correct=this.value===wordLat1CorrectDisplay.textContent;
-	console.log("TEST1: "+wordLat2AnswerDisplay.textContent+" "+this.value);
+        var input=this.value.trim();
+	wordLat1AnswerDisplay.textContent=input;
+	var correct=input===wordLat1CorrectDisplay.textContent;
+	console.log("TEST1: correct=["+wordLat2AnswerDisplay.textContent+"] answer=["+input+"]");
 	wordLat1AnswerDisplay.style.color=correct?"green":"red";
 });
 
 latin2Input.addEventListener("change", function(){
-	wordLat2AnswerDisplay.textContent=this.value;
-	var correct=this.value===wordLat2CorrectDisplay.textContent;
-	console.log("TEST2: "+wordLat2AnswerDisplay.textContent+" "+this.value);
+        var input=this.value.trim();
+	wordLat2AnswerDisplay.textContent=input;
+	var correct=input===wordLat2CorrectDisplay.textContent;
+	console.log("TEST2: correct=["+wordLat2AnswerDisplay.textContent+"] answer=["+input+"]");
 	wordLat2AnswerDisplay.style.color=correct?"green":"red";
 });
 
@@ -68,18 +70,18 @@ function initWord(){
 function checkWord(){
 	var questionMarkIfEmpty=latin1Input.value?latin1Input.value:"?";
 	wordLat1AnswerDisplay.textContent=questionMarkIfEmpty;
-    var correct=wordLat1CorrectDisplay.textContent===latin1Input.value;
-    wordLat1AnswerDisplay.style.color=correct?"green":"red";
-    questionMarkIfEmpty=latin2Input.value?latin2Input.value:"?";
-    correct=wordLat2CorrectDisplay.textContent===latin2Input.value;
+        var correct=wordLat1CorrectDisplay.textContent===latin1Input.value.trim();
+        wordLat1AnswerDisplay.style.color=correct?"green":"red";
+        questionMarkIfEmpty=latin2Input.value?latin2Input.value:"?";
+        correct=wordLat2CorrectDisplay.textContent===latin2Input.value.trim();
 	wordLat2AnswerDisplay.textContent=questionMarkIfEmpty;
-    wordLat2AnswerDisplay.style.color=correct?"green":"red";
-    gender=getGenderInput();
-    questionMarkIfEmpty=gender?gender:"?";
-    genderAnswerDisplay.textContent=questionMarkIfEmpty;
-    console.log("selected gender="+questionMarkIfEmpty);
-    correct=genderCorrectDisplay.textContent===genderAnswerDisplay.textContent;
-    genderAnswerDisplay.style.color=correct?"green":"red";
+        wordLat2AnswerDisplay.style.color=correct?"green":"red";
+        gender=getGenderInput();
+        questionMarkIfEmpty=gender?gender:"?";
+        genderAnswerDisplay.textContent=questionMarkIfEmpty;
+        console.log("selected gender="+questionMarkIfEmpty);
+        correct=genderCorrectDisplay.textContent===genderAnswerDisplay.textContent;
+        genderAnswerDisplay.style.color=correct?"green":"red";
 }
 
 function getGenderInput(){
