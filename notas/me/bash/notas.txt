@@ -27,3 +27,7 @@ find
 #remove file containing started dashes
 #Instead of doing rm -log you simply add ./ to the start and run this 
 rm ./-log.txt
+#=============================
+#using curl
+curl -H "Accept: application/json" https://icanhazdadjoke.com/
+curl -H "Accept: text/plain" https://icanhazdadjoke.com/
