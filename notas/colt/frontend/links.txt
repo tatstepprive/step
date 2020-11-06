@@ -18,3 +18,10 @@ https://unsplash.com/
 
 font awesome free icons:
 https://fontawesome.com/icons?d=gallery&m=free
+
+json:
+#json doc
+https://www.json.org/json-en.html
+#json validator formatter
+https://jsonformatter.curiousconcept.com/#
+
