@@ -1,0 +1,61 @@
+--- 
+-
+  hosts: localhost
+  become: true
+
+  tasks: 
+    -
+      name: "Copy chrome configuration files."
+      copy:
+          dest: "{{ item.dest }}"
+          src: "{{ item.src }}"
+          group: dev
+          owner: dev
+          mode: "u=rw,g=rw,o=r"
+      with_items:
+          - {
+              dest: "/tmp/google-chrome-stable_current_amd64.deb",
+              src: "google-chrome-stable_current_amd64.deb"
+            }
+    - 
+      name: "Install a .deb chrome package"
+      apt:
+         deb: "/tmp/google-chrome-stable_current_amd64.deb"
+    -
+      name: "Install dependencies."
+      shell: "apt-get -f install"
+    -
+      name: "Run apt-get update"
+      apt: 
+         update_cache: yes
+      tags:
+          - update
+    -
+      name: "Kill chrome browser"
+      shell: "killall chrome"
+      ignore_errors: yes
+      tags:
+          - update
+    -
+      name: "Update the repository cache and update package google-chrome to latest version"
+      apt:
+         name: google-chrome-stable
+         state: latest
+         update_cache: yes
+      tags:
+          - update
+    -
+      name: "Get google chrome version"
+      shell: "google-chrome -version"
+      changed_when: False
+      register: chrome_version
+      tags:
+          - version
+          - update
+    -
+      name: "Show google chrome version"
+      debug: msg="google-chrome is {{ chrome_version.stdout }}"
+      tags:
+          - version
+          - update
+
