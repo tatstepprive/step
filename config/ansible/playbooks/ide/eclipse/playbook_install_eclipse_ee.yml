@@ -36,12 +36,12 @@
           cp_artifact
  
     - 
-      name: Copy file with owner and permissions
+      name: Copy desktop file with owner and permissions
       copy:
          src: Eclipse.desktop
-         dest: "/home/{{USER}}/.local/share/applications/Eclipse.desktop"
-         owner: "{{USER}}"
-         group: "{{USER}}"
-         mode: '0755'
+         dest: "/usr/share/applications/Eclipse.desktop"
+         owner: root
+         group: root
+         mode: '0644'
 
 
