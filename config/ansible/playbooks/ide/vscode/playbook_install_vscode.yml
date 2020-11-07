@@ -1,0 +1,73 @@
+--- 
+-
+  hosts: localhost
+#  hosts: all
+  become: true
+  vars:
+      FILE: code-stable-x64-1604601121.tar.gz
+      LINK_NAME: vscode
+      SOURCE_DIR: ~/Downloads
+      INSTALL_DIR: /opt
+  tasks:
+    -
+      name: "Unarchive {{FILE}} artifact to dir {{INSTALL_DIR}} on host."
+      unarchive:
+          dest: "{{ item.dest }}"
+          src: "{{ item.src }}"
+          list_files: yes
+      with_items:
+          - {
+              dest: "{{INSTALL_DIR}}",
+              src: "{{SOURCE_DIR}}/{{FILE}}"
+            }
+      register: archive_contents
+      tags:
+          cp_artifact
+
+    -
+      name: debug archive_contents
+      debug: var=archive_contents
+      tags:
+          cp_artifact
+    -
+      name: debug archive_contents
+      debug: 'msg="Subfolder: {{archive_contents.results[0].files[0].split("/")[0]}}"'
+      tags:
+          cp_artifact
+    -
+      name: "Make {{INSTALL_DIR}} soft links."
+      file:
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: root
+          group: root
+          state: link
+      with_items:
+          - {
+              src: "{{ archive_contents.results[0].files[0].split('/')[0] }}",
+              dest: "{{INSTALL_DIR}}/{{LINK_NAME}}"
+            }
+    -
+      name: "Make /usr/local/bin soft links."
+      file:
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: root
+          group: root
+          state: link
+      with_items:
+          - {
+              src: "{{INSTALL_DIR}}/{{LINK_NAME}}/code",
+              dest: "/usr/local/bin/code"
+            }
+
+    - 
+      name: Copy desktop with owner and permissions
+      copy:
+         src: code.desktop
+         dest: /usr/share/applications/code.desktop
+         owner: root
+         group: root
+         mode: '0644'
+
+
