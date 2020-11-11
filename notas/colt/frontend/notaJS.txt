@@ -1,1 +1,69 @@
+#Links
 http://latentflip.com/loupe/
+#====================================
+#Node js commands
+#Init node project
+npm init
+#Add dependency to nodejs project
+npm install <pkgName>
+npm i <pkgName>
+#Add all dependencies
+npm install
+npm i
+#Run application
+node index.js
+#Build application, run tests
+npm build
+#Example
+npm init
+npm i cowsay figlet colors
+nano index.js
+node index.js
+
+#======================================
+Maven vs npm
+https://stackoverflow.com/questions/38388824/is-maven-similar-to-npm
+mvn vs npm
+pom.xml vs package.json
+~/.m2/repository vs <projectdir>/node_modules
+
+
+Common features:
+
+    Both tools support dynamic fetch of dependencies ( artifacts | packages ) based on a descriptor file pom.xml|package.json, and also allow you to deploy | publish your own artifacts | packages.
+
+    They both have a default public repository | registry ( http://repo.maven.apache.org/maven2/ | https://registry.npmjs.org), but 3rd-party can also be used (via settings.xml|.npmrc ).
+
+    They both support the concept of build-level dependencies (plugins | devDependencies used in scripts). *Maven supports provided dependencies also but this does not seem to apply to npm, since javascript is rarely deployed into containers.
+
+    They both support dependency namespacing: groupId|scope
+Differrences:
+
+    maven has an additional local repository(cache):
+        No need to fetch again the same dependency for differrent projects.
+        Artifacts that are installed locally, are automatically accessible by other local projects.
+
+    dependencies from a project build in maven are downloaded in <homedir>/.m2. With npm they are downloaded in <projectdir>/node_modules.
+
+    Building in maven is commonly a one-step process: mvn package (fetch deps , build). In npm it is a 2-step process: npm install (fetch deps) , npm build (build)
+
+    maven defines build lifecycles (for building,testing,deploying) consisted of phases, to which default operations(plugin goals) attach, based on differrent packaging options(.jar,.war,.ear e.t.c). You can then overwrite these operations, or inject new ones (via the plugin system). This provides kind of an out-of-the box solution for build,docgen,test,deploy e.t.c.
+    npm approach is more simplistic ( see: scripts)
+
+    Due to the above, npm is labeled as a package-management tool for javascript while maven is labeled as a build-automation and dependency-management tool for java.
+
+    In maven setting-up the build process more commonly involves editing the pom.xml.
+    In npm it involves writing code or configuring complementary build tools like gulp,webpack e.t.c
+
+    For some reason version ranges defined by users in npm modules, are much more loose than in maven. This can cause issues with transitive dependencies, that is why an additional file was recently added: package-lock.json
+
+    With npm it is much more straightforward to start a new project: npm init. With maven, you need to know how to write a minimal pom.xml, or read about archetypes.
+
+    In general it is much more common to edit pom.xml than package.json. E.g. adding dependencies in maven is done manually (or via IDE) while in npm via command line.
+
+    As with all build tools, you can call one tool from inside the other, but I think its much more common to call npm from inside maven, than the opposite.
+
+    npm supports dev,production builds. In maven this needs to be defined through profiles.
+#===================================================
+
+
