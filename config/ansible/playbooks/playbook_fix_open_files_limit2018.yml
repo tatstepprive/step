@@ -1,0 +1,29 @@
+--- 
+- 
+  hosts: localhost
+  become: true
+  vars:
+      FILE_LIMIT: 65535
+  tasks: 
+    - 
+      name: "Fix hard limit."
+      lineinfile:
+          dest: /etc/security/limits.conf
+          line: '*             hard    nofile          {{FILE_LIMIT}}' 
+    -
+      name: "Fix soft limit."
+      lineinfile:
+          dest: /etc/security/limits.conf
+          line: '*             soft    nofile          {{FILE_LIMIT}}'
+    - 
+      name: "Fix user limit when graphical login."
+      replace:
+          dest: /etc/systemd/system.conf
+          regexp: '^#DefaultLimitNOFILE='
+          replace: '##DefaultLimitNOFILE=\nDefaultLimitNOFILE={{FILE_LIMIT}}'
+    -
+      name: "Fix open files limit in /etc/sysctl.cof."
+      lineinfile:
+          dest: /etc/sysctl.conf
+          line: 'fs.file-max = {{FILE_LIMIT}}'
+
