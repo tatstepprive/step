@@ -31,3 +31,6 @@ rm ./-log.txt
 #using curl
 curl -H "Accept: application/json" https://icanhazdadjoke.com/
 curl -H "Accept: text/plain" https://icanhazdadjoke.com/
+#=============================
+#create md5 hash, option -n to not include newline produced by echo
+echo -n 'blablaandbla' | md5sum
