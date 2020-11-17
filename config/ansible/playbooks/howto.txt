@@ -1,2 +1,3 @@
  ansible-playbook playbook_install_java11.yml --tags mk_dir --limit localhost --ask-become-pass
  ansible-playbook playbook_install_java11.yml --tags mk_dir --limit localhost --ask-become-pass --extra-vars "version=1.23.45 other_variable=foo"
+ ansible-playbook playbook_fix_open_files_limit2018.yml --limit $MY_HOST --ask-become-pass -i hosts
