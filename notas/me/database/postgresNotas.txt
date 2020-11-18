@@ -40,3 +40,79 @@ https://www.pgbouncer.org/config.html
 #Files:
 /var/log/pgbouncer/pgbouncer.log
 =================================
+Schema = namespace and contains db objects as tables, views, indexes, datatypes, functions, stored procedures and operators
+to access object = select <schema_name>.<object_name>
+Database 1---------n Schemas ---------- n Tables
+Schema ------1 Database
+Default: there is 2 db available postgres and template1
+Public is default schema in every new database
+Schema path= LIST of schemas to look for a table
+psql : show search_path
+
+User=ROLE_NAME
+User (role) can access own or granted usage schema
+GRANT USAGE ON SCHEMA <schema_name> to <role_name>
+Default: user can use and create object in public schema
+
+ROLE=USER
+GROUP ROLE= role can contain other roles
+pg_<role_name> = starting with pg are the roles reserved by system
+select rolename from pg_roles; --show all roles
+psql: \du   --show roles except pg_ roles
+
+psql line and user:
+<dbname>=> //usual user
+<dbname>=# //super user
+
+-- is comment in sql
+sql is ignoring case expept between ""
+
+pgsql vs psql?
+pgsql 
+psql= command line tool to connect db, terminal program
+pgAdmin= client program with graphic interface
+
+==========================================
+env variables:
+PGHOST server host OR flag -h 
+PGPORT server port OR flag -p
+PGUSER user or flag -U
+PGPASSWORD password to connect
+PGDATA database storage area on disk or flag -D
+default is /usr/local/pgsql/data or /var/lib/pgsql/data
+==========================================
+select version()
+postgres --version
+psql --version
+/var/lib/pgsql/<version>/data/postgresql.conf
+==========================================
+Database: separate db for each project or user
+createdb <db_name> 
+db_name=starts with a letter and contain 63 bytes (default db_name=user_name)
+/usr/local/pgsql/bin/createdb
+dropdb <db_name>
+psql <db_name>
+psql //and nothing as db_name where username(role)=db_name
+Par default: username=dbname=1 schema with name public
+On project you can use too:
+1 user <app-name>user_<env=dev,acc,prd> exp: blauser_dev
+1 db <app-name>-<env=dev,acc,prd> exp: bla-dev
+A lot of schema <other-user-name>-service, public
+===========================
+psql \du = show users (roles)
+psql \h  = help
+psql \q  = quit
+psql \?  = help
+psql \d  = show tables
+psqi \i  = reads file , connect as psql -s mydb and then \i myfile.sql
+===========================
+SQL
+create table <table-name> (...); 
+drop table <table-name>;
+insert into table <table-name> (...) values (...); 
+insert more data faster using COPY command on backend (server side):
+COPY <table_name> from /path/to/file.txt
+Transaction=all or notning operation
+BEGIN;
+sql code
+COMMIT;
