@@ -34,3 +34,10 @@ curl -H "Accept: text/plain" https://icanhazdadjoke.com/
 #=============================
 #create md5 hash, option -n to not include newline produced by echo
 echo -n 'blablaandbla' | md5sum
+#============================
+#search in pdf file with grep
+pdfgrep -in max_conn file.pdf
+#===========================
+#network diagnostic tool mtr hostname
+mtr www.google.be
+#==========================
