@@ -41,3 +41,7 @@ pdfgrep -in max_conn file.pdf
 #network diagnostic tool mtr hostname
 mtr www.google.be
 #==========================
+#ubuntu open pdf file 
+#or define alias open=xdg-open in .bashrc and use open file.pdf
+xdg-open file.pdf
+#=========================
