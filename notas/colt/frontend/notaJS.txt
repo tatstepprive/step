@@ -10,6 +10,9 @@ npm i <pkgName>
 #Add all dependencies
 npm install
 npm i
+# loglevel Must be one of: silent, error, warn, notice, http, timing, info, verbose, silly
+npm --loglevel info install
+npm --loglevel verbose install
 #Run application
 node index.js
 #Build application, run tests
@@ -19,7 +22,23 @@ npm init
 npm i cowsay figlet colors
 nano index.js
 node index.js
+#======================================
+#nexus npm 
+#Authentication Using Basic Auth
+# see https://help.sonatype.com/repomanager3/formats/npm-registry
+echo -n 'admin:admin123' | openssl base64
 
+#======================================
+#using local file .npmrc
+ cat .npmrc
+strict-ssl=false
+registry=http://<yourhost>:8081/nexus/content/repositories/npm-proxy/
+always-auth=true
+_auth=<your-hash>
+#======================================
+#test via curl request and download artifact
+curl  --noproxy $HOST "http://$HOST:8081/nexus/content/repositories/npm-proxy/@angular-devkit/schematics/"
+curl  --noproxy $HOST "http://$HOST:8081/nexus/content/repositories/npm-proxy/@angular-devkit/architect/-/architect-0.0.2.tgz" --output architect-0.0.2.tgz
 #======================================
 Maven vs npm
 https://stackoverflow.com/questions/38388824/is-maven-similar-to-npm
