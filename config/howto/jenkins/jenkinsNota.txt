@@ -1,0 +1,161 @@
+    #INSTALL jenkins
+      wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+      ls
+      sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
+          /etc/apt/sources.list.d/jenkins.list'
+      ls /etc/apt/sources.list.d/jenkins.list 
+      sudo apt-get update
+     sudo apt-get install jenkins
+     cat /etc/init.d/jenkins 
+     sudo service jenkins status
+     ps -ef| grep -i java
+     sudo service jenkins stop
+     ps -ef| grep -i java
+     sudo shutdown now
+#INSTALL ansible required packages
+     sudo apt-get update
+     sudo apt-get install python-minimal
+#install java via ansible
+#PLUGINS (list is empty), search first to see something in tab available
+#My list to install:
+AnsiColor
+Ant
+Authentication Tokens API 
+   (auto installed with this plugin
+    Credentials Plugin, 
+    Oracle Java SE Development Kit Installer Plugin, 
+    Structs Plugin, 
+    Trilead API Plugin)
+Branch API
+   (auto installe with this plugin
+    Folders Plugin
+    SCM API Plugin)
+Build Time Blame
+   (auto installed with this plugin
+    Bootstrap 4 API Plugin
+    bouncycastle API Plugin
+    Checks API plugin
+    Command Agent Launcher Plugin
+    Credentials Binding Plugin
+    Display URL API
+    Durable Task Plugin
+    ECharts API Plugin
+    Font Awesome API Plugin
+    Git client plugin
+    GIT server Plugin
+    Jackson 2 API Plugin
+    JavaScript GUI Lib: ACE Editor bundle plugin
+    JavaScript GUI Lib: Handlebars bundle plugin
+    JavaScript GUI Lib: jQuery bundles (jQuery and jQuery UI) plugin
+    JavaScript GUI Lib: Moment.js bundle plugin
+    JQuery3 API Plugin
+    JSch dependency plugin
+    JUnit Plugin
+    Lockable Resources plugin
+    Mailer Plugin
+    Matrix Project Plugin
+    Pipeline
+    Pipeline Graph Analysis Plugin
+    Pipeline: API
+    Pipeline: Basic Steps
+    Pipeline: Build Step
+    Pipeline: Declarative
+    Pipeline: Declarative Extension Points API
+    Pipeline: Groovy
+    Pipeline: Input Step
+    a lot of Pipeline...
+    Plain Credentials Plugin
+    Plugin Utilities API Plugin
+    Popper.js API Plugin
+    SCM API Plugin
+    Script Security Plugin
+    Snakeyaml API Plugin
+    SSH Credentials Plugin
+    Timestamper)	
+Build Monitor View	
+Build Timeout
+Build-Publisher
+ChuckNorris
+Command Agent Launcher is NOT AVAILABLE
+Configuration Slicing
+Copy Artifact
+Credentials is NOT AVAILABLE
+Credentials binding is NOT AVAILABLE
+Display URL API is NOT AVAILABLE
+description setter
+disk-usage
+CVS I DO NOT INSTALL
+Docker Pipeline
+    (auto install with this plugin:
+     Docker Commens
+     Docker Pipeline)
+Emma
+Extra Columns
+External Monitor Job Type plugin is NOT AVAILABLE
+Flaky Test Handler
+Gatling
+Git
+  (auto installed with this plugin:
+   OkHttp
+   GitHub API
+   Token Macro)
+Git Client is NOT AVAILABLE
+Github 
+GitHub API
+GitHub Branch Source	
+GitHub Organization Folder
+Green Balls
+JaCoCo
+Javadoc
+Job Configuration History
+Post build task (ipv Hudson post build task)
+Icon Shim
+jQuery (ipv jQuery UI)
+LDAP
+Matrix Authorization Strategy
+Matrix Project is NOT AVAILABLE
+Maven Integration
+Maven Info	
+Maven Release Plug-in
+Monitoring
+Naginator
+Node and Label parameter
+OWASP Markup Formatter
+PAM Authentication plugin
+Parameterized Trigger
+Performance
+Pre SCM BuildStep
+Priority Sorter
+promoted builds	
+Radiator View
+Rebuilder
+SCM API is NOT AVAILABLE
+Shelve Project
+Schedule Build
+SonarQube Scanner
+SSH Build Agents
+Subversion I DO NOT INSTALL
+Selenium
+Status Monitor
+Text Finder
+Test Results Analyzer
+Translation Assistance
+Throttle Concurrent Builds
+View Job Filters	
+WMI Windows Agents Plugin
+Workspace Cleanup
+Xvnc
+#==========================================================
+#when updating use war downloaded for LTS version from
+https://www.jenkins.io/download/
+#==========================================================
+#CONFIG files
+#jenkins home dir
+/var/lib/jenkins
+#secure hash for first login as admin user
+/var/lib/jenkins/secrets/initialAdminPassword
+#disable security (disable logins) 
+# set in config.xml to false <useSecurity>true</useSecurity>
+sudo su jenkins
+cd
+nano +8 config.xml
