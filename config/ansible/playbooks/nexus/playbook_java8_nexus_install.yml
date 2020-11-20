@@ -1,0 +1,70 @@
+--- 
+-
+  hosts: all
+  become: true
+  vars:
+      NEW_VERSION: 171
+      JAVA_FILE: jdk-8u171-linux-x64.tar.gz
+      LINK_NAME: java-8-sun
+      SOURCE_DIR: /etc/ansible/java/rc/
+      JAVA_INSTALLS_DIR: /usr/lib/jvm
+  tasks:
+    -
+      name: "Make java install dirs."
+      file:
+          path: "{{JAVA_INSTALLS_DIR}}"
+          owner: root
+          group: root
+          state: directory
+      tags:
+          mk_dir 
+    -
+      name: "Unarchive java update {{JAVA_FILE}} artifact to dir {{JAVA_INSTALLS_DIR}} on host."
+      unarchive:
+          dest: "{{ item.dest }}"
+          src: "{{ item.src }}"
+          owner: root
+      with_items:
+          - {
+              dest: "{{JAVA_INSTALLS_DIR}}",
+              src: "{{SOURCE_DIR}}/{{JAVA_FILE}}"
+            }
+      tags:
+          cp_artifact
+    -
+      name: "fix java random on host."
+      replace:
+          dest: "{{JAVA_INSTALLS_DIR}}/jdk1.8.0_{{NEW_VERSION}}/jre/lib/security/java.security"      
+          regexp: '^securerandom.source=file:/dev/random'
+          replace: 'securerandom.source=file:/dev/./urandom' 
+      tags:
+         fix_random
+    -
+      name: "fix java urandom on host."
+      replace:
+          dest: "{{JAVA_INSTALLS_DIR}}/jdk1.8.0_{{NEW_VERSION}}/jre/lib/security/java.security"
+          regexp: '^securerandom.source=file:/dev/./random'
+          replace: 'securerandom.source=file:/dev/./urandom'
+      tags:
+         fix_random
+    - 
+      name: "Make soft links."
+      file: 
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: root
+          group: root
+          state: link
+      with_items: 
+          - {
+              src: "jdk1.8.0_{{NEW_VERSION}}",
+              dest: "{{JAVA_INSTALLS_DIR}}/{{LINK_NAME}}"
+            }
+          - {
+              src: "jdk1.8.0_{{NEW_VERSION}}",
+              dest: "{{JAVA_INSTALLS_DIR}}/java"
+            }
+
+      tags:
+         make_links
+

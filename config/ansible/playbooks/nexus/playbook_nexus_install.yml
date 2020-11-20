@@ -1,0 +1,154 @@
+---
+-
+  hosts: all
+  become: true
+  vars:
+      APP: nexus
+      FILE: nexus-2.14.19-01-bundle.tar.gz
+      LINK_NAME: nexus
+      SOURCE_DIR: /etc/ansible/downloads
+      INSTALL_DIR: /usr/local
+      USER: dev
+      REPO_DIR: /mount/data
+  tasks:
+    -
+      name: "Make {{APP}} install dirs."
+      file:
+          path: "{{INSTALL_DIR}}"
+          owner: root
+          group: root
+          state: directory
+      tags:
+          mk_dir
+    -
+      name: "Unarchive {{FILE}} artifact to dir {{INSTALL_DIR}} on host."
+      unarchive:
+          dest: "{{ item.dest }}"
+          src: "{{ item.src }}"
+          owner: dev
+          group: dev
+          list_files: yes
+      with_items:
+          - {
+              dest: "{{INSTALL_DIR}}",
+              src: "{{SOURCE_DIR}}/{{FILE}}"
+            }
+      register: archive_contents
+      tags:
+          cp_artifact
+
+    -
+      name: debug archive_contents
+      debug: var=archive_contents
+      tags:
+          cp_artifact
+    -
+      name: debug archive_contents
+      debug: 'msg="Subfolder: {{archive_contents.results[0].files[0].split("/")[0]}}"'
+      tags:
+          cp_artifact
+
+    -
+      name: "Make soft links."
+      file:
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: root
+          group: root
+          state: link
+      with_items:
+          - {
+              src: "{{ archive_contents.results[0].files[0].split('/')[0] }}",
+              dest: "{{INSTALL_DIR}}/{{LINK_NAME}}"
+            }
+      tags:
+         make_links
+    -
+      name: "Make repo dirs."
+      file:
+          path: "{{ item }}"
+          owner: "{{USER}}"
+          group: "{{USER}}"
+          state: directory
+      with_items:
+          -  "{{REPO_DIR}}/holmes-repository"
+          -  "{{REPO_DIR}}/trivia-repository"
+          -  "{{REPO_DIR}}/eservices-repository"
+          -  "{{REPO_DIR}}/itinera-repository"
+          -  "{{REPO_DIR}}/sonatype-work"
+      tags:
+          mk_repo_dirs
+    -
+      name: "Make repo soft links."
+      file:
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: "{{USER}}"
+          group: "{{USER}}"
+          state: link
+      with_items:
+          - {
+              src: "{{REPO_DIR}}/holmes-repository",
+              dest: "/home/{{USER}}/holmes-repository"
+            }
+          - {
+              src: "{{REPO_DIR}}/trivia-repository",
+              dest: "/home/{{USER}}/trivia-repository"
+            }
+          - {
+              src: "{{REPO_DIR}}/eservices-repository",
+              dest: "/home/{{USER}}/eservices-repository"
+            }
+          - {
+              src: "{{REPO_DIR}}/itinera-repository",
+              dest: "/home/{{USER}}/itinera-repository"
+            }
+      tags:
+         mk_repo_dirs
+    -
+      name: "Config {{APP}} java maxmemory in wrapper.conf."
+      lineinfile:
+          dest: "{{INSTALL_DIR}}/{{LINK_NAME}}/bin/jsw/conf/wrapper.conf"
+          regexp: '^wrapper.java.maxmemory='
+          line: wrapper.java.maxmemory=2000
+          backup: yes
+      tags:
+          config
+    -
+      name: "Config {{APP}} set JAVA_HOME in wrapper.conf."
+      lineinfile:
+          dest: "{{INSTALL_DIR}}/{{LINK_NAME}}/bin/jsw/conf/wrapper.conf"
+          insertbefore: '^wrapper.java.command=java'
+          line: set.JAVA_HOME=/usr/lib/jvm/java-8-sun/
+          backup: yes
+      tags:
+          config
+    -
+      name: "Config {{APP}} ref to JAVA_HOME in wrapper.conf."
+      lineinfile:
+          dest: "{{INSTALL_DIR}}/{{LINK_NAME}}/bin/jsw/conf/wrapper.conf"
+          regexp: '^wrapper.java.command='
+          line: wrapper.java.command=%JAVA_HOME%/bin/java
+          backup: yes
+      tags:
+          config
+    -
+      name: "Config {{APP}} set sonatype-work location in wrapper.conf."
+      lineinfile:
+          dest: "{{INSTALL_DIR}}/{{LINK_NAME}}/bin/jsw/conf/wrapper.conf"
+          insertafter: '^#wrapper.java.additional.8='
+          line: wrapper.java.additional.9=-Dnexus-work={{REPO_DIR}}/sonatype-work/nexus
+          backup: yes
+      tags:
+          config
+    -
+      name: "Config {{APP}} sonatype-work location in nexus.properties."
+      lineinfile:
+          dest: "{{INSTALL_DIR}}/{{LINK_NAME}}/conf/nexus.properties"
+          regexp: '^nexus-work='
+          line: nexus-work={{REPO_DIR}}/sonatype-work/nexus
+          backup: yes
+      tags:
+          config
+
+

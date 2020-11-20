@@ -1,0 +1,59 @@
+--- 
+-
+  hosts: all
+#  hosts: trivia-slaves
+  become: true
+  tasks:
+    -
+      apt: 
+         update_cache: yes
+         cache_valid_time: 3600
+      name: "Run apt-get update if it is was longer than 3600 seconds ago."
+    -
+      apt: "name=curl state=installed"
+      name: "Ensure curl is installed."
+    -
+      apt: "name=nmon state=installed"
+      name: "Ensure nmon is installed."
+    -
+      apt: "name=iotop state=installed"
+      name: "Ensure iotop is installed."
+    -
+      apt: "name=postfix state=installed"
+      name: "Ensure postfix is installed."
+    -
+      apt: "name=mailutils state=installed"
+      name: "Ensure mailutils is installed."
+    -
+      apt: "name=ntp state=installed"
+      name: "Ensure NTP (for time synchronization) is installed."
+    -
+      name: "Ensure NTP is running."
+      service: "name=ntp state=started enabled=yes"
+# Dont install: blocked time sync with ntp
+#    -
+#      apt: "name=ntpdate state=installed"
+#      name: "Ensure ntpdate is installed."
+# Deinstall: ntpdate
+    -
+      apt: "name=ntpdate state=absent purge=yes force=yes"
+      name: "Ensure ntpdate is NOT installed."
+    -
+      apt: "name=traceroute state=installed"
+      name: "Ensure traceroute is installed."
+    -
+      apt: "name=cifs-utils state=installed"
+      name: "Ensure cifs-utils is installed."
+    -
+      apt: "name=nmap state=installed"
+      name: "Ensure nmap is installed."
+    -
+      apt: "name=tree state=installed"
+      name: "Ensure tree is installed."
+    -
+      apt: "name=resolvconf state=installed"
+      name: "Ensure resolvconf is installed. Used to configure resolv.conf"
+    -
+      apt: "name=net-tools state=installed"
+      name: "Ensure net-tools is installed. Used to view ifconfig"
+
