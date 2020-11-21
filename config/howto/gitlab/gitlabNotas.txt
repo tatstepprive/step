@@ -1,0 +1,59 @@
+https://bitnami.com/stack/gitlab/virtual-machine
+It propose to download ova file  bitnami-gitlab-13.5.4-0-linux-debian-10-x86_64.ova to start in virtualbox on localhost
+#I've used install from gitlab
+https://docs.gitlab.com/omnibus/manual_install.html
+https://docs.gitlab.com/ee/install/requirements.html
+https://docs.gitlab.com/ee/install/#next-steps
+https://docs.gitlab.com/omnibus/manual_install.html
+https://docs.gitlab.com/ee/install/requirements.html
+https://docs.gitlab.com/ee/install/#next-steps
+https://about.gitlab.com/install/#centos-7
+https://about.gitlab.com/install/#centos-7?version=ce
+#===========================================================
+#Executed as documented: https://about.gitlab.com/install/#centos-7?version=ce
+sudo yum install -y curl policycoreutils-python openssh-server openssh-clients
+sudo systemctl enable sshd
+sudo systemctl start sshd
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo systemctl reload firewalld
+
+sudo yum install postfix
+sudo systemctl enable postfix
+sudo systemctl start postfix
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+
+#sudo EXTERNAL_URL="https://gitlab.example.com" yum install -y gitlab-ce
+sudo EXTERNAL_URL="http://<hostname>" yum install -y gitlab-ce
+#Use the default account's username root to login, change password
+#==============================================================
+#TODO disable ci/cd
+https://docs.gitlab.com/ee/ci/enable_or_disable_ci.html
+For Omnibus installations, edit /etc/gitlab/gitlab.rb and add the line:
+gitlab_rails['gitlab_default_projects_features_builds'] = false
+# run
+sudo gitlab-ctl reconfigure
+sudo service gitlab restart
+================================================================
+https://stackoverflow.com/questions/11690709/can-a-project-have-multiple-origins
+
+Add remote repo for GitHub
+
+$ git remote add github https://github.com/Company_Name/repository_name.git
+Add remote repo for GitLab
+
+$ git remote add gitlab https://gitlab.com/Company_Name/repository_name.git
+Now you have multiple remotes in the project. Double check with git remote -v
+
+$ git remote -v
+github https://github.com/Company_Name/repository_name.git (fetch)
+github https://github.com/Company_Name/repository_name.git (push)
+gitlab https://gitlab.com/Company_Name/repository_name.git (fetch)
+gitlab https://gitlab.com/Company_Name/repository_name.git (push)
+How do you push to multiple repositories?
+
+$ git push github && git push gitlab
+ git push -u gitlab master
+ git push -u github master
+
+
