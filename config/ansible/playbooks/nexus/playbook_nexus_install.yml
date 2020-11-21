@@ -6,13 +6,22 @@
       APP: nexus
       FILE: nexus-2.14.19-01-bundle.tar.gz
       LINK_NAME: nexus
-      SOURCE_DIR: /etc/ansible/downloads
+      SOURCE_DIR:  ~/Downloads
       INSTALL_DIR: /usr/local
-      USER: dev
+      USER: develop
       REPO_DIR: /mount/data
   tasks:
     -
-      name: "Make {{APP}} install dirs."
+      name: "Make {{APP}} install dirs {{REPO_DIR}}."
+      file:
+          path: "{{REPO_DIR}}"
+          owner: root
+          group: root
+          state: directory
+      tags:
+          mk_dir
+    -
+      name: "Make {{APP}} install dirs {{INSTALL_DIR}}"
       file:
           path: "{{INSTALL_DIR}}"
           owner: root
@@ -25,8 +34,8 @@
       unarchive:
           dest: "{{ item.dest }}"
           src: "{{ item.src }}"
-          owner: dev
-          group: dev
+          owner: "{{ USER }}"
+          group: "{{ USER }}"
           list_files: yes
       with_items:
           - {
