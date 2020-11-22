@@ -1,0 +1,112 @@
+https://help.sonatype.com/docs
+
+System Requirements
+1 java:
+
+2.0-2.5	java: 6 or 7
+2.6.x	java: 7u45+ only
+2.11.2-2.13.0	java:7 and 8u31+ 
+2.14.11+ java: 8
+
+Set java version in:
+Locate the <AppDir>/bin/jsw/conf/wrapper.conf file:
+wrapper.java.command=<path to java>
+
+CPU
+Nexus Repository Manager performance is primarily bounded by IO (disk and network) rather than CPU.  So any reasonably modern 2-4 core CPU will generally be sufficient for normal use.
+
+Memory
+at least 4GB of RAM
+
+Disk
+You should note that downloading some search indexes, like Maven Central, can consume several GB of disk.
+avoid using NFS for the repository manager search index and storage locations, especially in large installations, as this will impact performance
+
+
+===============================
+There are two distributions of the Nexus Repository Manager 2: Nexus Repository Manager OSS and Nexus Repository Manager Pro.
+https://help.sonatype.com/repomanager2/download/download-archives---repository-manager-oss
+==============================
+The Central Repository. When you download and install Maven without any customization, it retrieves components from the Central Repository
+Tools designed to interact Maven repositories translate component coordinates into a URL which corresponds to a location in a Maven repository. If a tool such as Maven is looking for version 1.2.0 of the commons-lang JAR in the group org.apache.commons, this request is translated into:
+
+<repoURL>/org/apache/commons/commons-lang/1.2.0/commons-lang-1.2.0.jar
+
+===============================
+Install
+1 Download
+2 unzip 
+  $ sudo cp nexus-2.14.4-03-bundle.tar.gz /usr/local
+  $ cd /usr/local
+  $ sudo tar xvzf nexus-2.14.4-03-bundle.tar.gz
+  $ sudo ln -s nexus-2.14.4-03 nexus 
+
+he installation directory nexus-<version> has a sibling directory named sonatype-work
+The location of the sonatype-work directory can be customized by altering the nexus-work property in $NEXUS_HOME/conf/nexus.properties
+3 Run
+ On Unix systems, you can start the repository manager detached from the starting shell with the start command even when not yet installed as a service
+ /bin/nexus start
+ tail -f logs/wrapper.log
+ At this point, the repository manager will be running and listening on all IP addresses (0.0.0.0) that are configured for the current host on port 8081
+The default administrator username and password combination is admin and admin123 .
+
+4 Adapt settings:
+Memory and java path
+wrapper.java.maxmemory=2000
+set.JAVA_HOME=<path-to-java>
+wrapper.java.command=%JAVA_HOME%/bin/java 
+
+5Configuring Nexus Repository Manager as a Service (auto reboot)
+https://help.sonatype.com/repomanager2/installing-and-running/configuring-nexus-repository-manager-as-a-service
+Copy $NEXUS_HOME/bin/nexus to /etc/init.d/nexus
+chmod 755 /etc/init.d/nexus
+chown root /etc/init.d/nexus
+Change NEXUS_HOME to the absolute folder location (e.g., NEXUS_HOME="/usr/local/nexus")
+RUN_AS_USER to <your user>
+Change PIDDIR to a directory where this user has read/write permissions. In most Linux distributions, /var/run is only writable by root. The property you need to add to customize the PID file location is wrapper.pidfile. For more information about this property and how it would be configured in wrapper.conf
+
+On ubuntu:
+$ cd /etc/init.d
+$ update-rc.d nexus defaults
+$ service nexus start
+Starting Nexus Repository Manager Pro...
+$ tail -f /usr/local/nexus/logs/wrapper.log
+
+On redhat:
+$ cd /etc/init.d
+$ chkconfig --add nexus
+$ chkconfig --levels 345 nexus on
+$ service nexus start
+Starting Nexus Repository Manager Pro...
+$ tail -f /usr/local/nexus/logs/wrapper.log
+============================
+Your maven builds
+https://help.sonatype.com/repomanager2/maven-and-other-build-tools/apache-maven
+configure nexus repo
+// settings.xml and project pom : priorities
+settings.xml overrides the repositories in the super pom.
+
+Adding Repositories for Missing Dependencies
+If you’ve configured your Maven settings.xml or other build tool configuration to use the public repository group as a mirror for all repositories, you might encounter projects that are unable to retrieve components from your local repository manager installation.
+
+This usually happens because you are trying to build a project that has defined a custom set of repositories and snapshot repositories or relies on the content of other publicly available repositories in its configuration. When you encounter such a project all you have to do is add this repository to your repository manager as a new proxy repository and then add the new proxy repository to the public group.
+
+The advantage of this approach is that no configuration change on the build tool side is necessary at all.
+
+To add the new repository to the public group, find the repository in the Available Repositories list on the right, click on the repository you want to add and drag it to the left to the Ordered Group Repositories list. Once the repository is in the Ordered Group Repositories list you can click and drag the repository within that list to alter the order in which a repository will be searched for a matching component.
+
+“Browsing a Repository Storage” shows you a list of groups and repositories along with the type of the repository and the repository status. To browse the components that are stored in a local repository manager, click on the Browse Storage tab for a repository as shown in Figure 5.4, “Browsing a Repository Storage”.
+
+TIP: When browsing a remote repository you might notice that the tree doesn’t contain all of the components in a repository. When you browse a proxy repository, the repository manager is displaying the components that have been cached locally from the remote repository. If you don’t see an component you expected to see in the repository manager, it only means that it has yet to cache the component locally. If you have enabled remote repository index downloads, it will return search results that may include components not yet downloaded from the remote repository. Figure 5.4, “Browsing a Repository Storage”, is just an example, and you may or may not have the example component available in your repository manager.
+
+Viewing the Artifact Information
+Once you located an archive in the repository index or storage or via a search the right-hand panel will at minimum show the Artifact information tab as visible in Figure 5.6, “Viewing the Artifact Information”. Besides showing details like the Repository Path, Size, Checksums, location of the component and other details, you are able to download and delete the component with the respective buttons.
+
+https://help.sonatype.com/repomanager2/using-the-user-interface/searching-for-components
+https://help.sonatype.com/repomanager2/using-the-user-interface/uploading-components
+To upload components to a repository, select a hosted repository in the Repositories panel and then click on the Artifact Upload tab, which will display the tab shown in Figure 5.27, “Component Upload Tab”.
+https://help.sonatype.com/repomanager2/configuration/managing-repositories
+https://help.sonatype.com/repomanager2/configuration/managing-scheduled-tasks
+https://help.sonatype.com/repomanager2/configuration/logging
+https://help.sonatype.com/repomanager2/managing-maven-settings/nexus-m2settings-maven-plugin
+https://help.sonatype.com/repomanager2/node-packaged-modules-and-npm-registries
