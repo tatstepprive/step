@@ -36,6 +36,17 @@ registry=http://<yourhost>:8081/nexus/content/repositories/npm-proxy/
 always-auth=true
 _auth=<your-hash>
 #======================================
+#npm clean
+rm -fr node_modules/
+npm cache clean --force
+#and then build from nexus
+#======================================
+#npm audit disable 1 way
+#https://docs.npmjs.com/auditing-package-dependencies-for-security-vulnerabilities
+npm set audit false
+#npm audit disable 2 way
+npm install example-package-name --no-audit
+#======================================
 #test via curl request and download artifact
 curl  --noproxy $HOST "http://$HOST:8081/nexus/content/repositories/npm-proxy/@angular-devkit/schematics/"
 curl  --noproxy $HOST "http://$HOST:8081/nexus/content/repositories/npm-proxy/@angular-devkit/architect/-/architect-0.0.2.tgz" --output architect-0.0.2.tgz
