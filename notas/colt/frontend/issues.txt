@@ -30,3 +30,11 @@ Issue4
 layout of navbar is bad
 FIX1: use correct bootstrap version 4 versus 3 
 ==============================
+We have next issue (tested on npm version 6.14.6): 
+npm http fetch POST 400 http://nexus-test:8081/nexus/content/repositories/npm-all/-/npm/v1/security/audits/quick 140ms
+To my opinion it's related to this known issue:
+error 400 Bad Request - POST https://registry.npmjs.org/-/npm/v1/security/audits
+see more details:
+https://github.com/npm/registry-issue-archive/issues/320
+FIX: no fix, waiting that issue is resolved
+=============================
