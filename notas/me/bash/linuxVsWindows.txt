@@ -1,0 +1,12 @@
+Linux			Windows
+ls -l			dir
+cp			copy
+mv			ren
+mv			move
+rm			del
+diff			fc
+grep			find
+man cmd			cmd /?
+pwd			chdir
+date			time
+clear			cls
