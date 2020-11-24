@@ -45,3 +45,22 @@ mtr www.google.be
 #or define alias open=xdg-open in .bashrc and use open file.pdf
 xdg-open file.pdf
 #=========================
+#iptables (tip: add port to iptables after install centos server exp: to make connection in browser)
+iptables --lin -vnL
+iptables -t nat --lin -vnL
+iptables -t mangle --lin -vnL
+iptables -S
+iptables -t nat -S
+iptables -t mangle -S
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8081 -j ACCEPT
+iptables-save
+#==========================
+#show port usage
+netstat -tulpn | grep 8081
+#==========================
+#add sudo user centos commandline
+adduser username
+passwd username
+sudo groupadd NAME-OF-THE-NEW-GROUP
+usermod -a -G wheel username
+#===========================
