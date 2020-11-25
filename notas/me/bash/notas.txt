@@ -64,7 +64,7 @@ passwd username
 sudo groupadd NAME-OF-THE-NEW-GROUP
 usermod -a -G wheel username
 #===========================
-#sed examples
+#sed examples (usage: replace, find and delete, remove empty lines, show output limited by lines etc)
 #replace Bla par Spa in memory, no changes to the file
 sed 's/Bla/Spa/g' filename 
 #replace Bla par Spa in file and save file, see -i option 
@@ -95,4 +95,4 @@ sed -i "s/quote me/\"&\"/" file
 # if myvar contains / then use other delimiter of your choise like in expl
 # the myvar should not contain this delimiter char
 sed -i "s|$myvar|bla|g" file
-#=========================================================
+#======================================
