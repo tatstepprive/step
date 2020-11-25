@@ -64,3 +64,35 @@ passwd username
 sudo groupadd NAME-OF-THE-NEW-GROUP
 usermod -a -G wheel username
 #===========================
+#sed examples
+#replace Bla par Spa in memory, no changes to the file
+sed 's/Bla/Spa/g' filename 
+#replace Bla par Spa in file and save file, see -i option 
+sed -i 's/Bla/Spa/g' filename 
+#replace string by nothing, remove string in file
+sed -i 's/Bla//g' filename
+#remove line containing string in file
+sed -i '/Bla/d' file
+#remove empty lines in file (^ is started with and $ is endline
+sed -i '/^$/d' file
+#remove 1 line in file
+sed -i '1d' file
+#replace tabs par space in file
+sed -i 's/\t/ /g' file
+#show from line 12 till 18
+sed -n 12,18p file
+#show all lines except line 12-18, attention no -i option so nothing is saved
+sed 12,18d file
+#replace Bla par Spa except on line 9
+sed -i '9!s/Bla/Spa/g' file
+#replace in vi editor by typing
+:%s/Bla/Spa/g
+#using variables with sed is using double quotes
+myvar1="bla"; myvar="spa"; myfile=test.txt 
+sed -i "s/$myvar/$myvar/g" "$myfile"
+#quote text => result "quote me" in file
+sed -i "s/quote me/\"&\"/" file
+# if myvar contains / then use other delimiter of your choise like in expl
+# the myvar should not contain this delimiter char
+sed -i "s|$myvar|bla|g" file
+#=========================================================
