@@ -159,3 +159,7 @@ https://www.jenkins.io/download/
 sudo su jenkins
 cd
 nano +8 config.xml
+#==========================================================
+#show last added/adapted jobs in jenkins
+/var/lib/jenkins/jobs$ find $(pwd) -maxdepth 2 -type f -name config.xml 
+-mtime -7
