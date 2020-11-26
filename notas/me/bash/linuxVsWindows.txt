@@ -10,3 +10,4 @@ man cmd			cmd /?
 pwd			chdir
 date			time
 clear			cls
+cat			type
