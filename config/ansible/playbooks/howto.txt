@@ -4,3 +4,5 @@
 #Before starting on ubuntu
 sudo apt-get install openssh-server
 sudo apt-get install -y python-minimal
+#If Ubuntu in Virtual box and login screen not showing input field
+#Fix: select Vm, Settings, Display, Video Memory set 64MB (default 16MB)
