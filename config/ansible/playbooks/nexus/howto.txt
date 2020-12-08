@@ -1,0 +1,2 @@
+ansible-playbook playbook_java8_nexus_install.yml --limit nexus -i ../hosts 
+ansible-playbook playbook_nexus_install.yml --limit nexus -i ../hosts 
