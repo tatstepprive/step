@@ -1,7 +1,7 @@
 --- 
 -
-  hosts: localhost
-#  hosts: all
+#  hosts: localhost
+  hosts: all
   become: true
   vars:
       JAVA_VERSION: 8
