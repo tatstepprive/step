@@ -116,3 +116,35 @@ Transaction=all or notning operation
 BEGIN;
 sql code
 COMMIT;
+===========================
+https://www.postgresql.org/docs/12/ddl-priv.html#PRIVILEGE-ABBREVS-TABLE
+
+SELECT		r (“read”)	LARGE OBJECT, SEQUENCE, TABLE (and table-like objects), table column
+INSERT		a (“append”)	TABLE, table column
+UPDATE		w (“write”)	LARGE OBJECT, SEQUENCE, TABLE, table column
+DELETE		d	TABLE
+TRUNCATE	D	TABLE
+REFERENCES	x	TABLE, table column
+TRIGGER		t	TABLE
+CREATE		C	DATABASE, SCHEMA, TABLESPACE
+CONNECT		c	DATABASE
+TEMPORARY	T	DATABASE
+EXECUTE		X	FUNCTION, PROCEDURE
+USAGE		U	DOMAIN, FOREIGN DATA WRAPPER, FOREIGN SERVER, LANGUAGE, SCHEMA, SEQUENCE, TYPE
+
+
+Object Type	All Privileges	Default PUBLIC Privileges	psql Command
+DATABASE		CTc	Tc				\l
+DOMAIN			U	U				\dD+
+FUNCTION or PROCEDURE	X	X				\df+
+FOREIGN DATA WRAPPER	U	none				\dew+
+FOREIGN SERVER		U	none				\des+
+LANGUAGE		U	U				\dL+
+LARGE OBJECT		rw	none	 
+SCHEMA			UC	none				\dn+
+SEQUENCE		rwU	none				\dp
+TABLE (and table-like objects)	arwdDxt	none			\dp
+Table column		arwx	none				\dp
+TABLESPACE		C	none				\db+
+TYPE			U	U				\dT+
+
