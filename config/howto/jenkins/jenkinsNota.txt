@@ -163,3 +163,12 @@ nano +8 config.xml
 #show last added/adapted jobs in jenkins
 /var/lib/jenkins/jobs$ find $(pwd) -maxdepth 2 -type f -name config.xml 
 -mtime -7
+#==========================================================
+#disable crump disable CSRF, it can be done with groovy, 
+#open "Manage Jenkins" / "Script Console"
+import jenkins.model.Jenkins
+def instance = Jenkins.instance
+instance.setCrumbIssuer(null)
+# or via paramater
+-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration=false
+#===========================================================
