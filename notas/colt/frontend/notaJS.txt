@@ -51,6 +51,11 @@ npm install example-package-name --no-audit
 curl  --noproxy $HOST "http://$HOST:8081/nexus/content/repositories/npm-proxy/@angular-devkit/schematics/"
 curl  --noproxy $HOST "http://$HOST:8081/nexus/content/repositories/npm-proxy/@angular-devkit/architect/-/architect-0.0.2.tgz" --output architect-0.0.2.tgz
 #======================================
+#test via curl and proxy
+export http_proxy=http://${PROXY_HOST_PORT}/
+export https_proxy=http://${PROXY_HOST_PORT}/
+curl "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.0.2.tgz" --output architect-0.0.2.tgz
+#======================================
 Maven vs npm
 https://stackoverflow.com/questions/38388824/is-maven-similar-to-npm
 mvn vs npm
