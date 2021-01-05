@@ -177,3 +177,19 @@ instance.setCrumbIssuer(null)
 # or via paramater
 -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration=false
 #===========================================================
+#reset admin account in jenkins Steps
+# http://abhijitkakade.com/2019/06/how-to-reset-jenkins-admin-users-password/
+0 stop jenkins: ssh to jenkins, sudo service jenkins stop
+1 ssh to jenkins and su jenkins, cd, nano config.xml, <useSecurity>false
+2 restart jenkins: sudo service jenkins restart
+3 go to url http://jenkins:8080 in browser
+4 menu People, delete user admin rights
+5  go to “ Jenkins -> Manage Jenkins -> Configure Global Security"
+  In Security Realm Option Select “Jenkins own database” option.
+  Unselect / Untick “Allow users to sign up” option under “Jenkins own database” option
+  Select “Logged-in users can do anything” option
+  Unselect / Untick “Allow anonymous read access” option under “Logged-in users can do anything” option
+  Save
+6 You will be redirected to “Create First Admin User” page once you click on “Save” button
+  Create new admin user
+#=========================================================
