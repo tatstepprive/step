@@ -16,6 +16,11 @@
      sudo apt-get update
      sudo apt-get install python-minimal
 #install java via ansible
+#see which version on site
+https://pkg.jenkins.io/debian-stable/
+2.164 (2019-02) and newer: Java 8 or Java 11
+2.54 (2017-04) and newer: Java 8
+1.612 (2015-05) and newer: Java 7
 #PLUGINS (list is empty), search first to see something in tab available
 #My list to install:
 AnsiColor
