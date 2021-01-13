@@ -193,3 +193,9 @@ instance.setCrumbIssuer(null)
 6 You will be redirected to “Create First Admin User” page once you click on “Save” button
   Create new admin user
 #=========================================================
+Build User Vars Plugin 
+1 install with restart jenkins
+2 restart jenkins
+3 configure job set on 'set jenkins user build variables'
+4 use global var like BUILD_USER in your scripts
+#=========================================================
