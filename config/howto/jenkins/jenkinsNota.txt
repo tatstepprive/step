@@ -199,3 +199,7 @@ Build User Vars Plugin
 3 configure job set on 'set jenkins user build variables'
 4 use global var like BUILD_USER in your scripts
 #=========================================================
+https://plugins.jenkins.io/uno-choice/
+Active Choices jenkins plugin 
+Used for dynamic parameters
+#==========================================================
