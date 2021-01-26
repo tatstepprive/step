@@ -1,0 +1,54 @@
+--- 
+-
+  hosts: all
+  become: true
+  vars:
+      MY_ID: set_your_name
+      MY_GROUP_ID: set_your_number
+      MY_PASS: set_your_pass
+  tasks:
+    -
+      name: "add host group={{MY_ID}}"
+      group:
+          name: "{{MY_ID}}"
+          gid: "{{MY_GROUP_ID}}"
+          state: present
+    -
+      name: "add host user={{ MY_ID }}"
+      user:
+          name: "{{ MY_ID }}"
+          uid: "{{ MY_GROUP_ID }}"
+          group: "{{ MY_GROUP_ID }}"
+          home: "/home/{{MY_ID}}"
+          state: present
+    -
+      name: "The dir home is for monitor."
+      file:
+          dest: "{{ item.dest }}"
+          owner: "{{MY_ID}}"
+          group: "{{MY_GROUP_ID}}"
+          state: directory
+          mode: 0755
+      with_items:
+          - {
+              dest: "/home/{{MY_ID}}"
+            }
+
+    -
+      name: "The dir ssh is present."
+      file:
+          dest: "{{ item.dest }}"
+          owner: "{{ MY_ID }}"
+          group: "{{MY_GROUP_ID}}"
+          state: directory
+          mode: 0700
+      with_items:
+          - {
+              dest: "/home/{{MY_ID}}/.ssh"
+            }
+    -
+      name: "force to change password dev"
+      shell: echo "{{MY_ID}}:{{MY_PASS}}" | sudo chpasswd
+      no_log: true
+
+
