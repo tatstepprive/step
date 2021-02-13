@@ -99,3 +99,5 @@ sed -i "s|$myvar|bla|g" file
 #Issue  /bin/bash^M: bad interpreter: No such file or directory when from window to linux
 sed -i -e 's/\r$//' scriptname.sh
 #======================================
+https://tldp.org/HOWTO/Bash-Prompt-HOWTO/
+#======================================
