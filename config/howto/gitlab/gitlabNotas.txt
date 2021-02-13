@@ -56,4 +56,18 @@ $ git push github && git push gitlab
  git push -u gitlab master
  git push -u github master
 
-
+===========================================================
+#https://docs.gitlab.com/ee/administration/troubleshooting/gitlab_rails_cheat_sheet.html
+#Gitlab reset user password (even admin pass):
+ssh user@gitlabhost
+sudo gitlab-rails console -e production
+user = User.find_by_username('my_user')
+or 
+user = User.find(123)
+user.password = 'new_pass'
+user.password_confirmation = 'new_pass'
+user.send_only_admin_changed_your_password_notification!
+user.save!
+exit
+#login via browser with the new password
+==========================================================
