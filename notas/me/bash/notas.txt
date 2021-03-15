@@ -101,3 +101,6 @@ sed -i -e 's/\r$//' scriptname.sh
 #======================================
 https://tldp.org/HOWTO/Bash-Prompt-HOWTO/
 #======================================
+# Math calculation on bash command line
+echo 300*1.5+22 | bc
+#======================================
