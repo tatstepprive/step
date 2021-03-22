@@ -1,0 +1,64 @@
+=============
+Configure postfix to send mail from local host via scripts:
+https://www.howtoforge.com/tutorial/configure-postfix-to-use-gmail-as-a-mail-relay/
+https://askubuntu.com/questions/507514/postfix-using-gmail-relay-must-issue-a-starttls-command-first
+CONFIGURATION:
+sudo dpkg-reconfigure postfix
+When prompted for "General type of mail configuration," choose Internet Site.
+When prompted for a "Mail name," choose a hostname to be used in mail headers as the origin of your emails.A fully-qualified domain name is preferred, but using your machine's simple hostname is OK. Regardless of what you enter here, your return address will appear to recipients as your Gmail address.
+When prompted to set the "Root and postmaster mail recipient." Enter root, 
+
+relayhost=[smtp.gmail.com]:587
+smtp_connection_cache_destinations= [smtp.gmail.com]:587
+
+#TLS parameters
+smtpd_use_tls = yes
+smtpd_sasl_auth_enable = yes
+smtpd_tls_auth_only = no
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtp_tls_note_starttls_offer = yes
+smtp_tls_policy_maps = hash:/etc/postfix/tls_policy
+smtp_tls_security_level = encrypt
+# SASL Configuration
+smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_enforce_tls = no
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_sasl_mechanism_filter = plain
+smtp_sasl_tls_security_options = noanonymous
+
+tls_policy:
+sudo nano /etc/postfix/tls_policy
+Set in:
+[smtp.gmail.com]:587 encrypt
+sudo postmap /etc/postfix/tls_policy
+
+sasl_passwd:
+sudo nano /etc/postfix/sasl_passwd
+Set in:
+smtp.gmail.com:587 name@gmail.com:password
+sudo chmod 600 /etc/postfix/sasl_passwd
+sudo postmap /etc/postfix/sasl_passwd
+
+sudo systemctl restart postfix
+
+TESTING:
+Test connection:
+ping smtp.gmail.com
+telnet smtp.gmail.com 587
+Test mail sending:
+nano bla.txt
+Set in:
+Test
+mail -s test user@domain < bla.txt
+
+Monitor logs:
+journalctl -n 100
+cat /var/log/mail.log
+Info:
+The mail you send will be found in send mails on mail account used in sasl_passwd. 
+The changing sender mail will be not applied and on destination the sender from will be used as defined in sasl_passwd
+Result: works
+===============
