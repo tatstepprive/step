@@ -1,0 +1,17 @@
+#=================================
+# X forwarding
+#On the server side, X11Forwarding yes must specified in /etc/ssh/sshd_config
+ssh user@server
+grep -inHR x11 /etc/ssh/sshd_config
+#see xauth installed
+rpm -qa | grep -i xauth
+which xauth
+#install xauth
+yum install xauth
+#logout, login via ssh -X user@server and ~/.Xauthority file will be created
+ssh -X user@server
+yum install xclock
+yum install xeyes
+#execute and see graphical output on client side
+xclock
+#===================================
