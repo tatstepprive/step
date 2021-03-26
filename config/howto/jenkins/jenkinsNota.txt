@@ -203,3 +203,36 @@ https://plugins.jenkins.io/uno-choice/
 Active Choices jenkins plugin 
 Used for dynamic parameters
 #==========================================================
+#Monitor user login method 1
+Go to -> Manage Jenkins -> System Log or navigate to http://<jenkins_host>:8080/log/
+Click on add new log recorder and name it anything you like for example -> user_access_details
+Then click on add loggers once prompted and add jenkins.security.SecurityListener and set it to Finest level
+For info: the log entries will be gone after restart jenkins
+Result: info in format (very useful):
+logged in: admin
+Mar 22, 2021 6:55:03 PM FINE jenkins.security.SecurityListener
+logged out: admin
+Mar 22, 2021 6:55:10 PM FINE jenkins.security.SecurityListener
+failed to authenticate: bla
+Mar 22, 2021 6:55:10 PM FINE jenkins.security.SecurityListener
+#Monitor user login method 2
+https://wiki.jenkins.io/display/JENKINS/Access+Logging
+0 ssh to jenkins host
+0 ls -l /var/log/jenkins/ # you will see that only jenkins.log available
+1 Add these lines to /etc/default/jenkins above JENKINS_ARGS
+JENKINS_ACCESSLOG="--accessLoggerClassName=winstone.accesslog.SimpleAccessLogger --simpleAccessLogger.format=combined --simpleAccessLogger.file=/var/log/jenkins/access.log"
+2 Edit /etc/default/jenkins and add  $JENKINS_ACCESSLOG to JENKINS_ARGS
+3 Enable log rotation: edit /etc/logrotate.d/jenkins and change /var/log/jenkins/jenkins.log to /var/log/jenkins/*.log
+4 sudo service jenkins restart
+5 cat /var/log/jenkins/access.log
+Result: login is slower, in acces.log no info over userlogin name, 
+there is info over what hostip did access to jenkins to which jenkins page
+#Monitor user actions
+To know who is doing what, install the Audit Trail Plugin: https://wiki.jenkins-ci.org/display/JENKINS/Audit+Trail+Plugin
+Navigate http://<jenkins_host>:8080/configure and adit 'Audit Trail'
+Log Location: /var/log/jenkins/audit-%g.log
+Log File Size MB: 50
+Log File Count: 10
+Log Separator: (let it empty)
+Result: slower, but log creation in /var/log/jenkins/audit-0.log with info job starts, config etc actions.
+#==========================================================
