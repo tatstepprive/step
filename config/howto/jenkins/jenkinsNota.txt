@@ -236,3 +236,19 @@ Log File Count: 10
 Log Separator: (let it empty)
 Result: slower, but log creation in /var/log/jenkins/audit-0.log with info job starts, config etc actions.
 #==========================================================
+#Jenkins mail via gmail
+Navigate http://<jenkins_host>:8080/configure and edit 'E-mail Notification'
+SMTP server smtp.gmail.com
+Select Use SMTP Authentication
+Put your gmail id (your_name@gmail.com)
+Put your gmail password (your gmail pass)
+Use SSL select
+Use TLS select
+SMTP port 465
+Save
+Select 'Test configuration by sending test e-mail' and put your mail and click button 'Test configuration'
+Result: mail is recieved with 'address not configured yet' in title
+Fix: Navigate http://<jenkins_host>:8080/configure and edit 'Jenkins Location' by setting 
+System Admin e-mail address: jenkins-admin@no-reply.com 
+Result: mail is send, but if you use gmail then mail will be not changed from 'jenkins-admin@no-reply.com' when you receive message but will be your gmail id
+#========================================================
