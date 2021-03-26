@@ -5,7 +5,16 @@ https://www.postgresql.org/
 https://www.pgadmin.org/
 https://www.postgresql.org/docs/12/index.html
 https://www.postgresql.org/files/documentation/pdf/12/postgresql-12-A4.pdf
-
+#=========================
+#Install only PostgreSQL-Client client to use psql commands (like to use in jenkins to connect to remote database)
+sudo bash
+apt install -y curl ca-certificates gnupg
+curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/postgresql.list' 
+apt update -y
+apt install -y postgresql-client-12
+psql --version
+#=========================
 sql:
 -select
 -distinct
