@@ -71,3 +71,26 @@ user.save!
 exit
 #login via browser with the new password
 ==========================================================
+#After installing bitnami via ova in virtualbox
+VirtualBox, menu File, Import Appliance
+# login with bitnami bitnami, change pwd
+# change querty to azerty 
+apt install console-data
+choose 4 to reconfigure
+choose 43 for azerty belgian standard
+# enable sshd server 
+nano /etc/ssh/sshd_config
+PasswordAuthentication yes
+/etc/init.d/ssh force-reload
+rm /etc/ssh/sshd_not_to_be_run
+systemctl restart ssh
+systemctl status ssh
+# disable ci/cd on bitnami
+ grep -in gitlab_default_projects_features_builds /etc/gitlab/gitlab.rb
+ nano +135 /etc/gitlab/gitlab.rb 
+ gitlab-ctl reconfigure
+ /opt/bitnami/ctlscript.sh restart
+#login via webbrowser with credentials from /home/bitnami/bitnami_credentials and change root passwd 
+https://<hostname>/-/profile/password/edit
+
+=======================================================
