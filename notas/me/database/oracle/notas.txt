@@ -1,0 +1,57 @@
+#Names
+spfile=server parameter file (binary)
+pfile= parameter file (text)
+context area= area for processing an sql statement
+=====================================================
+#Locations
+#oracle home local
+/u01/app/oracle/product/19/db_1
+#parameter file location (spfile=server parameter file):
+$ORACLE_HOME/dbs
+======================================================
+# Spfile = server parameter file
+default name spfile<sid>.ora (exp: spfileorcl.ora)
+default location $ORACLE_HOME/dbs
+preferred choice to start db
+binary file (you can not edit it manually)
+db can read/write to spfile
+change parameters in spfile by 'alter system...'
+auto created by DBCA when creating CDB
+=======================================================
+# pfile= text init parameter file
+default name init.ora
+location $ORACLE_HOME/dbs
+text file with parameters as name/value pairs 
+db can read pfile
+change parameters in pfile and restart db
+can be created from spfile, default init.ora is auto created when creating db
+=======================================================
+#search order for parameters file
+1 spfile<sid>.ora (spfile)
+2 spfile.ora
+3 init<sid>.ora (pfile)
+=======================================================
+#Parameters types: (see doc via search 'oracle database reference 19c')
+#https://docs.oracle.com/en/database/oracle/oracle-database/
+#https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html
+#https://docs.oracle.com/en/database/oracle/oracle-database/12.2/refrn/index.html
+Basic params (30 params) (ex: DB_BLOCK_SIZE, SGA_TARGET, CONTROL_FILES)
+Advanced params (ex: DB_CACHE_SIZE)
+Derived params= their values are calculated from other params (ex sessions=1.5*processes + 22
+OS dependent params (ex: DB_BLOCK_SIZE)
+=======================================================
+#Modify params
+#show
+Query v$parameter to view value of param 
+(columns: 
+isses_modifiable session level changes; 
+issys_modifiable system level changes, 
+ispdb_modifiable pdb level changes)
+#modify
+alter session/alter system
+(scope:
+memory= changes in memory, effect immediately, persist until db restarts (after restart is gone)
+spfile= changes in spfile, effect after restart db (shutdown needed)
+both= memory+spfile (default)
+deferred=effective for future sessions
+
