@@ -45,3 +45,12 @@ select name, value, isses_modifiable, issys_modifiable, ispdb_mpdifiable, con_id
 from v$system_parameter2
 where name='control_files';
 
+--open_cursors specifies max number of open cursors a session can have at once
+select name,value,issec_modifiable, issys_modifiable, ispdb_modifiable, conn_id
+from v$parameter
+where name='open_cursors';
+
+show parameter spfile;
+
+alter system set open_cursors=301;
+--same as alter system set open_cursors=301 scope=both;

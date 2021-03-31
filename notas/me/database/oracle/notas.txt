@@ -2,12 +2,24 @@
 spfile=server parameter file (binary)
 pfile= parameter file (text)
 context area= area for processing an sql statement
+PDB=pluggable database
+CDB=container database
+ADR=automatic diagnostic repository
 =====================================================
 #Locations
-#oracle home local
+#oracle base local $ORACLE_BASE
+/u01/app/oracle
+#oracle home local $ORACLE_HOME
 /u01/app/oracle/product/19/db_1
 #parameter file location (spfile=server parameter file):
 $ORACLE_HOME/dbs
+#sqlplus location
+$ORACLE_HOME/bin
+#ADR location (automatic diagnostic reposistory)
+$ORACLE_BASE/diag/product_type/db_id/instance_id 
+(ex: $ORACLE_BASE/diag/rdbms/orcl/orcl)
+#Alert log
+ $ORACLE_BASE/diag/rdbms/orcl/orcl/alert/log.xml
 ======================================================
 # Spfile = server parameter file
 default name spfile<sid>.ora (exp: spfileorcl.ora)
@@ -50,8 +62,48 @@ ispdb_modifiable pdb level changes)
 #modify
 alter session/alter system
 (scope:
-memory= changes in memory, effect immediately, persist until db restarts (after restart is gone)
+memory= changes in memory, effect immediately, persist(=exists) until db restarts (after restart is gone)
 spfile= changes in spfile, effect after restart db (shutdown needed)
 both= memory+spfile (default)
 deferred=effective for future sessions
-
+sqlplus as sysdba
+alter system set max_idle_time=20 scope=both;
+# max_idle_time is O (zero) by default and means connection (session) will be NEVER auto closed by db after amount of time
+# max_idle_time=20 connection will be auto closed after 20 minutes when no activity
+# when value is set, changing to lower value is OK (20 to 10), but higher value workaround
+# max_idle_time 20 to 30 workaround (no workaround when testing on version 19c)
+sqlplus as sysdba
+alter system reset max_idle_time scope=both;
+alter system set max_idle_time=30 scope=both; 
+# default scope
+# if db started with spfile, then default scope=both and no need to be type;
+# if db started with pfile as parameter, the default scope=memeory and no need to type;
+# BUT when testing on 19c: scope both with using spfile is not applied if not typed. !!!
+=======================================================
+#Db is not running if message
+sqlplus / as sysdba
+connected to an idle instance
+in sqldeveloper we will have ORA-12514 if session was open and db went down
+==========================================================
+#create pfile (file will be created in $ORACLE_HOME/dbs/ location
+#using pattern name for pfile 'init<sid>.ora', pfile will be auto searched when spfile not available
+sqlplus / as sysdba
+sql>create pfile='initorcl.ora' from spfile;
+#create pfile using non default name
+#attention: location should be given where to find file, using varible $ORACLE_HOME is OK
+sqlplus /as sysdba
+sql> create pfile='test.ora' from spfile;
+sql> shutdown immediate;
+sql> startup pfile='$ORACLE_HOME/dbs/test.ora'
+==========================================================
+#with which param file is db started? 
+#If value column is empty, db started with pfile, 
+#if value column is $ORACLE_HOME/dbs/spfile<sid>.ora, db started with spfile
+sqlplus / as sysdba
+sql> show parameter spfile
+==========================================================
+ADR= automatic diagnostic repository
+is a file-based repo outside the db
+is a system-wide central tracing and logging repo
+stores traces, alert log, health monitor
+location see parameter diagnostic_dest
