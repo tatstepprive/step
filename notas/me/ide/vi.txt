@@ -1,0 +1,13 @@
+#Go to the end    Shift+G
+#Search down to top, last occurrence ?hi (n for next)
+#Search top to down, first occurrence /hi (n for next)
+#Close :q!
+#Write and close :wq!
+#Write mode press 'i' to enter insert mode
+#Command mode press 'esc' to enter command mode
+#o open a new line
+#dd delete line
+#3dd delete 3 lines
+#x delete char at the cursor
+#dw delete word 
+#u undo last change
