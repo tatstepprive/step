@@ -17,3 +17,8 @@ select sysdate from dual;
 select name, value, isses_modifiable, issys_modifiable, ispdb_modifiable
 from v$parameter
 where isses_modifiable='true';
+
+--show diff what in memory and what in spfile on disk, use 
+--v$spparameter view which contains info from spfile only
+select * from v$spparameter;
+

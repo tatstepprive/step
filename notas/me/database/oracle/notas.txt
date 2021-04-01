@@ -16,10 +16,29 @@ $ORACLE_HOME/dbs
 #sqlplus location
 $ORACLE_HOME/bin
 #ADR location (automatic diagnostic reposistory)
-$ORACLE_BASE/diag/product_type/db_id/instance_id 
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id 
 (ex: $ORACLE_BASE/diag/rdbms/orcl/orcl)
 #Alert log
- $ORACLE_BASE/diag/rdbms/orcl/orcl/alert/log.xml
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/alert 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/alert/log.xml
+#Incident log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/incident/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/incident/
+#Health monitor reports
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/hm/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/hm/
+#Trace log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/trace/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/trace/
+#DDL log (default no log enabled for ddl)
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/log/ddl/
+$ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl
 ======================================================
 # Spfile = server parameter file
 default name spfile<sid>.ora (exp: spfileorcl.ora)
@@ -101,9 +120,84 @@ sql> startup pfile='$ORACLE_HOME/dbs/test.ora'
 #if value column is $ORACLE_HOME/dbs/spfile<sid>.ora, db started with spfile
 sqlplus / as sysdba
 sql> show parameter spfile
+=========================================================
+#show diff what in memory and what in spfile on disk, use 
+#v$spparameter view which contains info from spfile only
+select * from v$spparameter;
 ==========================================================
 ADR= automatic diagnostic repository
 is a file-based repo outside the db
 is a system-wide central tracing and logging repo
 stores traces, alert log, health monitor
-location see parameter diagnostic_dest
+location see parameter diagnostic_dest or select * from v$diag_info;
+Alert log contains:
+1 non default init params used at startup
+2 internal errors (ORA-00600), block corruption errors (ORA-01578), deadlock errors (ORA-00060)
+3 admin operations like create,alter,drop,startup,shutdown,archivelog statements
+Trace file can be from background process and server process (ex: orcl_dbw0_<nr>.trc and orcl_ora_<nr>.trc)
+All logs from server process:
+ls -ltra $ORACLE_BASE/diag/rdbms/orcl/orcl/trace/orcl_ora*.trc
+========================================================
+# show log locations
+sqlplus / as sysdba;
+sql> col name format a25
+sql> col value format a50
+sql> select name,value from v$diag_info;
+=========================================================
+#view/show log content using cli
+cat /u01/app/oracle/diag/rdbms/orcl/orcl/trace/alert_orcl.log
+cat /u01/app/oracle/diag/rdbms/orcl/orcl/log/attention.log
+cat /u01/app/oracle/diag/rdbms/orcl/orcl/alert/log.xml
+=========================================================
+#view/show log content using oracle utility ADRCI
+adrci
+adrci> show alert
+tip: search,navigation,exit like in vi (? or /, Shift+G, :q!)
+adrci>exit
+=========================================================
+#purge log files defualts 
+default retention(=to keep) period:
+long period for incidents and alert logs = 365 days
+short period for traces and core dumps = 30 days 
+#set purge policy
+adrci
+adrci> set HOMEPATH diag/rdbms/orcl/orcl
+adrci> select sizep_policy from adr_control_aux
+adrci> select shortp_policy, longp_policy from adr_control
+tip: shows numbers in hours
+SHORTP_POLICY        LONGP_POLICY         
+-------------------- -------------------- 
+720                  8760 
+720hours/24=30 days
+8760hours/24=366 days
+192hours/24=8 days
+sizep_policy is in bytes (200MB=200 000 000)
+adrci> estimate(sizep_policy = 200000000)
+adrci> estimate(shortp_policy = 192, longp_policy=192)
+adrci> set control (shortp_policy=192)
+adrci> set control (longp_policy=192)
+adrci> set control (sizep_policy=2546268)
+adrci> quit
+#purge old log files manually to make space safely
+adrci
+adrci>help purge
+tip purge to 5MB
+adrci>purge -size 5000000
+==========================================================
+#enable ddl loging
+sqlplus / as sysdba
+sql> show con_name
+sql> alter session set container=orclpdb;
+sql> show con_name
+sql> show parameter ddl
+sql> alter session set enable_ddl_logging=true;
+tip: activate only for current session
+sql>create table mytest (n number);
+error: ORA-01109: database not open
+fix:
+sql>ALTER DATABASE OPEN;
+sql>create table mytest (n number);
+sql>quit
+cat $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl/log.xml
+cat $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl_orcl.log
+================================
