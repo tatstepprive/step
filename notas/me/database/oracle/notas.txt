@@ -5,6 +5,7 @@ context area= area for processing an sql statement
 PDB=pluggable database
 CDB=container database
 ADR=automatic diagnostic repository
+DBCA=Data Base Configuration Assistant
 =====================================================
 #Locations
 #oracle base local $ORACLE_BASE
@@ -39,6 +40,9 @@ $ORACLE_BASE/diag/rdbms/orcl/orcl/trace/
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/diag/rdbms/db_id/instance_id/log/ddl/
 $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl
+# datafiles location
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
 ======================================================
 # Spfile = server parameter file
 default name spfile<sid>.ora (exp: spfileorcl.ora)
@@ -201,3 +205,30 @@ sql>quit
 cat $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl/log.xml
 cat $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl_orcl.log
 ================================
+#Create database
+methods:
+create a pdb by using the seed (seed=template)
+create a pdb from a non-cdb
+clone an existing pdb or non-cdb
+plug an unplugged pdb into a different cdb
+relocate a pdb to a different cdb
+create a pdb as a proxy pdb
+--------
+tools:
+sqlplus
+sqldeveloper
+enterprise manager cloud control
+dbca
+--------
+#create pdb from seed (seed=template)
+use statement: create pluggable database
+1 it will copy datafiles from seed to new location
+2 it will create tablespaces system and sysaux
+3 it will create default schemas and common users with sys as super user and system
+4 it will create db service (db instance)
+prerequisites:
+1 the current container must be root
+2 you must have create pluggable db privileges
+3 cdb must be in 'read write' mode
+
+
