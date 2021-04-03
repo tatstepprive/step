@@ -1,0 +1,6 @@
+1 How to create spfile if missing?
+2 why connect as sysdba and no user sysdba in cdb_users, dba_users?
+3 Diff between v$pdbs, v$container, v$services?
+4 How often create pfile from spfile to be safe?
+5 in pfile are more lines (no comment) then in v$system_parameter isdefault='FALSE', why?
+

@@ -230,5 +230,36 @@ prerequisites:
 1 the current container must be root
 2 you must have create pluggable db privileges
 3 cdb must be in 'read write' mode
-
-
+4 seed is always in read mode only
+#Create pdb: use scripts see sql scripts directory
+#Create pdb:  use dbca when connecting ssh -X user@oracleHost
+dbca
+Manage Pluggable databases, next
+Create a Pluggable database, next, select orcl contaner, no input for user and pass
+Create a new Pluggable database fro another PDB (select PDB$SEED)
+Pluggable database name: pdb2, put admin name, admin pass, confirm admin pass
+On Create default user tablespace
+#Create pdb by cloning: use scripts see sql scripts directory
+Cloning is copying a source pdb from a cdb and plugging the copy into the same cdb or another cdb.
+#Drop pdb: use scripts see sql scripts directory
+#Drop pdb:  use dbca when connecting ssh -X user@oracleHost
+dbca
+Manage Pluggable databases, next
+Drop a Pluggable database, next, select orcl contaner, no input for user and pass
+Drop db by selecting from the list
+===============================
+# connect to the new db
+sqlplus / as sysdba
+sql>show con_name
+sql> col name format a20
+sql> select name, open_mode from v$pdbs;
+sql> alter session set container=pdb1;
+sql> show con_name;
+tip: same as show con_name is using services view when container is set to no root
+sql> select name from v$services;
+sql> show parameter domain
+sql> connect <user>/<pass>@<host>:1521/pdb1<.domain>
+tip: using sqldeveloper 'Service name': pdb1<.domain>
+tip: after adapting $ORACLE_HOME/network/admin/tnsnames.ora
+sql> connect <user>/<pass>@pdb1<.domain>
+===================================
