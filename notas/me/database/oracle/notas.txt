@@ -241,6 +241,16 @@ Pluggable database name: pdb2, put admin name, admin pass, confirm admin pass
 On Create default user tablespace
 #Create pdb by cloning: use scripts see sql scripts directory
 Cloning is copying a source pdb from a cdb and plugging the copy into the same cdb or another cdb.
+#Plug/unplug pdb
+Cdb= container db => has 1 root container, 1 seed pdb (template), multiple pdbs
+Unplugging a pdb is diassociating pdb from cdb
+Plugging in a pdb is associating pdb with cdb
+Steps:
+1 close pdb1
+2 unplug pdb1 to xml
+3 drop pdb1 but keep datafiles
+4 check compatibility
+5 plug pdb1 in using xml
 #Drop pdb: use scripts see sql scripts directory
 #Drop pdb:  use dbca when connecting ssh -X user@oracleHost
 dbca
