@@ -346,8 +346,11 @@ SID_LIST_LISTENER3 =
 #Gui
 1 Oracle Net Manager=netmgr
 2 Oracle Net Configuration Assistant=netca
-3 Database Configuration Assistant
+3 Database Configuration Assistant=dbca
 4 Enterprise Manager Cloud Control
 #Cli
 5 Listener Control Utility=lsnrctl
 6 Editing files listener.ora and tnsnames.ora directly
+=================================================
+#Database link
+1 you must have create database link system privilege
