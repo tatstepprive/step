@@ -6,6 +6,10 @@ PDB=pluggable database
 CDB=container database
 ADR=automatic diagnostic repository
 DBCA=Data Base Configuration Assistant
+SGA=system global area
+PGA=program global area
+OUI=oracle universal installer
+ONCA=oracle net configuration assistant
 =====================================================
 #Locations
 #oracle base local $ORACLE_BASE
@@ -43,6 +47,9 @@ $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl
 # datafiles location
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
+# listener location
+$ORACLE_HOME/network/admin/listener.ora
+
 ======================================================
 # Spfile = server parameter file
 default name spfile<sid>.ora (exp: spfileorcl.ora)
@@ -273,3 +280,74 @@ tip: using sqldeveloper 'Service name': pdb1<.domain>
 tip: after adapting $ORACLE_HOME/network/admin/tnsnames.ora
 sql> connect <user>/<pass>@pdb1<.domain>
 ===================================
+#Oracle network environment
+During oracle db install, oui (oracle universal installer) launches onca (oracle net configuration assistant)
+and creates local listener named LISTENER
+f: dynamic service registration (info about available db services)
+f: if listener is not running, client can not connect db
+#location listener param file: 
+$ORACLE_HOME/network/admin/listener.ora
+$ORACLE_HOME/network/admin/tnsnames.ora
+#Tip: if file listener.ora is removed/renamed/not found,
+# then listener is using TCP/IP and port 1521 (default values), 
+#so listener can run and register services  without this file listener.ora
+
+# start listener 
+# (wait 60 sec to see 'Services Summary' with registered services) or
+# or execute sql to skip waiting 60 sec for services registration:
+# alter system register;
+lsnrctl start
+# show listener status
+lsnrclt status
+# stop listener
+lsnrctl stop
+# interactive listener or listener utility
+lsnrctl
+
+#Use non-default port:
+1 change listener.ora port
+2 change tnsnames.ora port
+3 change each service port in tnsnames.ora
+4 refresh by forcing reread files: alter system set local_listener=LISTENER_ORCL
+5 lsnrctl stop; lsnrctl start; lsnrctl status;
+
+#Add extra listener (dynamic) with other port
+1 add in listener.ora entry
+LISTENER2 =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = oracledb)(PORT = 1527))
+    )
+2 add tnsnames.ora
+LISTENER2 =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = oracledb)(PORT = 1527))
+
+3 NO change each service port in tnsnames.ora
+4 alter system set local_listener='LISTENER_ORCL,LISTENER2'
+5 lsnrctl start listener2; lsnrclt status listener2;
+
+# Add extra listener (static), not recommended
+1 add in listener.ora 2 entry listnerName and SID_LIST_<listnerName>
+LISTENER3 =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = oracledb)(PORT = 1529))
+    )
+SID_LIST_LISTENER3 =
+( SID_LIST=
+  ( SID_DESC=
+    (GLOBAL_DBNAME=<pdbname.domain>)
+    (SID_NAME=orcl)
+    (ORACLE_HOME=<$ORACLE_HOME value>)
+  )
+)
+2 lsnrctl start listener3; lsnrclt status listener3;
+# Tip with static listener status for instance 'orcl' UNKNOWN - it's normal and working
+---------------------------------------
+#Tools to configure listener 
+#Gui
+1 Oracle Net Manager=netmgr
+2 Oracle Net Configuration Assistant=netca
+3 Database Configuration Assistant
+4 Enterprise Manager Cloud Control
+#Cli
+5 Listener Control Utility=lsnrctl
+6 Editing files listener.ora and tnsnames.ora directly

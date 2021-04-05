@@ -3,4 +3,9 @@
 3 Diff between v$pdbs, v$container, v$services?
 4 How often create pfile from spfile to be safe?
 5 in pfile are more lines (no comment) then in v$system_parameter isdefault='FALSE', why?
-
+6 Listener can have '0 handler(s) for the service' after dropping pdb. How to fix? 
+6 RESP: restart listener after connect via ssh: lsnrctl stop; lsnrctl start
+7 Why multiple listeners?
+8 How long is listener running? When started?
+8 RESP: lsnrctl status and see 'Uptime' and 'Start Date' columns.
+9 Diff between dedicated and default server for listener configuration?
