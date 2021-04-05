@@ -15,3 +15,4 @@
 #Ctrl+G	Display help text
 #Alt+U	Undo last action
 #Ctl+C cursor position
+#Alt+D Report line/word/character count 
