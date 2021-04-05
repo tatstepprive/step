@@ -1,0 +1,17 @@
+#Go to the end of file    Ctrl+_ Ctrl+V
+#Go to the beginning of file Ctlr+_ Ctrl+Y
+#Go to the end of line Ctrl+E
+#Go to the beginning of line Ctrl+A
+#Go one word forward Ctrl+->
+#Go one word backward Ctrl+<-
+#Search top to down, Ctrl+W (next Alt+W)
+#Close Ctrl-X
+#Write and close Ctrl-O Ctrl-X
+#cut/copy line Ctrl-K
+#past line Ctrl-U
+#delete line Ctrl-K
+#Alt+N	Turn line numbers on/off
+#Alt+P	Turn visible whitespace on/off
+#Ctrl+G	Display help text
+#Alt+U	Undo last action
+#Ctl+C cursor position
