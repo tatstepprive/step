@@ -49,7 +49,7 @@ $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
 # listener location
 $ORACLE_HOME/network/admin/listener.ora
-
+$TNS_ADMIN/listener.ora  ($TNS_ADMIN can be empty, should be not empty/used if more than one TNSNAMES.ORA files exists on a system)
 ======================================================
 # Spfile = server parameter file
 default name spfile<sid>.ora (exp: spfileorcl.ora)
@@ -283,8 +283,9 @@ sql> connect <user>/<pass>@pdb1<.domain>
 #Oracle network environment
 During oracle db install, oui (oracle universal installer) launches onca (oracle net configuration assistant)
 and creates local listener named LISTENER
+f: launches SP (server process) in response to connection request from client
 f: dynamic service registration (info about available db services)
-f: if listener is not running, client can not connect db
+f: if listener is not running, client can not connect db with a new connection, the existant connectios are not affected
 #location listener param file: 
 $ORACLE_HOME/network/admin/listener.ora
 $ORACLE_HOME/network/admin/tnsnames.ora
@@ -351,6 +352,21 @@ SID_LIST_LISTENER3 =
 #Cli
 5 Listener Control Utility=lsnrctl
 6 Editing files listener.ora and tnsnames.ora directly
+================================================
+#Test connection 
+tnsping <service_name>
+tnsping pdb1
 =================================================
 #Database link
 1 you must have create database link system privilege
+=================================================
+Dedicated server=default oracle net configuration where each user process connects to its own SP (server process)
+Shared server=number user processes use a pool of server processes that are shared by all sessions
+Distributed transaction=affects row in more than one db.
+================================================
+#easy connect
+sql> connect <user>/<pass>@<host>:<port>/<service_name>
+sql> connect <user>/<pass>@<service_name_from_tnsnames>
+Tip: tnsnames.ora has no relation between entry (alias) and service_name or instance name
+     But keep them same to make it simple.
+================================================

@@ -9,3 +9,5 @@
 8 How long is listener running? When started?
 8 RESP: lsnrctl status and see 'Uptime' and 'Start Date' columns.
 9 Diff between dedicated and default server for listener configuration?
+10 What will happen when user has role and we do revoke of some privileges given by role?
+

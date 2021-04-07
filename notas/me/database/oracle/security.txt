@@ -1,0 +1,93 @@
+Data security:
+1 system security
+2 data security
+
+System privileges: perform an action within db (create table, view, sequence etc)
+Object privileges: manipulate the content of the db objects
+Schema: collection of objects such as tables, views, sequences.
+
+Users and schemas are db users, 
+but when the user has/owns objects then we call it schema
+=======================================
+System privileges: 
+ * create/drop user, role
+ * create session
+ * create/drop table, view, sequence, procedure
+ * backup table etc
+
+All system privileges: 
+select * from system_privilege_map;
+=======================================
+# Create new user
+create user <user> identified by <pass>;
+
+create user demo identified by demo123;
+select * from all_users;
+
+# change user pass 
+alter user demo identified by demo456;
+
+#check user
+select * from user_users;
+select * from all_users;
+select * from dba_users;
+
+# Give/grant system privileges after user creation
+grant <privilege>[, <privilege>... ]
+to <user>[, <user>/<role>, PUBLIC...];
+
+grant create session, create table, create sequence, create view
+to demo;
+
+#Remove/revoke privileges
+revoke <privilege>|ALL
+on <object>
+from {<user>|<role>|PUBLIC}
+
+==================================
+# Role
+Role is collection of privileges and/or roles.
+User can have access to several roles.
+Several users can be assigned the same role.
+Role can be created with pass (identified by <pass>) but it not often used.
+#check all roles
+SELECT * FROM DBA_ROLES;
+#create role
+create role manager;
+
+#grant privileges to a role
+grant create table, create view
+to manager;
+
+#assign role to user
+grant manager to demo;
+=====================================
+Object privileges
+* Object privileges vary from object to object
+   table (select, insert, update, delete, alter, index, references, all)
+   procedure,function (execute)
+   cache group (flush,load,unload,refresh)
+* an owner has all privileges on the object;
+* an owner can give privileges on his owned object
+
+grant <privilege> [(columns)]
+on <object>
+to {<user>|<role>|PUBLIC}
+[with_grant_option];
+
+grantee=user, who has privilege
+grantor=user, who gives privilege
+======================================
+Data dictionary view=Description
+role_sys_privs=system privileges granted to roles (role, privilege etc) f: which privileges has a role
+role_tab_privs=table privileges granted to roles (role, owner, table_name, privilege etc) f: role and table related privilege
+user_role_privs=roles accessible by the user (username, granted_role etc) f: which roles has user
+user_sys_privs=system privileges granted to user (username, privilege etc) f: which privileges has user assign directly (without using roles)
+user_tab_privs=object privileges granted to the user's objects (..made+...recd) f: who from outside can look in his schema objects
+user_tab_privs_made=object privileges granted to the user's objects f: who from outside can look in his schema objects
+user_tab_privs_recd=object privileges granted to the user f:can given user look in other schemas, the tables and owners you will find here.
+user_col_privs_made=object privileges granted on the columns f: same as user_tab_privs_recd (can look outside his schema), but with columns limitation
+                    of the user's objects
+user_col_privs_recd=object privileges granted to the user on columns
+session_privs=contain privileges for user given directly AND from roles (see user_sys_privs for only directly given privileges)
+========================
