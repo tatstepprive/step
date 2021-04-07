@@ -82,12 +82,31 @@ Data dictionary view=Description
 role_sys_privs=system privileges granted to roles (role, privilege etc) f: which privileges has a role
 role_tab_privs=table privileges granted to roles (role, owner, table_name, privilege etc) f: role and table related privilege
 user_role_privs=roles accessible by the user (username, granted_role etc) f: which roles has user
+#what i can do in my own world because of direct grants to me (without roles counting)
 user_sys_privs=system privileges granted to user (username, privilege etc) f: which privileges has user assign directly (without using roles)
+#who can look in my world
 user_tab_privs=object privileges granted to the user's objects (..made+...recd) f: who from outside can look in his schema objects
 user_tab_privs_made=object privileges granted to the user's objects f: who from outside can look in his schema objects
 user_tab_privs_recd=object privileges granted to the user f:can given user look in other schemas, the tables and owners you will find here.
 user_col_privs_made=object privileges granted on the columns f: same as user_tab_privs_recd (can look outside his schema), but with columns limitation
                     of the user's objects
 user_col_privs_recd=object privileges granted to the user on columns
+#what i can do in my own world because of roles AND direct grants to me
 session_privs=contain privileges for user given directly AND from roles (see user_sys_privs for only directly given privileges)
+Tip:
+select * from user_tab_privs_made;
+row with grantee=PUBLIC table_name=<this_schema_name> grantor=<this_schema> privilege=inherit_privileges type=user
+means that this schema/user CAN GIVE access on any his own object to public, see other rows what is given to PUBLIC
 ========================
+#Common users
+Common user = user in root container with prefix c##<username>
+Tip: value for common_user_prefix is only visible when    alter session set container=CDB$ROOT;
+show parameter common_user_prefix;
+create user <user_name> identified by x; --gives error because no prefix c## in name
+create user c##<user_name> identified by x container=ALL;
+grant create session to c##<user_name> container=ALL;
+create role c##<role_name> container=ALL;
+grant create session to c##<role_name> container=ALL;
+grant c##<role_name> to c##<user_name> container=ALL;
+Local user vs common user: local user is only created and visible in pdb, common user is created in root container and can be used in all pdbs
+=====================

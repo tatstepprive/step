@@ -134,3 +134,27 @@ select * from user_col_privs;
 select * from user_col_privs_made;
 select * from user_col_privs_recd;
 
+--Create role;
+create role manager;
+
+--Collect privileges for role
+grant create table, create view, create sequence 
+to manager;
+
+--Check role
+select * from role_sys_privs where role='MANAGER';
+
+--Grant role to user
+grant manager to donald;
+
+--Check granted role when logging as donald
+select * from user_role_privs;
+
+--Show who has role, tip: where common='NO' these are added roles
+--see all roles for user without logging in his schema and looking at user_role_privs
+select
+   grantee, granted_role, common
+from
+   sys.dba_role_privs
+where   grantee not in ('SYS','SYSTEM');
+
