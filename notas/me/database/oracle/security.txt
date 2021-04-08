@@ -33,8 +33,11 @@ create user <user> identified by <pass>;
 create user demo identified by demo123;
 select * from all_users;
 
-# change user pass 
+# change user pass as super user (sys) 
 alter user demo identified by demo456;
+
+#change own pass as user demo (not super user): use replace !
+alter user demo identified by demo123 replace demo456;
 
 #check user
 select * from user_users;
@@ -191,3 +194,51 @@ Tip: login as sys and see diff in 18 rows:
 select * from session_privs 
 where privilege  not in (select privilege from role_sys_privs where role='DBA');
 =======================================
+#user profile 
+# User profile manages restrictions for
+* password parameters
+* resource limits
+
+user can have only one profile assigned.
+There is a default profile assinged silently
+
+# password parameters
+* account locking 
+   * FAILED_LOGIN_ATTEMPTS = number of failed logins before lock (default 10)
+   * PASSWORD_LOCK_TIME = number of days for which the account is locked after failed login attemps (default 1)
+   * INACTIVE_ACCOUNT_TIME = number of days the account can be inactive before it is locked (default UNLIMITED)
+* pass aging and expiration
+   * PASSWORD_LIFE_TIME = lifetime in days, after which the pass exprires (number of days you can use pass) (default 180, its half year)
+   * PASSWORD_GRACE_TIME= a grace periond in days, for changing the pass after good login after the pass has expired (default 7 )
+* pass history
+   * PASSWORD_REUSE_TIME = days that user cannot reuse the pass (default UNLIMITED)
+   * PASSWORD_REUSE_MAX = number of pass changes before the current pass can be reused (default UNLIMITED)
+* pass complexity
+   * PASSWORD_VERIFY_FUNCTION = checks pass complexity (default NULL)
+
+Model verification function: $ORACLE_HOME/rdbms/admin/utlpwdmg.sql catpvf.sql
+See sys owned verification functions: ora12c_verify_function, ora12c_strong_verify_function, verify_function_11g
+Tip: pass complexity check is not enforced for sys user. Sys user can set any pass.
+
+Show user profile:
+select profile from dba_user where username=<user>;
+
+Show values for profile
+select * from dba_profiles;
+#resource limits
+* Cpu resources
+CPU_PER_SESSION
+CPU_PER_CALL = 3000 (single call can not consume more than 30 sec cpu time)
+* Network ane memory resources
+connect time
+idle time
+concurrent sessions
+private sca
+* Disk IO resources
+
+Tip: set RESOURCE_LIMIT='TRUE', default is 'FALSE' and profile resource limits are ignored
+See the current setup: show parameter resource_limit;
+====================
+#show error explaination
+! oerr ora 2377
+=================== 

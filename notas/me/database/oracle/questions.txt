@@ -10,4 +10,4 @@
 8 RESP: lsnrctl status and see 'Uptime' and 'Start Date' columns.
 9 Diff between dedicated and default server for listener configuration?
 10 What will happen when user has role and we do revoke of some privileges given by role?
-
+11 Meaning of role without sys privileges like select_catalog_role?
