@@ -18,6 +18,15 @@ System privileges:
 All system privileges: 
 select * from system_privilege_map;
 =======================================
+#Username restrictions
+* less then 30 chars
+* start with letter
+* contains only letters, digits, $ and _
+* not reserved word (like table, user, alter, select etc)
+* automatically converted and saved in uppercase
+* skip rule contains only, reserved word, converted to uppercase when in ""
+* username can not be changed after creation
+
 # Create new user
 create user <user> identified by <pass>;
 
@@ -79,11 +88,15 @@ grantee=user, who has privilege
 grantor=user, who gives privilege
 ======================================
 Data dictionary view=Description
+dba_role_privs=role privileges
+dba_sys_privs=system privileges granted to users and roles
+dba_tab_privs=which user direct grant access to a table
+#roles related
 role_sys_privs=system privileges granted to roles (role, privilege etc) f: which privileges has a role
 role_tab_privs=table privileges granted to roles (role, owner, table_name, privilege etc) f: role and table related privilege
 user_role_privs=roles accessible by the user (username, granted_role etc) f: which roles has user
 #what i can do in my own world because of direct grants to me (without roles counting)
-user_sys_privs=system privileges granted to user (username, privilege etc) f: which privileges has user assign directly (without using roles)
+user_sys_privs=system privileges granted to current user (username, privilege etc) f: which privileges has user assign directly (without using roles)
 #who can look in my world
 user_tab_privs=object privileges granted to the user's objects (..made+...recd) f: who from outside can look in his schema objects
 user_tab_privs_made=object privileges granted to the user's objects f: who from outside can look in his schema objects
@@ -97,6 +110,7 @@ Tip:
 select * from user_tab_privs_made;
 row with grantee=PUBLIC table_name=<this_schema_name> grantor=<this_schema> privilege=inherit_privileges type=user
 means that this schema/user CAN GIVE access on any his own object to public, see other rows what is given to PUBLIC
+Tip: users with sysdba and syoper privileges: select * from v$pwfile_users;
 ========================
 #Common users
 Common user = user in root container with prefix c##<username>
@@ -110,3 +124,70 @@ grant create session to c##<role_name> container=ALL;
 grant c##<role_name> to c##<user_name> container=ALL;
 Local user vs common user: local user is only created and visible in pdb, common user is created in root container and can be used in all pdbs
 =====================
+#Oracle supplied administrator accounts
+SYS (all admin tasks)
+SYSTEM (admin tasks, except backup and recovery, database upgrade)
+
+Other admin accounts:
+SYSBACKUP (backup RMAN and recovery)
+SYSDG (data guard operations)
+SYSRAC (real application cluster RAC tasks)
+SYSMAN (enterprise manager tasks)
+SYSKM (transparent data encryption TDE wallet operations)
+Tip: show sys users: select * from dba_users where username like 'SYS%' order by username;
+
+# 7 Special system privileges for admin
+SYSDBA
+* startup and shutdown
+* alter database (open, mount, backup, change character set)
+* create database
+* create spfile
+* alter database archivelog
+* alter database recover
+* view user data
+
+SYSOPER
+* all sysdba except view user data and complete recovery only (no until time etc)
+
+SYSBACKUP 
+* backup and recover operation using RMAN or sqlplus
+
+SYSDG 
+* dataguard operations using Data Guard Broker or dgmgrl
+
+SYSKM
+* transparent data encryption TDE operations
+
+SYSRAC
+* oracle real application cluster RAC operations
+
+SYSASM
+* storage administration
+
+# Oracle supplied roles
+Tip: 89 rows: select role from dba_roles ;
+
+DBA=includes system privileges and other roles, connect to cdb/pdb, 
+only for admins. (sys and system have this role by default)
+Tip: 235 rows: select * from dba_sys_privs where grantee='DBA';
+
+RESOURCE=create table, create sequence, create triger, create type, 
+create procedure, create indextype, create operator, create cluster
+Tip: select * from dba_sys_privs where grantee='RESOURCE';
+
+SCHEDULER_ADMIN=create any job, create external job, create job, 
+execute any class, execute any program, manage scheduler
+Tip: select * from dba_sys_privs where grantee='SCHEDULER_ADMIN';
+
+SELECT_CATALOG_ROLE=select privileges on data dictionary objects
+Tip: not in dba_sys_privs, but in dba_roles;
+
+Tip: all roles 89 rows: select role from dba_roles ;
+Tip: roles without sys privs like SELECT_CATALOG_ROLE
+60 rows: select role from dba_roles  where role not in (select grantee from dba_sys_privs group by grantee) order by role;
+Tip: create local admin for each pdb with role dba to have local admin for pdb.
+#sysdba vs dba
+Tip: login as sys and see diff in 18 rows:
+select * from session_privs 
+where privilege  not in (select privilege from role_sys_privs where role='DBA');
+=======================================
