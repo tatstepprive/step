@@ -15,3 +15,19 @@ yum install xeyes
 #execute and see graphical output on client side
 xclock
 #===================================
+#static ip
+#see network interface
+ifconfig
+#edit file and remove DHCP=yes
+nano /etc/sysconfig/network-scripts/ifcfg-enp0s3
+DEVICE=enp3s0
+ONBOOT=yes
+IPADDR=192.168.1.10
+NETMASK=255.255.255.0
+GATEWAY=192.168.1.1
+#restart network interface
+ifdown enp0s3
+ifup enp0s3
+#validate route
+ip a show enp0s3
+#==================================
