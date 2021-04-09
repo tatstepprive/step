@@ -108,7 +108,10 @@ user_col_privs_made=object privileges granted on the columns f: same as user_tab
                     of the user's objects
 user_col_privs_recd=object privileges granted to the user on columns
 #what i can do in my own world because of roles AND direct grants to me
-session_privs=contain privileges for user given directly AND from roles (see user_sys_privs for only directly given privileges)
+session_privs=privileges for the user given directly AND via roles (see user_sys_privs for only directly given privileges)
+#roles that i have
+session_roles= roles that are currently enabled to the current user
+
 Tip:
 select * from user_tab_privs_made;
 row with grantee=PUBLIC table_name=<this_schema_name> grantor=<this_schema> privilege=inherit_privileges type=user
