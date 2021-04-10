@@ -1,0 +1,19 @@
+# Sqldeveloper manage tablespaces
+select connection, R-click, Manage Database
+Exp: column pct_used=percent used
+#======================================
+# Sqldeveloper create tablespace
+Menu View, Dba, + connection to db as dba user
+Tree: Storage, Tablespaces, button Actions..., create new
+Window: name: ts_01.dbf
+        directory: /u01/app/oracle/ORCL/pdb1
+        file size: 100 M
+        Tab properties: file type: small file
+                        online status: online
+			logging: logging
+			segment management: auto
+			extent management: local
+                        auto allocate on
+       Tab Default parameters: Table compression: no compress
+       Tab DDL: (check sql command)
+#=======================================
