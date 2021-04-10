@@ -1,0 +1,48 @@
+#File system:
+SAN=storage area network
+NAS=network attached storage
+NFS=network file system
+ASM=automatic storage management
+#===============================================
+#Storage
+Logical:               Physical:
+Database
+  |
+  n
+Tablespace ----------n Data file (Storage System: SAN,NAS,NFS,
+  |                                               ASM,Exadata,File System)
+  n
+Segment
+  |
+  n
+Extent
+  |
+  n
+Oracle data block
+
+Database is set of tablespaces (System,Sysaux,Temp,Undo,Users)
+Tablespace is set of segments
+Segment is set of extents
+Extent is set of oracle data blocks
+Oracle data block (1block=8K) contains one or more rows (=row pieces)
+One oracle data block has block header, free space, row data
+#=========================================================
+#Tablespaces 
+* System f: used for core functionality, belong to sys schema
+            auto created with db, can not be renamed or dropped
+* Sysaux f: auxiliary(=help) tablespace to system tablespace,
+            reduce the load or system tablespace, 
+            auto created with db, can not be renamed or dropped
+* Temp   f: storing global temp tables, sort and join operations
+* Undo   f: used to rollback (=undo) changes in db,
+            used by recovering db, when rollback statement used,
+            provide read consistency
+*Users   f: stores user objects and data, 
+            default tablespace for all new users
+All these tablespaces exist in cdb and pdbs.
+#Types of tablespace
+* Permanent  (system, sysaux, users) f: persistent schema objects
+* Undo       (undo)                  f: manages undo data
+* Temporary  (temp)                  f: objects for session duration
+#====================================================== 
+

@@ -7,5 +7,6 @@ shift+F4 : opens a Describe window for current object at cursor
 ctrl+F7 : format SQL
 ctrl+/ : toggles line commenting
 ctrl+e : incremental search
-
+ctrl-shift+d : duplicate line
+alt-shift+d : delete line
 Configuring Keyboard Shortcuts in SQL Developer: Tools > Preferences > Shortcut Keys
