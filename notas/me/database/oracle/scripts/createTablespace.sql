@@ -1,6 +1,6 @@
 create tablespace ts1;
 --ORA-02199: missing DATAFILE/TEMPFILE clause
-/* Oracle managed files
+/* Oracle managed files (OMF)
 datafile is optional
 when datafile is included, file name is optional
 if both not provided: check parameter db_create_file_dest, set if his value is empty
