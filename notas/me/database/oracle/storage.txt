@@ -96,4 +96,15 @@ select * from dba_data_files;
 --user_bytes: file size available for user data (file size without metadata)
 --user_blocks: file size available for user data in blocks (file size in blocks without metadata)
 -- calculate metadata file size= bytes-user_bytes
+#====================================================
+Segment is a set of extents allocated for a certain logical structure
+Segment type:
+ * Table and cluster
+ * Index
+ * Undo
+ * Temporary
 #=====================================================
+coalesce free space=merge separated free space (fragmented) together to one consecutive unit (contiguous section of block)
+row chaining= row does not fit in one block and goes in a chain od data blocks. Exp: column with datatype LONG or LONG RAW
+row migration= after update row does not more fit in one block and will be migrated to new block to fit content as one block one row.
+Note: if row chained or migrated, IO performance decreases (more work to do, lower performance)

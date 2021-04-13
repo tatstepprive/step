@@ -11,6 +11,25 @@ where owner='MOLLY' and segment_name='CITY';
 -- if one row, 1 extent, 8 blocks
 -- see bytes to know how big is table, table size in bytes
 
+--or use other segment table, for current user (if logged in as molly)
+select * from user_segments
+where owner='MOLLY' and segment_name='CITY';
+
+--see parameter for deferred (later) segment creation, if true no segments if table empty (default is true)
+--if false, segment will be created by table creation, if true segment will be created only by table insertion
+show parameter deferred_segment_creation
+
+--set parameter to false, 2 ways
+-- 1 way
+alter session set deferred_segment_creation=false;
+-- 2nd way
+create table bla (n nubmer) segment creation immediate;
+
+--reset the parameter deferred_segment_creation to default true, so no segments if no inserts
+--deferred=later
+alter session set deferred_segment_creation=true;
+create table bla2 (n number) segment creation deferred;
+
 --extents info
 select * from dba_extents
 where owner='MOLLY' and segment_name='CITY';
