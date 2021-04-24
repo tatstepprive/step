@@ -1,0 +1,47 @@
+Globalization=NLS (national language support)
+Time zone influence (standards) for:
+ * language
+ * date formats 
+ * numbers
+ * monetory formats 
+Character set= defined encoding schema for representing characters as a sequence of bits
+ * OS - Microsoft Word
+ * product own - Oracle (>200 character sets)
+Character set= set of distinct characters:
+ * upper/lower letters
+ * digits 0-9
+ * punctuation marcs
+ * special characters (like end of line, page break etc)
+Character set representation for one character:
+ * single byte = 7 or 8 bits / character=>2**7=128 chars 2**8=256
+ * multi byte = 1-3 bytes / character= 7-8 bits-21/24 bits / character
+   * fixed width = always use 2 bytes per character
+   * variable width = some characters use 1 byte, others 2/3 bytes
+Expl:
+ASCII single byte 7 bits 128 chars
+EBCDIC  single byte 7 bits  128 chars
+US7ASCII single byte 7 bits United States 128 chars
+YUG7ASCII single byte 7 bits Yugoslavian 128 chars
+WE8ISO8859PI5 single byte 8 bits Western European
+AL16UTF16 multibyte fixed width (2 bytes/character)
+AL32UTF8 multibyte variable width 32000 chars (ORACLE RECOMMENDS)
+======================================
+Supported languages:
+select * from v$nls_valid_values where parameter='LANGUAGE';
+Supported sort orders:
+select * from v$nls_valid_values where parameter='SORT';
+Supported territories:
+select * from v$nls_valid_values where parameter='TERRITORY';
+
+Tip: default nls_language influences error msgs, dates language, sort order
+show parameter nls_language; --default AMERICAN
+show parameter nls_date_language; --default AMERICAN 
+show parameter nls_sort; --default BINARY
+
+Tip: default nls_territory influence 
+ * day and week numbering, 
+ * credit and debit symbols
+ * date formats
+ * decimal and group numeric separators
+ * currency symbols
+======================================
