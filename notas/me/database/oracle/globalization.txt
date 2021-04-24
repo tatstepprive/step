@@ -29,8 +29,10 @@ AL32UTF8 multibyte variable width 32000 chars (ORACLE RECOMMENDS)
 Character set is used to store chars in column varchar2, clob, char, long.
 National Character set= second charachter set, used for chars in column nvarchar2, nclob, nchar.
                       = only unicode (AL16UTF16 and UTF8)
+                      = UTF8 != AL32UTF8 (select * from v$nls_valid_values where parameter='CHARACTERSET' and value like '%UTF%';)
 Defaults: character set=US7ASCII and national character set=AL16UTF16
           proposed at db creation time. 
+          now NLS_CHARACTERSET=AL32UTF8 and NLS_NCHAR_CHARACTERSET=AL16UTF16 (select * from nls_database_parameters where parameter like '%SET';)
 ======================================
 Supported languages:
 select * from v$nls_valid_values where parameter='LANGUAGE';
@@ -125,3 +127,51 @@ select * from nls_database_parameters; --shows character set and version
 select * from nls_instance_parameters; --shows no character set and version
 select * from v$nls_parameters; --shows character set
 select * from nls_session_parameters; --shows no character set
+====================
+Client side environment settings:
+NLS_LANG=1_2.3=<language>_<territory>.<charset>=[NLS_LANGUAGE]_[NLS_TERRITORY].[NLS_CHARACTERSET]
+1,2,3 are all optional (if language is given, territory will change according automatically)
+select * from v$nls_parameters where parameter 
+in ('NLS_LANGUAGE','NLS_TERRITORY','NLS_CHARACTERSET');
+NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+or it could be:
+NLS_LANG=FRENCH_CANADA.WEISO8859P1
+Tip: presentation to user according NLS_LANG, saving in db according database globalisation settings.
+NLS_LANG can be set on OS:
+setenv NLS_LANG American_America.UTF8
+export NLS_LANG=American_America.UTF8
+Test case1:
+export NLS_LANG=FRENCH
+export NLS_DATE_FORMAT='Day dd Month yyyy'
+sqlplus / as sysdba
+sql> select sysdate from dual;
+output:
+SYSDATE
+--------------------------
+Samedi	 24 Avril     2021
+Test case2:
+export NLS_LANG=RUSSIAN
+export NLS_DATE_FORMAT='Day dd Month yyyy'
+sqlplus / as sysdba
+sql> host echo $NLS_LANG
+sql> select sysdate from dual;
+output:
+SYSDATE
+----------------------------
+�������     24 ������	2021
+sql>select 'консэквюат' x, n'консэквюат' y from dual;
+output:
+X					 Y
+---------------------------------------- --------------------
+консэквюат			 консэквюат
+Question: why the messages and sysdate gives not readable chars, when select from table works?
+====================================
+Session level globalisation: (can use logon trigger)
+sql> alter session set nls_date='dd.mm.yyyy';
+sql> execute dbms_session.set_nls('nls_date_format', '''dd.mm.yyyy''');
+
+===================================
+Statement level globalisation 
+sql> select to_char(sysdate, 'Day dd, Month yyyy', 'NLS_DATE_LANGUAGE=DUTCH'), to_char(sysdate, 'Day dd, Month yyyy', 'NLS_DATE_LANGUAGE=FRENCH') from dual;
+output: weekday date, month year in multi languages
+==================================
