@@ -165,6 +165,27 @@ X					 Y
 ---------------------------------------- --------------------
 консэквюат			 консэквюат
 Question: why the messages and sysdate gives not readable chars, when select from table works?
+Fix: export NLS_LANG=RUSSIAN_RUSSIA.AL32UTF8 
+(Reason unreadable chars is mismatch between the locale-specific NLS characterset and the database characterset)
+-- locale-specific characterset
+select value
+from   v$nls_parameters 
+where  parameter = 'NLS_CHARACTERSET';
+-- database characterset
+select value
+from   nls_database_parameters 
+where  parameter = 'NLS_CHARACTERSET';
+output: AL32UTF8
+use it in NLS_LANG and dont skip it as optional value
+Test on error message:
+SQL> yy;
+SP2-0042: неизвестная команда "yy" - остаток строки опущен.
+SQL> select sysdate from dual;
+
+SYSDATE
+--------------------------------------------------------------------------------
+Суббота     24 Апрель   2021
+
 ====================================
 Session level globalisation: (can use logon trigger)
 sql> alter session set nls_date='dd.mm.yyyy';
