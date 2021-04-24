@@ -16,3 +16,4 @@
 14 What are oracle managed files (OMF)?
 14 RESP: OMF= oracle managed files are file for tablespaces where creation path and name can be given by database (unique),
 the size and size extension are managed automatically by db, server alerts generation based on thresholds  etc 
+15 What is view for avialable calendars? (default 'Gregorian')
