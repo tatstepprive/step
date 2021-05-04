@@ -1,0 +1,65 @@
+MTBF=mean time between failures (should increase); How frequently db not available 
+MTTR=mean time to recover (should decrease); How many time needs to be available again, repair time
+RAC=clustered db of 1 physical db opened by multiple instance on multiple pcs; 
+    f:100% availability (protects against hardware, os, software failures)
+Streams=>=2 db on separate pcs kept in sync; 
+    f:100% availability (protects against hardware, os, software, disk, network  failures)
+DG=data guard; 1 primary db and multiple standby db kept in sync;
+    f: zero/no data loss.
+
+Time line:
+MTBF              MTTR         MTBF             MTTR
+::::::::::::://///............:::::::::::::////...........:::::::::::::
+db OK        | db NOK         |db OK       |db NOK        |db OK
+
+-----------------------------------------------------------------------
+PMON=process monitor (background process)
+DDL=data definition language (create, drop etc)
+DML=data manipulation language (insert, update, delete)
+LGWR=log writer (background process)
+DBWR=DBWn=database writer (till 20 background processes DBW0-DBW20)
+SMON=system monitor f: opens db after check db files
+Categories Failures:
+1 Statement failure: 
+ * because invalid data like format or constaint viotation (no dba error)
+ * because of logical error in app programming causing deadlock (no dba error)
+ * because space management problems like unable extent a segment (dba error)
+ * because of insufficient privileges (no dba error)
+Tip: if statement fails, it will be rolled back (auto revert using of undo), other DML will remain uncommitted
+
+2 User process failure
+ * because of abnormal exit instead of logging out;
+ * because of terminal rebooting
+Tip: PMON will clean up server processes which report lost contact with user process
+     PMON will roll back transaction, release any locks held by the session, release PGA to os.
+
+3 Network failure
+ * because no entry in tns_names.ora on client side
+ * because db listener is not running (dba error)
+ * many concurrent connections (on server add second network card (on separate subnet), configure 2 listeners with different address/port) 
+Question: multiple listeners on same network card with diff port is possible? Or should be listener per card?
+
+4 User errors:
+ * DDL statements like drop table have commit included/builtin, no rollback possible
+ * DML statements with user commit, no rollback possible
+Tip: Commit built into DDL statements will include any preceding DML statements
+Tip: dba can fix commited transactions by using flashback query, flashback drop, flashback db and incomplete recovery
+Tip: with flashback database and incomplete recovery all db will be back in time before error occured, so you will lose work done
+
+5 Media failure:
+ * because of damage of disk and losing db files
+ * because of user error accidentally deleting db files 
+Tip: db files (control file, online redo logs, datafiles)
+Tip: multiplex control file, online redo logs, archive logs
+Tip: backup data files, control file, archive logs
+Tip: can not multiplex datafile, no need to backup online redo logs.
+
+6 Instance failure (disorderly shutdown of the instance):
+  * because of powercut, rebooting server
+  * because of critical hardware problems
+  * because of command SHUTDOWN ABORT
+Tip: corrupted/inconsistent db=missing commited transactions, stored uncommited transactions
+Tip: LGWR writes constanly to online redo log files, DBWn writes to data files
+Tip: a commit does not write to datafiles, but LGWR flushes log buffer to online redo log files 
+Restore= extract file from backup and put it on where it should be
+Recover= auto process, applying changes extracted from redo logs (both online and archived)
