@@ -63,3 +63,37 @@ Tip: LGWR writes constanly to online redo log files, DBWn writes to data files
 Tip: a commit does not write to datafiles, but LGWR flushes log buffer to online redo log files 
 Restore= extract file from backup and put it on where it should be
 Recover= auto process, applying changes extracted from redo logs (both online and archived)
+----------------------------------------------------------
+Recovery: command STARTUP;
+SCN=system change number; f: at this point all changes are written to the data files by DBWn.
+Tip: the more up to date the checkpoint position, the faster instance recovery
+parameter FAST_START_MTTR_TARGET in seconds (default zero, so no effect; max=3600 sec (60 min=1hour)).
+Tip: checkpoint auto-tuning is enabled if target_mttr is not zero
+-- see estimated_mttr (estimated time to recover in sec),
+-- target_mttr (=fast_start_mttr_target=sec to recover), 
+-- writes_mttr (number of times WDBn had to write in addition to meet target_mttr)
+select * from v$instance recovery;
+---------------------------------------------------------
+Checkpoint=the point in redo stream from which instance must start after following a crash)
+* incremental checkpoint (auto by DBWn, some dirty buffers are written to disk)
+* full checkpoint (all dirty buffers are written to disk)(on request, on normal/immediate/transactional shutdown)
+    cmd: alter system checkpoint;
+* partial checkpoint (auto part of certain operations)
+    * when taking tablespace offline (all tablespace blocks)
+    * when taking datafile offline (all datafile blocks)
+    * when dropping a segment (all segment blocks)
+    * when truncate a table (all table blocks)
+    * when putting tablespace in backup mode (all tablespace blocks)
+----------------------------------------------------------
+Controlfile
+f: used to mount db, while db open it will be read and written.
+Tip: multiplex (have copies) min 2 max 8. Recommends: 3 (default) 
+     by install 3 multiplexed controlfiles are in same dir, they should be in diff dirs/disks
+Add or move controlfile steps:
+show parameters control_files;
+shutdown immediate;
+-- move or copy control file (do no move or copy when db open)
+startup nomount;
+alter system set control_files="/data/control01.ctl","/data2/control01.clt","/data3/control03.ctl" scope=spfile;
+startup force;
+show parameters control_files;
