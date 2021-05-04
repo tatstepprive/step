@@ -1,3 +1,5 @@
+show CON_NAME;
+--PDB1
 show parameters control_files;
 shutdown immediate;
 -- move or copy control file (do no move or copy when db open)
