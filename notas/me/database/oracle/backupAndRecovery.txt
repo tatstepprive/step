@@ -89,6 +89,7 @@ Controlfile
 f: used to mount db, while db open it will be read and written.
 Tip: multiplex (have copies) min 2 max 8. Recommends: 3 (default) 
      by install 3 multiplexed controlfiles are in same dir, they should be in diff dirs/disks
+Note: damage of any control file-> crash db immediately
 Add or move controlfile steps:
 show parameters control_files;
 shutdown immediate;
@@ -97,3 +98,28 @@ startup nomount;
 alter system set control_files="/data/control01.ctl","/data2/control01.clt","/data3/control03.ctl" scope=spfile;
 startup force;
 show parameters control_files;
+--------------------------------------------------------------
+Online redo log files
+Structure: >=2 online log file group, 
+           >=1 member(=physical file)/group (Recommends >=2member/group)
+(see CreateDB.sql, see control file MAXLOGFILES (=16) MAXLOGMEMBERS(=3))
+Tip: multiplex members of a log file group on separate disks
+Note: damage any member -> db stay open when any surviving member
+Note: group and member can be added/moved when db is open.
+--groups
+--column status: inactive (=not used), current (=used by LGWr), active (was recent used and will be applied by recovery if db will crash now
+--column sequence: LGWr switch counter after db start
+--column member: members/group
+select * from v$log; --1row/group
+--members
+--column member: path to physical file
+--column status: empty(=ok), stale(=member not yet used), invalid(=problem! or new member never used and we need force log switch) 
+select * from v$logfile; --1row/member
+Tip: we should monitor invalid members
+--force a log switch, LGWR will take other group to write online redo logs
+alter system switch logfile;
+--write changes to datafiles (sync redo to datafiles)
+alter system checkpoint;
+--add member
+alter database add logfile member '/ora/oracle/app/oradata/redo01a.log' to group1;
+----------------------------------------------
