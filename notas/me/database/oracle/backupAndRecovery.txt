@@ -103,6 +103,7 @@ Online redo log files
 Structure: >=2 online log file group, 
            >=1 member(=physical file)/group (Recommends >=2member/group)
 (see CreateDB.sql, see control file MAXLOGFILES (=16) MAXLOGMEMBERS(=3))
+member=filename=redo0x.log (x=1,2,3, you can add new as redo01A.log etc)
 Tip: multiplex members of a log file group on separate disks
 Note: damage any member -> db stay open when any surviving member
 Note: group and member can be added/moved when db is open.
@@ -117,9 +118,35 @@ select * from v$log; --1row/group
 select * from v$logfile; --1row/member
 Tip: we should monitor invalid members
 --force a log switch, LGWR will take other group to write online redo logs
+-- online redo log files are overwritten when log switch occur
 alter system switch logfile;
 --write changes to datafiles (sync redo to datafiles)
 alter system checkpoint;
 --add member
 alter database add logfile member '/ora/oracle/app/oradata/redo01a.log' to group1;
 ----------------------------------------------
+Archive log files
+By default: db created in noarchive mode
+Archive mode f: on log switch online redo log will be copied to archive destination
+ARCn=archiver process (background process ARC0-ARC4 max ARC30) When problems writting to archive destination (fs full) db will hang
+log_archive_format= each archive log has unique name (%d=db id, %t=thread nr, %r=incarnation nr, %s=log switch sequence nr)
+Tip: multiplex archive log by giving archive destination log_archive_dest_n (n=1-10) 
+--Activate archivelog mode
+-- create archive dirs
+-- sqlplus / as sysdba
+sql>alter system set log_archive_dest_1='LOCATION=/u01/app/oracle/oradata/ORCL/archive1';
+sql>alter system set log_archive_dest_2='LOCATION=/u01/app/oracle/oradata/ORCL/archive2';
+sql> alter system set log_archive_format='arch_%d_%t_r%_s%.log' scope=spfile;
+sql> shutdown immediate;
+sql> startup mount;
+sql> alter database archivelog;
+sql> alter database open;
+sql>show parameter log_archive_format;
+sql> select log_mode from v$database;
+sql> select archiver from v$instance;
+sql> alter system switch logfile;
+sql> select name from v$archived_log;
+
+Deprecated parameters: LOG_ARCHIVE_DEST (use log_archive_dest_n n=1-10)
+Deprecated parameters: LOG_ARCHIVE_DUPLEX_DEST (use log_archive_dest_n n=2-10)
+
