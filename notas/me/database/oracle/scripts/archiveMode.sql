@@ -15,7 +15,9 @@ sql> alter database open;
 sql>show parameter log_archive_format;
 sql>show parameter spfile;
 sql> select log_mode from v$database;
+--output log_mode=ARCHIVELOG
 sql> select archiver from v$instance;
+--output archiver=started
 sql> alter system switch logfile;
 sql> select name from v$archived_log;
 

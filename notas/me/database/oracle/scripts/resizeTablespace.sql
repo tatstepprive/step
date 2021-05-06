@@ -9,5 +9,6 @@ alter tablespace SYSAUX add datafile '/u01/app/oracle/oradata/ORCL/pdb1/sysaux03
 
 
 --resize undo tablespace because it is more then 95% used
+--Attention not 150MB but 150M
 select * from dba_data_files;
 alter database datafile '/u01/app/oracle/oradata/ORCL/pdb1/undotbs01.dbf' resize 150M;

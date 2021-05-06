@@ -370,3 +370,9 @@ sql> connect <user>/<pass>@<service_name_from_tnsnames>
 Tip: tnsnames.ora has no relation between entry (alias) and service_name or instance name
      But keep them same to make it simple.
 ================================================
+Database Control=$ORACLE_HOME/bin/emctl is not available in release 19c 
+Note: Enterprise Manager Database Control is no longer available in Oracle Database 12c. 
+You can use Enterprise Manager Cloud Control 12c or EM Express 12c to manage your Oracle Database 12c databases.
+================================================
+xclock is a handy tool to test if the DISPLAY variable
+================================================
