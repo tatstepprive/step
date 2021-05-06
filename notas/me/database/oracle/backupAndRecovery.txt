@@ -153,6 +153,7 @@ Deprecated parameters: LOG_ARCHIVE_DUPLEX_DEST (use log_archive_dest_n n=2-10)
 FRA=Flash Recovery Area (default location of recovery related files)
 RMAN=recovery manager f: manage space in FRA (flash recovery area)
 By default: not enabled, but when created with dbca then enabled
+Tip:Flashback works without FRA (flash recovery area) dont confuse them. Dont confuse FRA (flash recovery area) and Flashback
 Files:
   * permanent (dont remove)
       * controlfile multiplexed copies

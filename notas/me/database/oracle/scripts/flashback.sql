@@ -1,3 +1,4 @@
+--Flashback works without FRA (flash recovery area) dont confuse them.
 --Flashback query
 select count(*) from molly.city;
 --1,002,002 rows

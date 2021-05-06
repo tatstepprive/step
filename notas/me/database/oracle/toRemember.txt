@@ -1,3 +1,13 @@
 alter pluggable database all open;
 select dbms_metadata.get_ddl('TABLESPACE','TS2') from dual;
 grant unlimited tablespace to john;
+--see if db in archive mode
+select log_mode from v$database;
+--see redo logs groups
+select * from v$log;
+--see redo log group memebers
+select * from v$logfile; 
+-- online redo log files are overwritten when log switch occur. 
+-- Logfile switch will not trigger checkpoint, LGWR will take other inactive member to write
+-- force LGWR switch
+alter system switch logfile;
