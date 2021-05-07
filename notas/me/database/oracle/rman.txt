@@ -13,3 +13,31 @@ Files CAN NOT backed up by RMAN:
  * online redo log files
  * oracle net configuration files
  * tempfiles
+------------------------------
+#connect db
+rman target /
+#show configuration defaults
+rman>show all;
+#list all your backup sets 
+rman> list backup;
+#list all your image copies
+rman> list copy;
+#list datafiles (not control file or archived logs)
+rman> report schema;
+#need backup
+rman> report need backup;
+#show needs to be deleted according to retention policy
+rman> report obsolete;
+#clean up, make space, remove obsolete
+rman> delete obsolete;
+------------------------------
+Views:
+ v$backup_files;
+ v$backup_set;
+ v$backup_piece;
+ v$backup_redolog;
+ v$backup_spfile;
+ v$backup_datafile;
+ v$backup_device;
+ v$rman_configuration;
+-----------------------------

@@ -18,3 +18,5 @@ select * from v$recovery_area_usage;
 --set fra=fast recovery area
 ALTER SYSTEM SET DB_RECOVERY_FILE_DEST_SIZE = 20G SCOPE=BOTH ;
 ALTER SYSTEM SET DB_RECOVERY_FILE_DEST = '/oracle/ora01/ORCL/fast_recovery_area' SCOPE=BOTH;
+select * from v$flash_recovery_area_usage;
+-- contains rows (=8)
