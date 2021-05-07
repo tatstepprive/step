@@ -1,0 +1,15 @@
+RMAN=Recovery manager (backup util)
+
+Files backed up by RMAN:
+ * spfile (=dynamic server parameters file)
+ * control file
+ * data files
+ * archive redo log files
+ * backup set pieces
+
+Files CAN NOT backed up by RMAN:
+ * pfile (=static parameters file)
+ * password file
+ * online redo log files
+ * oracle net configuration files
+ * tempfiles

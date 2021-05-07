@@ -1,0 +1,19 @@
+Backup types:
+* Closed=cold=consistent=offline=db shut down 
+* Open=hot=inconsistent=online=db open (in use)=>archive mode required
+
+* Whole=all data files and control files
+* Partial=subset data files and control files=>archive mode required
+
+* Full=all used blocks of the backuped files 
+* Incremental=only changed used blocks since the last backup of the backuped files
+    * cumulative=all changed used blocks since the last full backup
+    * differential=all changed used blocks since the last incremental backup
+
+Recommendation:
+Monthly: closed, whole, full backup
+Daily: open, whole, incremental backup
+
+Used utils:
+RMAN=Recovery manager (included in db)
+External tools (commvault)
