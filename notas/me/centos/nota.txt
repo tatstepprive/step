@@ -31,3 +31,42 @@ ifup enp0s3
 #validate route
 ip a show enp0s3
 #==================================
+#resize disk 
+#In vbox, stop vm; select vm, settings, storage, controller:SATA, +, Add Hard Disk; start vm
+#on vm
+df -h
+#see /dev/mapper/my_vg-my_lv to resize
+fdisk -l | more
+#see your added disk like /dev/sdb or /dev/sdc or /dev/sdd (dont use /dev/sda - its root)
+# partition disk your found
+fdisk /dev/sdb
+#chouse n (=new partition), p (=primary), enter all for defaults, p (=partion to see your new partition), t, l, 8e (=Linux LVM), w (=write to save)
+fdisk -l | more 
+#see Device=/dev/sdb1 Id=8e System=Linux VM
+#reboot vm
+reboot now
+# after reboot
+fdisk -l /dev/sdb1
+# start extending
+# see group-disk relation (VG Name-PV Name)
+pvdisplay
+#see volume group (VG) name to extend and disk (PG)
+pvs
+#see info about VG
+vgdisply my-vg
+#create physical volume
+pvcreate /dev/sdb1
+#group extend
+vgextend my-vg /dev/sdb1
+#logical volume extend
+lvextend -L+50G /dev/mapper/my_vg-my_lv
+# grow fs system
+xfs_growfs /dev/mapper/my_vg-my_lv
+# xfs_growfs gives error: xfs_growfs: is not a mounted XFS filesystem
+#Fix xfs_growfs <mount-point-name>
+xfs_growfs /home
+#see result
+df -h
+#use if needed, gives info about block devices 
+lsblk
+#===============================
