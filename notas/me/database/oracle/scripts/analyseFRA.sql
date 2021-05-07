@@ -14,3 +14,7 @@ select * from v$backup_piece;
 --empty, no rows
 select * from v$recovery_area_usage;
 --empty, no rows
+-------------------------
+--set fra=fast recovery area
+ALTER SYSTEM SET DB_RECOVERY_FILE_DEST_SIZE = 20G SCOPE=BOTH ;
+ALTER SYSTEM SET DB_RECOVERY_FILE_DEST = '/oracle/ora01/ORCL/fast_recovery_area' SCOPE=BOTH;
