@@ -1,8 +1,9 @@
 RMAN=Recovery manager (backup util)
+Location: $ORACLE_HOME/bin/rman
 
 Files backed up by RMAN:
  * spfile (=dynamic server parameters file)
- * control file
+ * control file (rman takes read-consistent snapshot and back it up)
  * data files
  * archive redo log files
  * backup set pieces
@@ -13,6 +14,87 @@ Files CAN NOT backed up by RMAN:
  * online redo log files
  * oracle net configuration files
  * tempfiles
+------------------------------
+Channels=server processes of rman for backup and restore
+ * type disk = read/write backup on disk
+ * type sbt_type = read/write on a tape device ( character devices /dev/st<nr>, /dev/nst<nr> nr=0,1...)
+ * type sbt = same as sbt_type
+Repository=metadata about backups=names and locations of the pieces (files) in backupset or image copies
+          = stored in control file of  target db (and optionally in tables in catalog db)
+Catalog db=optionally db, containts rman repository (=metadata about backups)
+Target db=db to backup/restore/recover
+Auxiliary db=optionally db created from a backup of target db
+Tip: rman can connect target db, catalog db, auxiliary db
+Fractured block=block is updated by DBWn when RMAN backup busy on it, useless in backup, rman detects and retry till block consistent
+Tip: rman backup only written blocks=allocated to segment blocks=used blocks (space saving)
+------------------------------
+CTWR= Change Tracking Writer=Block change tracking for faster RMAN (additional background process)
+    f: records the address of changed block in change tracking bitmap file (not enable by default) 
+#Enable change tracking (has little perfomance overhead)
+alter database enable block change tracking using file '/u01/app/oracle/oradaa/orcl/change_tracking.dbf';
+#check change tracking file created
+select * from v$block_change_tracking;
+#check CTWR change tracking process started
+select program from v$process where program like '%CTWR%';
+------------------------------
+Rman commands:
+backup= create rman backup (backup set, compressed backup set, image copy)
+copy=create rman image copy (deprecated, use backup command)
+-----------------------------
+Rman scripts:
+#Rman script for offline, full, whole backup (d%=db id, %s=backup set nr, %p=piece nr starting 1 for each backup set)
+run {
+shutdown immediate;
+startup mount;
+allocate channel d1 type disk;
+backup as backupset database
+format '/ora/backup/df_%d_%s_%p';
+alter database open;
+}
+#Rman script for online, full, whole backup
+run {
+allocate channel d1 type disk;
+backup as compressed backupset database;
+}
+#Rman script for fast online, full, whole backup 
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+backup as compressed backupset filesperset 4 database;
+}
+#Rman script for fast online, full, whole backup with archivelog                
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+backup as compressed backupset filesperset 4 database;
+backup as commpressed backupset archivelog all delete all input;
+}
+#Rman script for online backup tablespace
+run {
+allocate channel d2 type disk;
+backup as compressed backupset format '/ora/backup/df__%d_%s_%p' tablespace my_tablespace;
+}
+#Rman script for online backup individual datafile (using unique datafile number or datafile name)
+run {
+allocate channel d2 type disk;
+backup as compressed backupset datafile 4;
+}
+#Rman script for online backup archive log files in location and starting with 
+run {
+allocate channel d2 type disk;
+backup as backupset archivelog like '/u01/archive1/arch_1%';
+}
+#Rman command for incremental level 0 backup (=staring point containing all changes)
+backup as backupset incremental level 0 database;
+#Rman command for incremental level 1 backup (=only blocks changed since level 0 or level 1: 0->1->1...)
+#tip: if no level 0 backup, it will perform level 0 backup
+backup as backupset incremental level 1 database;
+#Rman command for incremental level 1 cumulative backup (=always since level 0, even if 1 exist in between 0->....->1)
+
+Tip: the script can saved as file off_full_w.rman/on_full_w.rman and executed as command: rman target sys/pass@orcl @off_full_w.rman
+Note: backupset database=all datafiles and controlfile
+Note: filesperset=generates more output files (pieces) of backup (backup/restore is faster) (default 1)
+Note: backupset archivelog all delete all input =all archivelog files backuped and removed from disk
 ------------------------------
 #connect db
 rman target /
