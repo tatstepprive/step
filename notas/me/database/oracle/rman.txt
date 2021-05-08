@@ -92,6 +92,7 @@ backup as backupset incremental level 1 database;
 #Rman command for incremental level 1 cumulative backup (=always since level 0, even if 1 exist in between 0->....->1)
 
 Tip: the script can saved as file off_full_w.rman/on_full_w.rman and executed as command: rman target sys/pass@orcl @off_full_w.rman
+Tip: if backup failes, change fra size (alter database set db_recovery_file_dest_size=10G;)
 Note: backupset database=all datafiles and controlfile
 Note: filesperset=generates more output files (pieces) of backup (backup/restore is faster) (default 1)
 Note: backupset archivelog all delete all input =all archivelog files backuped and removed from disk
@@ -100,7 +101,7 @@ Note: backupset archivelog all delete all input =all archivelog files backuped a
 rman target /
 #show configuration defaults
 rman>show all;
-#list all your backup sets 
+#list all your backup sets (if no backups then output: specification does not match any backup in the repository) 
 rman> list backup;
 #list all your image copies
 rman> list copy;

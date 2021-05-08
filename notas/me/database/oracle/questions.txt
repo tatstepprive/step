@@ -28,3 +28,5 @@ column tablespace format a20
 
 select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,session_addr,sqladdr from V$TEMPSEG_USAGE 
 ) ref: https://community.oracle.com/mosc/discussion/3480975/recommended-temp-tablespace-size
+17 Show DBID?
+17 RESP: connect with rman and see output: connected to target database: <dbname> (DBID=xxxxxxx where x=1-9)
