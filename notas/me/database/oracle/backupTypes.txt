@@ -16,6 +16,17 @@ Backup types:
 * Server-managed backup=with rman commands
     * incremental backup
 
+* Noarchivelog mode (default)
+    * incremental backup
+    * full
+    * offline
+* Archivelog mode (should be on prod)
+    * incremental backup
+    * full
+    * offline
+    * online
+    * partial
+
 Recommendation:
 Monthly: closed, whole, full backup
 Daily: open, whole, incremental backup
@@ -44,3 +55,4 @@ Consistent datafile=every datablock is checkpointed (all changed blocks flushed 
 Inconsistent datafile=some blocks are copied in db buffer cache, updated, not yet written to disk, block on disk are out-of-date
                    = when db open or when db down after not clean shutdown (=shutdown abort)
 
+Archival backup=backup you want to keep long term or forever (use in rman cmd: backup ... keep forever)

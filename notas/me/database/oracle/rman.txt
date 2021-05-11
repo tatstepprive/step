@@ -148,6 +148,7 @@ rman> report need backup;
 #show needs to be deleted according to retention policy
 rman> report obsolete;
 #clean up, make space, remove obsolete data (remove data on disk and as repository entry (in views))
+#tip: rman will auto delete obsolete files if fra is full.
 rman> delete obsolete;
 ------------------------------
 #configure rman defaults:
