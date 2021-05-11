@@ -70,3 +70,17 @@ df -h
 #use if needed, gives info about block devices 
 lsblk
 #===============================
+#Block size info
+#disk block size=512 bytes (hard disk can not read less than 512 bytes)
+#kernel block size=1024 bytes 
+#oracle db block size=8192 bytes (=8K default) 
+#file system block size=4096 bytes (=4K) 
+stat -f .
+#test file system (fs) block size
+# save file world with content: hello
+echo hello>world
+# see size = 6 bytes (see size between usergroup and date)
+ls -ltra world
+# see size taken (output:4.0K    world)
+du -sch world
+#================================
