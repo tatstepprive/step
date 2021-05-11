@@ -16,9 +16,10 @@ Files CAN NOT backed up by RMAN:
  * tempfiles
 ------------------------------
 Channels=server processes of rman for backup and restore
- * type disk = read/write backup on disk
+ * type disk = read/write backup on disk 
  * type sbt_type = read/write on a tape device ( character devices /dev/st<nr>, /dev/nst<nr> nr=0,1...)
- * type sbt = same as sbt_type
+ * type sbt = same as sbt_type (SBT=System Backup on Tape)
+Tip: sbt is not used for image copy.
 Repository=metadata about backups=names and locations of the pieces (files) in backupset or image copies
           = stored in control file of  target db (and optionally in tables in catalog db)
 Catalog db=optionally db, containts rman repository (=metadata about backups)
@@ -27,6 +28,7 @@ Auxiliary db=optionally db created from a backup of target db
 Tip: rman can connect target db, catalog db, auxiliary db
 Fractured block=block is updated by DBWn when RMAN backup busy on it, useless in backup, rman detects and retry till block consistent
 Tip: rman backup only written blocks=allocated to segment blocks=used blocks (space saving)
+Tip: sessions per rman: 2 (default and pooling) + 1/channel. Default=connection rman to target db; Pooling=monitor rman state; PerChannel=execute backup
 ------------------------------
 CTWR= Change Tracking Writer=Block change tracking for faster RMAN (additional background process)
     f: records the address of changed block in change tracking bitmap file (not enable by default) 
@@ -40,6 +42,23 @@ select program from v$process where program like '%CTWR%';
 Rman commands:
 backup= create rman backup (backup set, compressed backup set, image copy)
 copy=create rman image copy (deprecated, use backup command)
+-----------------------------
+#Parallel backup
+* number of channels (allocate channel tn type disk; =>n times)
+* number of backup set (files per set n; 
+* number of input files (number of datafiles)
+case1: min(channels, sets, files) => min(4,13,100) =>parallelism=4
+4 channels
+100 datafiles / 8=12 sets of 8 + 1 set of 5=13 sets
+100 files
+
+case2: min(channels, sets, files) => min(4,3,20) =>parallelism=3 (so 1 channel is not used)
+4 channels
+20 datafiles / 8=2 sets of 8 + 1 set of 4=3 sets
+20 files
+
+normally=1 channel reads 1 file.
+multisection backup enabled=mutliple channels can read 1 (big) file (enable by adding 'section size <size>; where size=10g,2g etc')
 -----------------------------
 Rman scripts:
 #Rman script for offline, full, whole backup (d%=db id, %s=backup set nr, %p=piece nr starting 1 for each backup set)
@@ -62,7 +81,7 @@ allocate channel d1 type disk;
 allocate channel d2 type disk;
 backup as compressed backupset filesperset 4 database;
 }
-#Rman script for fast online, full, whole backup with archivelog                
+#Rman script for fast online, full, whole backup with archivelog (and deleting archivelog because 'delete all input')                
 run {
 allocate channel d1 type disk;
 allocate channel d2 type disk;
@@ -91,6 +110,20 @@ backup as backupset incremental level 0 database;
 backup as backupset incremental level 1 database;
 #Rman command for incremental level 1 cumulative backup (=always since level 0, even if 1 exist in between 0->....->1)
 
+#Rman command for IMAGE COPY (backups all datafiles and control file to FRA)
+backup as copy database;
+#Rman backup archive logs for IMAGE COPY (moves all archivelogs in FRA, because 'delete all input')
+backup as copy archivelog all delete all input;
+
+#Enable parallelism: multisectional backup (multiple channels read 1 big file exp: 200G / 2 channels=20 pieces generated 4 at same time)
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+allocate channel d3 type disk;
+allocate channel d4 type disk;
+backup as comressed backupset datafile <datafile-unique-nr> section size 10g;
+}
+
 Tip: the script can saved as file off_full_w.rman/on_full_w.rman and executed as command: rman target sys/pass@orcl @off_full_w.rman
 Tip: if backup failes, change fra size (alter database set db_recovery_file_dest_size=10G;)
 Note: backupset database=all datafiles and controlfile
@@ -103,6 +136,9 @@ rman target /
 rman>show all;
 #list all your backup sets (if no backups then output: specification does not match any backup in the repository) 
 rman> list backup;
+rman> list backup of datafile <filenr>;
+rman> list backup of tablespace users;
+rman> list backup of archivelog all;
 #list all your image copies
 rman> list copy;
 #list datafiles (not control file or archived logs)
@@ -111,8 +147,30 @@ rman> report schema;
 rman> report need backup;
 #show needs to be deleted according to retention policy
 rman> report obsolete;
-#clean up, make space, remove obsolete
+#clean up, make space, remove obsolete data (remove data on disk and as repository entry (in views))
 rman> delete obsolete;
+------------------------------
+#configure rman defaults:
+rman target /
+rman> show all;
+rman> configure device type disk parallelism 4;
+rman> show all;
+#optimizaton on-> allows rman not backup files where are sufficient copies of the files exit (read-write datafiles are always backed up, no optimalisation; read-only and offline tablespaces use optimalisation)
+rman> configure backup optimization on;
+#redundancy level=number of copies to keep (default 1)
+rman>CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
+rman>show device type;
+rman>show show retention policy;
+#reset to default
+rman>configure retention policy CLEAR;
+rman>show all;
+# check backups in repository entry still exist on disk (AVAILABLE)
+rman> crosscheck backup of database; 
+#clean up out of date repository entry, where backup not exist on disk anymore (no removal data on disk, only adapt repository entry)
+rman> delete expired;
+#rman delete all backups (dont do it)
+rman> delete backupset all;
+rman> delete copy all;
 ------------------------------
 Views:
  v$backup_files;

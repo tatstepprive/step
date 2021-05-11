@@ -47,4 +47,11 @@ select program from v$process where program like '%CTWR%';
 --After second backup level 0 via rman fra 3.5GB to 7G
 --After second backup level 1 still 7G (because no changes)
 
+------------------------------------
+--show rman connected
+select username, program from v$session;
+--output username=SYS ; program=rman@hostname
 
+--monitor connection via sqldeveloper
+select username, program from v$session where program='SQL Developer':
+select username, status, program, machine from v$session where program='SQL Developer';
