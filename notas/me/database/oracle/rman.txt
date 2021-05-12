@@ -173,6 +173,20 @@ rman> delete expired;
 rman> delete backupset all;
 rman> delete copy all;
 ------------------------------
+#recover from rman using DRA (Data Recovery Advisor)
+rman target /
+rman> list backup of tablespace sysaux;
+rman> backup as backupset tablespace sysaux;
+rman> shutdown immediate;
+rman> exit;
+# remove file sysaux01.dbf
+sqlplus / as sysdba
+sql>startup;
+rman target /
+rman>list failure;
+rman>advise failure;
+rman>rapair failure;
+------------------------------
 Views:
  v$backup_files;
  v$backup_set;

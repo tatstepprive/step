@@ -1,0 +1,14 @@
+#Using history in sqlplus
+#Enable history
+SQL> set history on;
+SQL> select sysdate from dual;
+#execute last command (type / OR type l)
+SQL> /
+#show history
+SQL> history;
+#run specific command from history
+SQL> history 3 run;
+#edit specific command from history
+SQL> history 2 edit;
+#when exit, history will be set to off
+#============================

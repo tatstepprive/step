@@ -62,7 +62,9 @@ Tip: corrupted/inconsistent db=missing commited transactions, stored uncommited 
 Tip: LGWR writes constanly to online redo log files, DBWn writes to data files
 Tip: a commit does not write to datafiles, but LGWR flushes log buffer to online redo log files 
 Restore= extract file from backup and put it on where it should be
-Recover= auto process, applying changes extracted from redo logs (both online and archived)
+Recover= auto process, applying changes extracted from redo logs, bringing file up to date(both online and archived)
+  * complete recovery=no loss of data, bringing up to date till last change (now)
+  * incomplete recovery=with loss of data, bringing up to date to a point in time.
 ----------------------------------------------------------
 Recovery: command STARTUP;
 SCN=system change number; f: at this point all changes are written to the data files by DBWn.
@@ -73,6 +75,10 @@ Tip: checkpoint auto-tuning is enabled if target_mttr is not zero
 -- target_mttr (=fast_start_mttr_target=sec to recover), 
 -- writes_mttr (number of times WDBn had to write in addition to meet target_mttr)
 select * from v$instance recovery;
+DRA=Data Recovery Advisor f: diagnose and repaire db problems on datafiles and controlfile (not on spfile or redo logs)
+    (depends on ADR and HM)
+ADR=Automatic Diagnostic Repository (dir of fs, parameter DIAGNOSTIC_DEST)
+HM=Health Monitor f: set of check to run auto or manually, result stored on fs (=file system, not in db)
 ---------------------------------------------------------
 Checkpoint=the point in redo stream from which instance must start after following a crash)
 * incremental checkpoint (auto by DBWn, some dirty buffers are written to disk)
