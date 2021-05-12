@@ -64,7 +64,17 @@ Tip: a commit does not write to datafiles, but LGWR flushes log buffer to online
 Restore= extract file from backup and put it on where it should be
 Recover= auto process, applying changes extracted from redo logs, bringing file up to date(both online and archived)
   * complete recovery=no loss of data, bringing up to date till last change (now)
+      Steps:
+        * take damaged file offline
+        * restore demaged file
+        * recover damaged file
+        * put recovered file online
   * incomplete recovery=with loss of data, bringing up to date to a point in time.
+      Steps:
+        * mount db
+        * restore all datafiles
+        * recover db until certain point
+        * open db with reset logs
 ----------------------------------------------------------
 Recovery: command STARTUP;
 SCN=system change number; f: at this point all changes are written to the data files by DBWn.
