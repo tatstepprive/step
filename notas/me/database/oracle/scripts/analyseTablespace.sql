@@ -43,3 +43,21 @@ select * from v$datafile;
 --temp file info
 select * from dba_temp_files;
 select * from v$tempfile;
+-------------------------------------------------
+--system tablespace is 99%, find out non system users using system tablespace
+SELECT owner, segment_name, segment_type, segment_type
+FROM dba_segments
+WHERE owner NOT IN ('SYS', 'SYSTEM') –-You can add more oracle default users
+AND tablespace_name = 'SYSTEM';
+--Use the ‘ALETER TABLE … MOVE TABLESPACE …’ for tables and ‘ALTER INDEX … REBUILD TABLESPACE …’ to move these segments out of the system tablepsace.
+--or resize tablespace
+------------------------------------------------
+--system tablespace analyse content
+SELECT owner, segment_name, segment_type, bytes/(1024*1024) size_m
+
+FROM dba_segments
+
+WHERE tablespace_name = 'SYSTEM'
+
+ORDER BY size_m DESC;
+----------------------------------------------
