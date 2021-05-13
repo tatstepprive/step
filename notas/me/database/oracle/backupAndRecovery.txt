@@ -65,10 +65,10 @@ Restore= extract file from backup and put it on where it should be
 Recover= auto process, applying changes extracted from redo logs, bringing file up to date(both online and archived)
   * complete recovery=no loss of data, bringing up to date till last change (now)
       Steps:
-        * take damaged file offline
+        * take damaged file offline (automatically: noncritical file of if using DRA)
         * restore demaged file
         * recover damaged file
-        * put recovered file online
+        * put recovered file online (automatic: if using DRA=data recovery advisor)
   * incomplete recovery=with loss of data, bringing up to date to a point in time.
       Steps:
         * mount db
@@ -120,6 +120,7 @@ Structure: >=2 online log file group,
            >=1 member(=physical file)/group (Recommends >=2member/group)
 (see CreateDB.sql, see control file MAXLOGFILES (=16) MAXLOGMEMBERS(=3))
 member=filename=redo0x.log (x=1,2,3, you can add new as redo01A.log etc)
+Incarnation of db=version of db with new thread or redo, beginning at log sequence 1 (backups and archive logs depends on incarnation)
 Tip: multiplex members of a log file group on separate disks
 Note: damage any member -> db stay open when any surviving member
 Note: group and member can be added/moved when db is open.
@@ -197,3 +198,10 @@ Storage type:
 select * from v$flash_recovery_area_usage
 Tip: FRA has auto management of space
 -----------------------------------------------
+Block corruption=corruption of datafile block, datafile stays online (detected by rman when doing backup) 
+                =ORA-01578 when session hits corrupted block (user try to access damaged block)
+Views:
+ * v$database_block_corruption
+ * v$backup_corruption;
+ * v$copy_corruption;
+BMR=block media recovery

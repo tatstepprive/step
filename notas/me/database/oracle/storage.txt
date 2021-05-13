@@ -114,7 +114,9 @@ Critical files:
  * controlfile and his copies
  * datafile from system tablespace
  * datafile from undo tablespace
+ * ALL online redo log files missing
 
+Noncritical file=db will stay open if its open, can be restarted and be open.
 Noncritical files:
  * multiplexed online log files
  * tempfiles
