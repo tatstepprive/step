@@ -18,6 +18,12 @@ create table my_date (my_date date) tablespace noncrit;
 
 insert into my_date values(sysdate);commit;
 
+create table birthday (birthday date);
+
+insert into birthday values (sysdate);
+commit;
+select * from birthday;
+
 --using rman backup tablespace
 --rman>backup as compressed backupset tablespace nocrit;
 --on fs corrupt datafile header=remove first lines in /u01/app/oracle/oradata/ORCL/nocrit.dbf
@@ -25,9 +31,32 @@ insert into my_date values(sysdate);commit;
 --flush buffer_cache, so next read will be from disk
 alter system flush buffer_cache;
 
+--flush did not helped, so try to stop db and it will give error (db can not be stopped)
+shutdown immediate;
+--output
+--ORA-01122: database file 36 failed verification check
+--ORA-01110: data file 36: '/u01/app/oracle/oradata/ORCL/nocrit.dbf
+--ORA-01210: data file header is media corrupt
+
 --read data from disk on corrupted datafile
 select * from my_date;
 --output ORA-01578, ORA-01110
 
 --rman recover
+--rman target /
+--RMAN> list backup of tablespace noncrit;
+--RMAN> list failure;
+--RMAN> advise failure;
+--RMAN> repair failure;
+
+shutdown immediate;
+--OK
+startup;
+--OK
+
+select * from my_date;
+--output OK, noncrit is good recovered
+
+select * from birthday;
+--output OK, the table is still there after recover noncrit tablespace
 

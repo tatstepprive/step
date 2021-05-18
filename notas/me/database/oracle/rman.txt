@@ -164,7 +164,7 @@ restore datafile 5;
 recover datafile 5;
 } 
 
-#rman (incomplete) recover ARCHIVE mode db to certain desired point back in time
+#rman (incomplete) recover ARCHIVE mode db to certain desired point back in time (until)
 run(
 startup mount;
 set until time="to_date('27-10-20 10:00:00','dd-mm-yy hh24:mi:ss')";
@@ -204,7 +204,9 @@ Note: backupset database=all datafiles and controlfile
 Note: filesperset=generates more output files (pieces) of backup (backup/restore is faster) (default 1)
 Note: backupset archivelog all delete all input =all archivelog files backuped and removed from disk
 Note: resetlog=recreate log files members, reset log sequence nr to 1
-Tip: incomplete recovery when missing any archive log from last backup or ALL redo log files missing
+Tip: (necessary) incomplete recovery when missing any archive log from last backup or ALL redo log files missing
+Tip: (desired) incomplete recovery when missing data because of user error. You restore ALL datafiles and apply archive+redo logs until point in time.
+Tip: until is always incomplete recovery
 Tip: if restore controlfile, always resetlogs (=reinitialize redo logs)!
 ------------------------------
 #Block corruption (datafile stays online, but certain blocks corrupted, errors only when accessing these blocks)
@@ -274,7 +276,7 @@ sql>startup;
 rman target /
 rman>list failure;
 rman>advise failure;
-rman>rapair failure;
+rman>repair failure;
 ------------------------------
 Views:
  v$backup_files;
