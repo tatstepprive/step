@@ -157,3 +157,11 @@ Table column		arwx	none				\dp
 TABLESPACE		C	none				\db+
 TYPE			U	U				\dT+
 
+=============================
+#connection details (show current user, server etc)
+\conninfo
+select session_user, current_user;
+#switch user
+set role <other_user>;
+=============================
+
