@@ -60,6 +60,9 @@ sudo nano /tmp/iptables.txt
 sudo iptables-restore < /tmp/iptables.txt
 iptables --lin -vnL
 iptables-save
+#delete entry (flag -D for delete)
+iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport 8081 -j ACCEPT
+iptables --lin -vnL
 #==========================
 #show port usage
 netstat -tulpn | grep 8081
