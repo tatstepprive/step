@@ -72,6 +72,10 @@ group by tablespace_name) tu
 where df.tablespace_name = tu.tablespace_name 
 and 100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace))>95
 order by 100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace)) desc;
+
+--Monitor not autoextensible
+select tablespace_name, autoextensible
+from dba_data_files where autoextensible='NO';
 ------------------------------------------------
 --system tablespace analyse content
 SELECT owner, segment_name, segment_type, bytes/(1024*1024) size_m
