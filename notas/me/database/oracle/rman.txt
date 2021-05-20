@@ -25,7 +25,7 @@ Repository=metadata about backups=names and locations of the pieces (files) in b
 Catalog db=optionally db, containts rman repository (=metadata about backups)
 Target db=db to backup/restore/recover
 Auxiliary db=optionally db created from a backup of target db
-Tip: rman can connect target db, catalog db, auxiliary db
+Tip: rman can connect target db (=db to backup,restore,recover), catalog db (=repository with data about target db), auxiliary db (=new db created from backup of target db)
 Fractured block=block is updated by DBWn when RMAN backup busy on it, useless in backup, rman detects and retry till block consistent
 Tip: rman backup only written blocks=allocated to segment blocks=used blocks (space saving)
 Tip: sessions per rman: 2 (default and pooling) + 1/channel. Default=connection rman to target db; Pooling=monitor rman state; PerChannel=execute backup
@@ -198,7 +198,9 @@ recover database;
 alter database open resetlogs;
 }
 
-Tip: the script can saved as file off_full_w.rman/on_full_w.rman and executed as command: rman target sys/pass@orcl @off_full_w.rman
+Tip: the script should contain 'run {}' and can be saved as file on OS off_full_w.rman/on_full_w.rman and executed as command: rman target sys/pass@orcl @off_full_w.rman
+Tip: the script should not contain 'run {}' when saved in rc (=recovery catalog) as script bla and executed as command in rman: rman> run{ execute script bla;} 
+Tip: save script from os in rc script in rman: rman>  create script bla from file @bla.rman;
 Tip: if backup failes, change fra size (alter database set db_recovery_file_dest_size=10G;)
 Note: backupset database=all datafiles and controlfile
 Note: filesperset=generates more output files (pieces) of backup (backup/restore is faster) (default 1)
@@ -288,3 +290,18 @@ Views:
  v$backup_device;
  v$rman_configuration;
 -----------------------------
+Recovery Catalog=store repository forever, indefenitely (vs controlfile stores data for 7 days see param CONTROL_FILE_RECORD_KEEP_TIME)
+Repository=store of metadata about target db and its backups etc (saved in controlfile and recovery catalog) 
+Repository contains:
+ * details about physical structure of db
+ * location of datafiles of db
+ * details about made backups 
+ * rman settings
+ * rman scripts (view rc_stored_script, rc_stored_script_line)
+Recovery catalog plus points:
+ * undependent from controlfile
+ * store rman scripts
+ * support many databases (centralized repository)
+ * no limit in time to retain data
+ * ability to create a new db from backup 
+------------------------------

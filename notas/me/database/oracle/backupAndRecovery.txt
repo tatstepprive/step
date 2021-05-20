@@ -107,13 +107,13 @@ Tip: multiplex (have copies) min 2 max 8. Recommends: 3 (default)
      by install 3 multiplexed controlfiles are in same dir, they should be in diff dirs/disks
 Note: damage of any control file-> crash db immediately
 Add or move controlfile steps:
-show parameters control_files;
-shutdown immediate;
--- move or copy control file (do no move or copy when db open)
-startup nomount;
-alter system set control_files="/data/control01.ctl","/data2/control01.clt","/data3/control03.ctl" scope=spfile;
-startup force;
-show parameters control_files;
+  show parameters control_files;
+  shutdown immediate;
+  -- move or copy control file (do no move or copy when db open)
+  startup nomount;
+ alter system set control_files="/data/control01.ctl","/data2/control01.clt","/data3/control03.ctl" scope=spfile;
+ startup force;
+ show parameters control_files;
 --------------------------------------------------------------
 Online redo log files
 Structure: >=2 online log file group, 

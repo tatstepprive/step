@@ -32,3 +32,5 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 17 Show DBID?
 17 RESP: connect with rman and see output: connected to target database: <dbname> (DBID=xxxxxxx where x=1-9)
 17 RESP: select dbid from v$database; (DBID=xxxxxxx where x=1-9)
+18 Database vs instance in oracle?
+18 RESP: database is data on disk, instance is running db with memory SGA (=system global area) and background processes. Db mounted on instance, users connect to instance.

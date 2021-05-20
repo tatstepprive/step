@@ -55,3 +55,13 @@ select username, program from v$session;
 --monitor connection via sqldeveloper
 select username, program from v$session where program='SQL Developer':
 select username, status, program, machine from v$session where program='SQL Developer';
+-------------------------------------
+--Create scipt in rc (=recovery catalog db)
+--rman target / catalog CAT_ORCL_ORACLEDB@RCATPDB
+--rman> create script inc_bcp_plus_logs
+-- {backup incremental level 1 database;
+-- backup archivelog all delete all input;}
+--rman> list backup of database;
+--rman> run { execute script inc_bcp_plus_logs; }
+--rman> list backup of database;
+-------------------------------------

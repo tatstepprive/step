@@ -299,7 +299,7 @@ $ORACLE_HOME/network/admin/tnsnames.ora
 # alter system register;
 lsnrctl start
 # show listener status
-lsnrclt status
+lsnrctl status
 # stop listener
 lsnrctl stop
 # interactive listener or listener utility
