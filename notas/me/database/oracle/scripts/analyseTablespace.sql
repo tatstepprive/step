@@ -51,6 +51,27 @@ WHERE owner NOT IN ('SYS', 'SYSTEM') –-You can add more oracle default users
 AND tablespace_name = 'SYSTEM';
 --Use the ‘ALETER TABLE … MOVE TABLESPACE …’ for tables and ‘ALTER INDEX … REBUILD TABLESPACE …’ to move these segments out of the system tablepsace.
 --or resize tablespace
+
+--Monitor space usage 
+select df.tablespace_name "Tablespace",
+totalusedspace "Used MB",
+(df.totalspace - tu.totalusedspace) "Free MB",
+df.totalspace "Total MB",
+round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace))
+"Pct. Free",
+100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace))
+"Pct. Used"
+from
+(select tablespace_name,
+round(sum(bytes) / 1048576) TotalSpace
+from dba_data_files
+group by tablespace_name) df,
+(select round(sum(bytes)/(1024*1024)) totalusedspace, tablespace_name
+from dba_segments
+group by tablespace_name) tu
+where df.tablespace_name = tu.tablespace_name 
+and 100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace))>95
+order by 100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace)) desc;
 ------------------------------------------------
 --system tablespace analyse content
 SELECT owner, segment_name, segment_type, bytes/(1024*1024) size_m
