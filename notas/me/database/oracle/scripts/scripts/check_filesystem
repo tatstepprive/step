@@ -1,0 +1,12 @@
+#!/bin/ksh
+
+df -k | grep -v proc | grep -v Filesystem | grep -v mapper | grep -v tmpfs | grep -v sda1 | grep -v : | sed -f scripts/concat_space > /tmp/filesystem
+cat /tmp/filesystem | while read line
+do
+   size=`echo $line | cut -f4 -d " "`
+   if [ $size -ge 85 ]
+   then
+      filet=`echo $line | cut -f5 -d " "`
+      echo "filesystem $filet filled at $size"
+   fi
+done

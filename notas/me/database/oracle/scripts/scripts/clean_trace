@@ -1,0 +1,90 @@
+#!/bin/ksh
+
+Exit_Fail() {
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo "`date` - clean_trace - Ending Failed"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    exit -1
+}
+
+Usage() {
+     echo -e "\nUsage : $0 -d <database name>\n"
+     Exit_Fail
+}
+
+Analyze_options_passed() {
+    [ -z "$Pdatabase" ] && echo "\nNo Database Specified..." && Usage
+}
+
+Get_environment() {
+export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+export ORACLE_SID=$Pdatabase
+sqlplus -s /nolog >/tmp/trace_path <<EOF
+connect / as sysdba
+set feedback off termout off pages 0 heading off line 100 echo off
+set trimspool on timing off
+select value from v\$parameter where name in
+('background_dump_dest','core_dump_dest','audit_file_dest');
+EOF
+}
+
+Compress_trace() {
+    bdir=`grep trace /tmp/trace_path` 
+    if [ $? -eq 0 ]
+    then
+      if [ -d $bdir ]
+      then
+        find $bdir -mtime +4 -exec compress {} \; 2>/dev/null
+      fi
+    fi
+
+    cdir=`grep cdump /tmp/trace_path`
+    if [ $? -eq 0 ]
+    then
+      if [ -d $cdir ]
+      then
+        find $cdir/core* -mtime +7 -exec rm -r {} \; 2>/dev/null
+      fi
+    fi
+
+    adir=`grep adump /tmp/trace_path`
+    if [ $? -eq 0 ]
+    then
+      if [ -d $adir ]
+      then 
+        tdir=`echo $adir | cut -f1 -d "a"`trace
+        find $adir -mtime +4 -exec rm {} \; 2>/dev/null
+      fi
+    fi
+}
+
+main() {
+    echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo "`date` - $0 - Starting for $Pdatabase"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+    Analyze_options_passed
+
+    Get_environment
+
+    Compress_trace
+
+    echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo "`date` - $0 - Ending for $Pdatabase"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    
+}
+
+while getopts "d:" opt
+do
+    case $opt in
+          d)    Pdatabase=$OPTARG;;
+          *)    Usage
+                Exit_fail
+                ;;
+    esac
+done
+
+main
+exit 0
+

@@ -1,0 +1,68 @@
+#!/bin/ksh
+
+Exit_fail() {
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   echo "`date` - index to rebuild for $Pdatabase - Ending Failed"
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   exit -1
+}
+
+Usage() {
+        echo -e "\nUsage : $0 -d <database name>\n"
+        Exit_fail
+}
+
+Analyze_options_passed() {
+[ -z "$Pdatabase" ] && echo -e "\nNo Database Specified..." &&  Usage
+}
+
+Execute_environment_file() {
+  export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${Pdatabase}
+}
+
+Index_to_rebuild() {
+sqlplus -s /nolog <<EOS 
+connect / as sysdba
+
+set pagesize 999;
+column owner format a15;
+
+select owner, index_name, tablespace_name, blevel 
+  from dba_indexes
+ where blevel > 4;
+EOS
+}
+
+main() {
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Starting for $Pdatabase"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+Analyze_options_passed
+
+Execute_environment_file
+
+cat /dev/null > /tmp/index_to_rebuild.log
+
+#check databases 
+Index_to_rebuild $dbname 
+
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Ending for $Pdatabase"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+while getopts "d:" opt
+do
+  case $opt in
+        d)      Pdatabase=$OPTARG ;;
+        *)      Usage
+                Exit_fail
+                ;;
+  esac
+done
+
+main
+exit 0
+

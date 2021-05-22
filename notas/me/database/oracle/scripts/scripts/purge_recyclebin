@@ -1,0 +1,97 @@
+#!/bin/ksh
+
+Exit_fail() {
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   echo "`date` - invalid object for $Pdatabase - Ending Failed"
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   exit -1
+}
+
+Usage() {
+        echo -e "\nUsage : $0 -d <database name>\n"
+        Exit_fail
+}
+
+Analyze_options_passed() {
+[ -z "$Pdatabase" ] && echo -e "\nNo Database Specified..." &&  Usage
+}
+
+Execute_environment_file() {
+  export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${Pdatabase}
+}
+
+Purge_object() {
+sqlplus -s /nolog <<EOS 1>/tmp/purge_recyclebin.log
+connect / as sysdba
+
+set term off
+set feedback off
+set verify off
+set heading off
+set pagesize 0
+
+spool /tmp/purge_recyclebin.sql
+
+select 'purge table ' || r.owner || '."' || r.object_name || '";'
+from dba_recyclebin r, dba_objects o
+where r.owner = o.owner
+  and r.object_name = o.object_name
+  and r.type = o.object_type
+  and r.type = 'TABLE'
+  and o.created < sysdate-90;
+spool off
+
+set termout on
+set feedback on
+set verify on
+set heading on
+set pagesize 9999
+@/tmp/purge_recyclebin
+exit
+EOS
+
+sqlplus -s /nolog <<EOS
+connect / as sysdba
+
+set linesize 132;
+set pagesize 0;
+set feedback off;
+column object_name format a30;
+select count(*) "object_still_in_recycle"
+from dba_recyclebin
+where type = 'TABLE';
+exit
+EOS
+}
+
+main() {
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Starting for $Pdatabase"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+Analyze_options_passed
+
+Execute_environment_file
+
+#check databases 
+Purge_object $dbname 
+
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Ending for $Pdatabase"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+while getopts "d:" opt
+do
+  case $opt in
+        d)      Pdatabase=$OPTARG ;;
+        *)      Usage
+                Exit_fail
+                ;;
+  esac
+done
+
+main
+exit 0
+
