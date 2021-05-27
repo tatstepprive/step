@@ -3,12 +3,13 @@
 MY_USER=$ORAUSER
 MY_PASS=$ORAPASSWORD
 MY_SCRIPT="@simple.sql"
-
+SHOW_WARNING=""
 while true ; do
   case "$1" in
     --user) shift; MY_USER=$1; shift;;
     --pass) shift; MY_PASS=$1; shift;;
     --script) shift; MY_SCRIPT=@$1; shift;;
+    --warn) shift; SHOW_WARNING=yes; shift;;
     *) break;;
   esac
 done
@@ -22,6 +23,9 @@ while read -r MACHINE STATE SID; do
 #      echo "String '$STATE' contain substring: '$reqsubstr'.";
       echo "INFO: on host=$MACHINE sid=$SID"
     ./exec_script.sh --host $MACHINE --sid $SID --user $MY_USER --pass $MY_PASS --script $MY_SCRIPT
+     if [[ "$SHOW_WARNING" == "yes" ]]; then
+           ./exec_script.sh --host $MACHINE --sid $SID --user $MY_USER --pass $MY_PASS --script $MY_SCRIPT| grep -q 'no rows selected'|| echo "!!!WARNING!!!"; 
+     fi
       echo "==================================================================="
    fi
   done
