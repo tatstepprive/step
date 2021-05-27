@@ -1,0 +1,30 @@
+#!/bin/bash
+
+MY_USER=$ORAUSER
+MY_PASS=$ORAPASSWORD
+
+while true ; do
+  case "$1" in
+    --user) shift; MY_USER=$1; shift;;
+    --pass) shift; MY_PASS=$1; shift;;
+    *) break;;
+  esac
+done
+
+(
+RC=0
+read HEADER
+while read -r MACHINE STATE SID; do
+  for reqsubstr in 'active' ;do
+   if [ -z "${STATE##*$reqsubstr*}" ] ;then
+#      echo "String '$STATE' contain substring: '$reqsubstr'.";
+      echo "INFO: execute check query on host=$MACHINE"
+    ./exec_script.sh --host $MACHINE --sid $SID --user $MY_USER --pass $MY_PASS
+      echo "==================================================================="
+   fi
+  done
+done
+exit $RC
+) < <(grep -v '^#' ./db_hosts)
+exit $?
+
