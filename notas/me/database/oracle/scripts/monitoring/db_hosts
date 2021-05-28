@@ -1,6 +1,6 @@
 host	state	sid	
 oracledb    active         orcl  
 rcatdb      active         rcat  
-bla         active	   bla
+#bla         active	   bla
 msbeen      off	           msbeen
 #mskeen	    active	   mskeen
