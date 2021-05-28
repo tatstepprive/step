@@ -6,6 +6,14 @@ sudo apt-get install openssh-server
 sudo apt-get install -y python-minimal
 #If Ubuntu in Virtual box and login screen not showing input field
 #Fix: select Vm, Settings, Display, Video Memory set 64MB (default 16MB)
+#===============================================
+# ansible show all groups
+ansible localhost -m debug -a 'var=groups'
+# show graph
+ansible-inventory --graph
+# show host vars
+ansible-inventory --list
 #========================
 #install intellij command line
 sudo snap install intellij-idea-community --classic
+
