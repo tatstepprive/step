@@ -4,12 +4,15 @@ MY_USER=$ORAUSER
 MY_PASS=$ORAPASSWORD
 MY_SCRIPT="@simple.sql"
 SHOW_WARNING=""
+HOST_PATTERN=""
+
 while true ; do
   case "$1" in
     --user) shift; MY_USER=$1; shift;;
     --pass) shift; MY_PASS=$1; shift;;
     --script) shift; MY_SCRIPT=@$1; shift;;
     --warn) shift; SHOW_WARNING=yes; shift;;
+    --host-pattern) shift; HOST_PATTERN=$1; shift;;
     *) break;;
   esac
 done
@@ -31,6 +34,8 @@ while read -r MACHINE STATE SID; do
   done
 done
 exit $RC
+# not working
+#) < <(grep -v '^#' ./db_hosts | grep $HOST_PATTERN )
 ) < <(grep -v '^#' ./db_hosts)
 exit $?
 
