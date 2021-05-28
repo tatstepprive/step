@@ -1,0 +1,385 @@
+#!/bin/ksh
+#########################################################################
+#                                                                       #
+#       Name:           rc.oracle                                       #
+#                                                                       #
+#       Version:        09/04/2003                                      #
+#                                                                       #
+#       Description:    This script starts and stops ORACLE V7, V8 and  #
+#                       V9 databases as well as SQLNET listeners.       #
+#                       It processes only the databases/listeners       #
+#                       whose entry in the file $ORATAB/$LSNRDESC has   #
+#                       the third field set to Y.                       #
+#                       The original purpose of this script was to      #
+#                       start and stop all databases and all listeners  #
+#                       defined in the files $ORATAB and $LSNRDESC.     #
+#                       It is however possible to start and stop only   #
+#                       the databases or only the listeners, only one   #
+#                       database or only one listener by specifying the #
+#                       appropiated arguments.                          #
+#                       A database is started with the "mount" option.  #
+#                       If there is any tablespace in backup mode, its  #
+#                       status is reset before the database is opened.  #
+#                       For each database to be stopped, a "shutdown    #
+#                       immediate" is performed in background. Before   #
+#                       stopping the listeners, the script waits for    #
+#                       the completion of the shutdowns. After a        #
+#                       timeout of $TIME_BEF_ABORT seconds, it          #
+#                       aborts the databases that are still in the      #
+#                       shutdown process.                               #
+#                       Variables ORATAB, LSNRDESC and TIME_BEF_ABORT   #
+#                       have to be initialized in this script. For the  #
+#                       value of $TIME_BEF_ABORT, take into account the #
+#                       number of databases to shut and their size.     #
+#                                                                       #
+#       Arguments:      [start|stop] [db|lsnr] [DBSID|LSNRNAME]         #
+#                                                                       #
+#       Files:          $ORATAB (/etc/oratab for example),              #
+#                       $LSNRDESC (/etc/lsnrdesc for example)           #
+#                                                                       #
+#       Scripts:                                                        #
+#                                                                       #
+#       Returns:        1 if file $ORATAB or file $LSNRDESC is          #
+#                         inaccessible or if bad argument received.     #
+#                       0 otherwise                                     #
+#                                                                       #
+#########################################################################
+
+ORATAB=/etc/oratab
+LSNRDESC=/etc/lsnrdesc
+TIME_BEF_ABORT=360
+
+if [ "$VERBOSE_LOGGING" = "high" ]
+then
+    set -x
+fi
+
+# oracle processes CLEARING
+kill_oracle_process ()
+{
+if [ "$VERBOSE_LOGGING" = "high" ]
+then
+    set -x
+fi
+sleep 10
+PROC_NAME="oracle$1"
+ps -eo pid,args | awk '{if($2=="'$PROC_NAME'")print $1}' | while read PROC_NBR
+do
+    kill -9 $PROC_NBR
+done
+}
+
+# oracle processes CHECKING
+oracle_proc_running ()
+{
+if [ "$VERBOSE_LOGGING" = "high" ]
+then
+    set -x
+fi
+SID=$1
+NUMBOP=$2
+X=`ps -eo args | awk '$1 ~ /ora_.*_'$SID'$/' | wc -l`
+if [ $X -ge $NUMBOP ]
+then
+    return 0  # ORACLE RUNS FOR SID = $1
+else
+    return 1  # ORACLE DOES NOT RUN FOR SID = $1
+fi
+}
+
+case $1 in
+    ''|'start') TASK="START";;
+    'stop')     TASK="STOP";;
+    *)          echo "Usage $0 [start|stop] [db|lsnr] [DBSID|LSNRNAME]";
+                exit 1;;
+esac
+case $2 in
+    '')       TASK=$TASK"ALL";;
+    'db')     TASK=$TASK"DB";;
+    'lsnr')   TASK=$TASK"LSNR";;
+    *)        echo "Usage $0 [start|stop] [db|lsnr] [DBSID|LSNRNAME]";
+              exit 1;;
+esac
+DLNAME="^.*:"
+if [ "$TASK" != "STARTALL" -a "$TASK" != "STOPALL" -a "$3" != "" ]
+then
+    DLNAME="^${3}:"
+fi
+
+PATH=/usr/bin:/etc:/usr/sbin:/usr/bin/X11; export PATH
+SAVE_PATH=$PATH; export SAVE_PATH
+LIBPATH=/usr/lib:/usr/lib/X11; export LIBPATH
+SAVE_LIBPATH=$LIBPATH; export SAVE_LIBPATH
+
+if [ "$TASK" = "STARTALL" -o "$TASK" = "STARTLSNR" ]
+then
+    if [ ! -r $LSNRDESC ]
+    then
+        echo "Can't access $LSNRDESC"
+        exit 1
+    fi
+    echo -e "\nORACLE listeners startup\n************************"
+    grep "^[a-z,A-Z,0-9]" $LSNRDESC | grep $DLNAME | \
+       awk -F":" '{if($3=="Y")print $1,$2}' | \
+       while read LSNR_NAME ORACLE_HOME
+    do
+        if [ ! -x $ORACLE_HOME/bin/lsnrctl ]
+        then
+            echo "Can't find or execute $ORACLE_HOME/bin/lsnrctl"
+        else
+            PATH=$ORACLE_HOME/bin:$SAVE_PATH
+            if [ -d $ORACLE_HOME/lib32 ]
+            then
+                LIBPATH=$ORACLE_HOME/lib:$ORACLE_HOME/lib32:$SAVE_LIBPATH
+            else
+                LIBPATH=$ORACLE_HOME/lib:$SAVE_LIBPATH
+            fi
+            LD_LIBRARY_PATH=$LIBPATH
+            TNS_ADMIN=$ORACLE_HOME/network/admin
+            export ORACLE_HOME PATH LIBPATH LD_LIBRARY_PATH TNS_ADMIN
+            ORACLE_OWNER=`ls -ld $ORACLE_HOME | awk '{print $3}'`
+            if [ -r $ORACLE_HOME/ops/ogms_profile.sh ]
+            then
+                . $ORACLE_HOME/ops/ogms_profile.sh
+            fi
+            if [ "$LSNR_NAME" = "DBSNMP" ]
+            then
+                su $ORACLE_OWNER -c "lsnrctl dbsnmp_start"
+            else
+                su $ORACLE_OWNER -c "lsnrctl start $LSNR_NAME"
+            fi
+        fi
+    done
+fi
+
+if [ "$TASK" = "STARTALL" -o "$TASK" = "STARTDB" ]
+then
+    if [ ! -r $ORATAB ]
+    then
+        echo "Can't access $ORATAB"
+        exit 1
+    fi
+    echo -e "\nORACLE databases startup\n************************"
+    grep "^[a-z,A-Z,0-9]" $ORATAB | grep $DLNAME | \
+       awk -F":" '{if($3=="Y")print $1,$2}' | \
+       while read ORACLE_SID ORACLE_HOME
+    do
+        PATH=$ORACLE_HOME/bin:$SAVE_PATH
+        if [ -d $ORACLE_HOME/lib32 ]
+        then
+            LIBPATH=$ORACLE_HOME/lib:$ORACLE_HOME/lib32:$SAVE_LIBPATH
+        else
+            LIBPATH=$ORACLE_HOME/lib:$SAVE_LIBPATH
+        fi
+        LD_LIBRARY_PATH=$LIBPATH
+        export ORACLE_HOME ORACLE_SID PATH LIBPATH LD_LIBRARY_PATH
+        if [ -r $ORACLE_HOME/ops/ogms_profile.sh ]
+        then
+            . $ORACLE_HOME/ops/ogms_profile.sh
+        fi
+        export SQLDBA=""
+        if [ -x $ORACLE_HOME/bin/svrmgrl ]
+        then
+            SQLDBA=svrmgrl
+        elif [ -x $ORACLE_HOME/bin/sqlplus ]
+        then
+            SQLDBA="sqlplus /nolog"
+        fi
+        if [ "$SQLDBA" = "" ]
+        then
+            echo "Can't find or execute svrmgrl|sqlplus under $ORACLE_HOME/bin"
+        elif [ ! -f $ORACLE_HOME/dbs/init${ORACLE_SID}.ora -a ! -f $ORACLE_HOME/dbs/spfile${ORACLE_SID}.ora ]
+        then
+            echo "Can't find init file for Database $ORACLE_SID"
+        elif oracle_proc_running $ORACLE_SID 4
+        then
+            echo "ORACLE IS ALREADY RUNNING FOR SID : $ORACLE_SID"
+        else
+            ORACLE_OWNER=`ls -ld $ORACLE_HOME | awk '{print $3}'`
+            echo "Clearing memory for database $ORACLE_SID"
+            su $ORACLE_OWNER -c '${SQLDBA} <<EOED
+connect / as sysdba;
+shutdown abort;
+disconnect;
+exit;
+EOED'
+            echo "Mounting Oracle database $ORACLE_SID"
+            su $ORACLE_OWNER -c '${SQLDBA} <<EOED
+connect / as sysdba;
+startup mount;
+select * from v\$backup;
+disconnect;
+exit;
+EOED' | awk '{if($2=="ACTIVE")print $1}' | while read DFN
+            do
+                echo "alter database datafile $DFN END BACKUP;"
+            done > /tmp/endbkp${ORACLE_SID}.sql
+            if [ -s /tmp/endbkp${ORACLE_SID}.sql ]
+            then
+                echo "Resetting the status of datafile(s) found in backup mode"
+                chmod 644 /tmp/endbkp${ORACLE_SID}.sql
+                su $ORACLE_OWNER -c '${SQLDBA} <<EOED
+connect / as sysdba;
+@/tmp/endbkp${ORACLE_SID}.sql;
+disconnect;
+exit;
+EOED'
+            fi
+            echo "Opening Oracle database $ORACLE_SID"
+            su $ORACLE_OWNER -c '${SQLDBA} <<EOED
+connect / as sysdba;
+alter database open;
+disconnect;
+exit;
+EOED'
+        fi
+    done
+fi
+
+if [ "$TASK" = "STOPALL" -o "$TASK" = "STOPDB" ]
+then
+    if [ ! -r $ORATAB ]
+    then
+        echo "Can't access $ORATAB"
+        exit 1
+    fi
+    echo -e "\nORACLE databases shutdown\n*************************"
+    DBRUN=""
+    grep "^[a-z,A-Z,0-9]" $ORATAB | grep $DLNAME | \
+       awk -F":" '{if($3=="Y"||$3=="N")print $1,$2}' | \
+       while read ORACLE_SID ORACLE_HOME
+    do
+        PATH=$ORACLE_HOME/bin:$SAVE_PATH
+        if [ -d $ORACLE_HOME/lib32 ]
+        then
+            LIBPATH=$ORACLE_HOME/lib:$ORACLE_HOME/lib32:$SAVE_LIBPATH
+        else
+            LIBPATH=$ORACLE_HOME/lib:$SAVE_LIBPATH
+        fi
+        LD_LIBRARY_PATH=$LIBPATH
+        export ORACLE_HOME ORACLE_SID PATH LIBPATH LD_LIBRARY_PATH
+        if [ -r $ORACLE_HOME/ops/ogms_profile.sh ]
+        then
+            . $ORACLE_HOME/ops/ogms_profile.sh
+        fi
+        export SQLDBA=""
+        if [ -x $ORACLE_HOME/bin/svrmgrl ]
+        then
+            SQLDBA=svrmgrl
+        elif [ -x $ORACLE_HOME/bin/sqlplus ]
+        then
+            SQLDBA="sqlplus /nolog"
+        fi
+        if [ "$SQLDBA" = "" ]
+        then
+            echo "Can't find or execute svrmgrl|sqlplus under $ORACLE_HOME/bin"
+        elif oracle_proc_running $ORACLE_SID 1
+        then
+            ORACLE_OWNER=`ls -ld $ORACLE_HOME | awk '{print $3}'`
+            echo "Shutting immediately Oracle database $ORACLE_SID"
+            echo "${SQLDBA} <<EOED\nconnect / as sysdba;\nshutdown immediate;\ndisconnect;\nexit;\nEOED" >/tmp/shut${ORACLE_SID}.sh
+            chmod 755 /tmp/shut${ORACLE_SID}.sh
+            su $ORACLE_OWNER -c "/tmp/shut${ORACLE_SID}.sh >/tmp/shut${ORACLE_SID}.log 2>&1 &"
+            DBRUN=${DBRUN}${ORACLE_SID}" "
+        fi
+    done
+
+    # Wait for completion of the shutdowns
+    while [ "$DBRUN" != "" -a $TIME_BEF_ABORT -gt 0 ]
+    do
+        sleep 15
+        TIME_BEF_ABORT=`expr $TIME_BEF_ABORT - 15`
+        DBRUNBIS=""
+        for ORACLE_SID in $DBRUN
+        do
+            ORACLE_HOME=`grep "^${ORACLE_SID}:" $ORATAB | \
+                         awk 'BEGIN{FS=":"}{print $2}'`
+            if oracle_proc_running $ORACLE_SID 1
+            then
+                DBRUNBIS=${DBRUNBIS}${ORACLE_SID}" "
+            else
+                kill_oracle_process ${ORACLE_SID} &
+                echo "Oracle database $ORACLE_SID has been shut properly"
+            fi
+        done
+        DBRUN=$DBRUNBIS
+    done
+
+    # Abort any database still running
+    for ORACLE_SID in $DBRUN
+    do
+        ORACLE_HOME=`grep "^${ORACLE_SID}:" $ORATAB | \
+                     awk 'BEGIN{FS=":"}{print $2}'`
+        PATH=$ORACLE_HOME/bin:$SAVE_PATH
+        LIBPATH=$ORACLE_HOME/lib:$SAVE_LIBPATH
+        export ORACLE_HOME ORACLE_SID PATH LIBPATH
+        ORACLE_OWNER=`ls -ld $ORACLE_HOME | awk '{print $3}'`
+        if [ -r $ORACLE_HOME/ops/ogms_profile.sh ]
+        then
+            . $ORACLE_HOME/ops/ogms_profile.sh
+        fi
+        export SQLDBA=""
+        if [ -x $ORACLE_HOME/bin/svrmgrl ]
+        then
+            SQLDBA=svrmgrl
+        else
+            SQLDBA="sqlplus /nolog"
+        fi
+        if oracle_proc_running $ORACLE_SID 1
+        then
+            echo "Aborting Oracle database $ORACLE_SID"
+            su $ORACLE_OWNER -c '${SQLDBA} <<EOED
+connect / as sysdba;
+shutdown abort;
+disconnect;
+exit;
+EOED'
+            kill_oracle_process ${ORACLE_SID}
+        fi
+    done
+wait
+fi
+
+if [ "$TASK" = "STOPALL" -o "$TASK" = "STOPLSNR" ]
+then
+    if [ ! -r $LSNRDESC ]
+    then
+        echo "Can't access $LSNRDESC"
+        exit 1
+    fi
+    echo -e "\nORACLE listeners shutdown\n*************************"
+    grep "^[a-z,A-Z,0-9]" $LSNRDESC | grep $DLNAME | \
+       awk -F":" '{if($3=="Y"||$3=="N")print $1,$2}' | \
+       while read LSNR_NAME ORACLE_HOME
+    do
+        if [ ! -x $ORACLE_HOME/bin/lsnrctl ]
+        then
+            echo "Can't find or execute $ORACLE_HOME/bin/lsnrctl"
+        else
+            PATH=$ORACLE_HOME/bin:$SAVE_PATH
+            if [ -d $ORACLE_HOME/lib32 ]
+            then
+                LIBPATH=$ORACLE_HOME/lib:$ORACLE_HOME/lib32:$SAVE_LIBPATH
+            else
+                LIBPATH=$ORACLE_HOME/lib:$SAVE_LIBPATH
+            fi
+            LD_LIBRARY_PATH=$LIBPATH
+            TNS_ADMIN=$ORACLE_HOME/network/admin
+            export ORACLE_HOME PATH LIBPATH LD_LIBRARY_PATH TNS_ADMIN
+            ORACLE_OWNER=`ls -ld $ORACLE_HOME | awk '{print $3}'`
+            if [ -r $ORACLE_HOME/ops/ogms_profile.sh ]
+            then
+                . $ORACLE_HOME/ops/ogms_profile.sh
+            fi
+            if [ "$LSNR_NAME" = "DBSNMP" ]
+            then
+                su $ORACLE_OWNER -c "lsnrctl dbsnmp_stop"
+            else
+                su $ORACLE_OWNER -c "lsnrctl stop $LSNR_NAME"
+            fi
+        fi
+    done
+fi
+
+exit 0
+

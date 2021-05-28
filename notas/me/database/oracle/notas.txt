@@ -1,0 +1,378 @@
+#Names
+spfile=server parameter file (binary)
+pfile= parameter file (text)
+context area= area for processing an sql statement
+PDB=pluggable database
+CDB=container database
+ADR=automatic diagnostic repository
+DBCA=Data Base Configuration Assistant
+SGA=system global area
+PGA=program global area
+OUI=oracle universal installer
+ONCA=oracle net configuration assistant
+=====================================================
+#Locations
+#oracle base local $ORACLE_BASE
+/u01/app/oracle
+#oracle home local $ORACLE_HOME
+/u01/app/oracle/product/19/db_1
+#parameter file location (spfile=server parameter file):
+$ORACLE_HOME/dbs
+#sqlplus location
+$ORACLE_HOME/bin
+#ADR location (automatic diagnostic reposistory)
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id 
+(ex: $ORACLE_BASE/diag/rdbms/orcl/orcl)
+#Alert log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/alert 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/alert/log.xml
+#Incident log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/incident/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/incident/
+#Health monitor reports
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/hm/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/hm/
+#Trace log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/trace/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/trace/
+#DDL log (default no log enabled for ddl)
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/log/ddl/
+$ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl
+# datafiles location
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
+# listener location
+$ORACLE_HOME/network/admin/listener.ora
+$TNS_ADMIN/listener.ora  ($TNS_ADMIN can be empty, should be not empty/used if more than one TNSNAMES.ORA files exists on a system)
+======================================================
+# Spfile = server parameter file
+default name spfile<sid>.ora (exp: spfileorcl.ora)
+default location $ORACLE_HOME/dbs
+preferred choice to start db
+binary file (you can not edit it manually)
+db can read/write to spfile
+change parameters in spfile by 'alter system...'
+auto created by DBCA when creating CDB
+=======================================================
+# pfile= text init parameter file
+default name init.ora
+location $ORACLE_HOME/dbs
+text file with parameters as name/value pairs 
+db can read pfile
+change parameters in pfile and restart db
+can be created from spfile, default init.ora is auto created when creating db
+=======================================================
+#search order for parameters file
+1 spfile<sid>.ora (spfile)
+2 spfile.ora
+3 init<sid>.ora (pfile)
+=======================================================
+#Parameters types: (see doc via search 'oracle database reference 19c')
+#https://docs.oracle.com/en/database/oracle/oracle-database/
+#https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html
+#https://docs.oracle.com/en/database/oracle/oracle-database/12.2/refrn/index.html
+Basic params (30 params) (ex: DB_BLOCK_SIZE, SGA_TARGET, CONTROL_FILES)
+Advanced params (ex: DB_CACHE_SIZE)
+Derived params= their values are calculated from other params (ex sessions=1.5*processes + 22
+OS dependent params (ex: DB_BLOCK_SIZE)
+=======================================================
+#Modify params
+#show
+Query v$parameter to view value of param 
+(columns: 
+isses_modifiable session level changes; 
+issys_modifiable system level changes, 
+ispdb_modifiable pdb level changes)
+#modify
+alter session/alter system
+(scope:
+memory= changes in memory, effect immediately, persist(=exists) until db restarts (after restart is gone)
+spfile= changes in spfile, effect after restart db (shutdown needed)
+both= memory+spfile (default)
+deferred=effective for future sessions
+sqlplus as sysdba
+alter system set max_idle_time=20 scope=both;
+# max_idle_time is O (zero) by default and means connection (session) will be NEVER auto closed by db after amount of time
+# max_idle_time=20 connection will be auto closed after 20 minutes when no activity
+# when value is set, changing to lower value is OK (20 to 10), but higher value workaround
+# max_idle_time 20 to 30 workaround (no workaround when testing on version 19c)
+sqlplus as sysdba
+alter system reset max_idle_time scope=both;
+alter system set max_idle_time=30 scope=both; 
+# default scope
+# if db started with spfile, then default scope=both and no need to be type;
+# if db started with pfile as parameter, the default scope=memeory and no need to type;
+# BUT when testing on 19c: scope both with using spfile is not applied if not typed. !!!
+=======================================================
+#Db is not running if message
+sqlplus / as sysdba
+connected to an idle instance
+in sqldeveloper we will have ORA-12514 if session was open and db went down
+==========================================================
+#create pfile (file will be created in $ORACLE_HOME/dbs/ location
+#using pattern name for pfile 'init<sid>.ora', pfile will be auto searched when spfile not available
+sqlplus / as sysdba
+sql>create pfile='initorcl.ora' from spfile;
+#create pfile using non default name
+#attention: location should be given where to find file, using varible $ORACLE_HOME is OK
+sqlplus /as sysdba
+sql> create pfile='test.ora' from spfile;
+sql> shutdown immediate;
+sql> startup pfile='$ORACLE_HOME/dbs/test.ora'
+==========================================================
+#with which param file is db started? 
+#If value column is empty, db started with pfile, 
+#if value column is $ORACLE_HOME/dbs/spfile<sid>.ora, db started with spfile
+sqlplus / as sysdba
+sql> show parameter spfile
+=========================================================
+#show diff what in memory and what in spfile on disk, use 
+#v$spparameter view which contains info from spfile only
+select * from v$spparameter;
+==========================================================
+ADR= automatic diagnostic repository
+is a file-based repo outside the db
+is a system-wide central tracing and logging repo
+stores traces, alert log, health monitor
+location see parameter diagnostic_dest or select * from v$diag_info;
+Alert log contains:
+1 non default init params used at startup
+2 internal errors (ORA-00600), block corruption errors (ORA-01578), deadlock errors (ORA-00060)
+3 admin operations like create,alter,drop,startup,shutdown,archivelog statements
+Trace file can be from background process and server process (ex: orcl_dbw0_<nr>.trc and orcl_ora_<nr>.trc)
+All logs from server process:
+ls -ltra $ORACLE_BASE/diag/rdbms/orcl/orcl/trace/orcl_ora*.trc
+========================================================
+# show log locations
+sqlplus / as sysdba;
+sql> col name format a25
+sql> col value format a50
+sql> select name,value from v$diag_info;
+=========================================================
+#view/show log content using cli
+cat /u01/app/oracle/diag/rdbms/orcl/orcl/trace/alert_orcl.log
+cat /u01/app/oracle/diag/rdbms/orcl/orcl/log/attention.log
+cat /u01/app/oracle/diag/rdbms/orcl/orcl/alert/log.xml
+=========================================================
+#view/show log content using oracle utility ADRCI
+adrci
+adrci> show alert
+tip: search,navigation,exit like in vi (? or /, Shift+G, :q!)
+adrci>exit
+=========================================================
+#purge log files defualts 
+default retention(=to keep) period:
+long period for incidents and alert logs = 365 days
+short period for traces and core dumps = 30 days 
+#set purge policy
+adrci
+adrci> set HOMEPATH diag/rdbms/orcl/orcl
+adrci> select sizep_policy from adr_control_aux
+adrci> select shortp_policy, longp_policy from adr_control
+tip: shows numbers in hours
+SHORTP_POLICY        LONGP_POLICY         
+-------------------- -------------------- 
+720                  8760 
+720hours/24=30 days
+8760hours/24=366 days
+192hours/24=8 days
+sizep_policy is in bytes (200MB=200 000 000)
+adrci> estimate(sizep_policy = 200000000)
+adrci> estimate(shortp_policy = 192, longp_policy=192)
+adrci> set control (shortp_policy=192)
+adrci> set control (longp_policy=192)
+adrci> set control (sizep_policy=2546268)
+adrci> quit
+#purge old log files manually to make space safely
+adrci
+adrci>help purge
+tip purge to 5MB
+adrci>purge -size 5000000
+==========================================================
+#enable ddl loging
+sqlplus / as sysdba
+sql> show con_name
+sql> alter session set container=orclpdb;
+sql> show con_name
+sql> show parameter ddl
+sql> alter session set enable_ddl_logging=true;
+tip: activate only for current session
+sql>create table mytest (n number);
+error: ORA-01109: database not open
+fix:
+sql>ALTER DATABASE OPEN;
+sql>create table mytest (n number);
+sql>quit
+cat $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl/log.xml
+cat $ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl_orcl.log
+================================
+#Create database
+methods:
+create a pdb by using the seed (seed=template)
+create a pdb from a non-cdb
+clone an existing pdb or non-cdb
+plug an unplugged pdb into a different cdb
+relocate a pdb to a different cdb
+create a pdb as a proxy pdb
+--------
+tools:
+sqlplus
+sqldeveloper
+enterprise manager cloud control
+dbca
+--------
+#create pdb from seed (seed=template)
+use statement: create pluggable database
+1 it will copy datafiles from seed to new location
+2 it will create tablespaces system and sysaux
+3 it will create default schemas and common users with sys as super user and system
+4 it will create db service (db instance)
+prerequisites:
+1 the current container must be root
+2 you must have create pluggable db privileges
+3 cdb must be in 'read write' mode
+4 seed is always in read mode only
+#Create pdb: use scripts see sql scripts directory
+#Create pdb:  use dbca when connecting ssh -X user@oracleHost
+dbca
+Manage Pluggable databases, next
+Create a Pluggable database, next, select orcl contaner, no input for user and pass
+Create a new Pluggable database fro another PDB (select PDB$SEED)
+Pluggable database name: pdb2, put admin name, admin pass, confirm admin pass
+On Create default user tablespace
+#Create pdb by cloning: use scripts see sql scripts directory
+Cloning is copying a source pdb from a cdb and plugging the copy into the same cdb or another cdb.
+#Plug/unplug pdb
+Cdb= container db => has 1 root container, 1 seed pdb (template), multiple pdbs
+Unplugging a pdb is diassociating pdb from cdb
+Plugging in a pdb is associating pdb with cdb
+Steps:
+1 close pdb1
+2 unplug pdb1 to xml
+3 drop pdb1 but keep datafiles
+4 check compatibility
+5 plug pdb1 in using xml
+#Drop pdb: use scripts see sql scripts directory
+#Drop pdb:  use dbca when connecting ssh -X user@oracleHost
+dbca
+Manage Pluggable databases, next
+Drop a Pluggable database, next, select orcl contaner, no input for user and pass
+Drop db by selecting from the list
+===============================
+# connect to the new db
+sqlplus / as sysdba
+sql>show con_name
+sql> col name format a20
+sql> select name, open_mode from v$pdbs;
+sql> alter session set container=pdb1;
+sql> show con_name;
+tip: same as show con_name is using services view when container is set to no root
+sql> select name from v$services;
+sql> show parameter domain
+sql> connect <user>/<pass>@<host>:1521/pdb1<.domain>
+tip: using sqldeveloper 'Service name': pdb1<.domain>
+tip: after adapting $ORACLE_HOME/network/admin/tnsnames.ora
+sql> connect <user>/<pass>@pdb1<.domain>
+===================================
+#Oracle network environment
+During oracle db install, oui (oracle universal installer) launches onca (oracle net configuration assistant)
+and creates local listener named LISTENER
+f: launches SP (server process) in response to connection request from client
+f: dynamic service registration (info about available db services)
+f: if listener is not running, client can not connect db with a new connection, the existant connectios are not affected
+#location listener param file: 
+$ORACLE_HOME/network/admin/listener.ora
+$ORACLE_HOME/network/admin/tnsnames.ora
+#Tip: if file listener.ora is removed/renamed/not found,
+# then listener is using TCP/IP and port 1521 (default values), 
+#so listener can run and register services  without this file listener.ora
+
+# start listener 
+# (wait 60 sec to see 'Services Summary' with registered services) or
+# or execute sql to skip waiting 60 sec for services registration:
+# alter system register;
+lsnrctl start
+# show listener status
+lsnrctl status
+# stop listener
+lsnrctl stop
+# interactive listener or listener utility
+lsnrctl
+
+#Use non-default port:
+1 change listener.ora port
+2 change tnsnames.ora port
+3 change each service port in tnsnames.ora
+4 refresh by forcing reread files: alter system set local_listener=LISTENER_ORCL
+5 lsnrctl stop; lsnrctl start; lsnrctl status;
+
+#Add extra listener (dynamic) with other port
+1 add in listener.ora entry
+LISTENER2 =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = oracledb)(PORT = 1527))
+    )
+2 add tnsnames.ora
+LISTENER2 =
+  (ADDRESS = (PROTOCOL = TCP)(HOST = oracledb)(PORT = 1527))
+
+3 NO change each service port in tnsnames.ora
+4 alter system set local_listener='LISTENER_ORCL,LISTENER2'
+5 lsnrctl start listener2; lsnrclt status listener2;
+
+# Add extra listener (static), not recommended
+1 add in listener.ora 2 entry listnerName and SID_LIST_<listnerName>
+LISTENER3 =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = oracledb)(PORT = 1529))
+    )
+SID_LIST_LISTENER3 =
+( SID_LIST=
+  ( SID_DESC=
+    (GLOBAL_DBNAME=<pdbname.domain>)
+    (SID_NAME=orcl)
+    (ORACLE_HOME=<$ORACLE_HOME value>)
+  )
+)
+2 lsnrctl start listener3; lsnrclt status listener3;
+# Tip with static listener status for instance 'orcl' UNKNOWN - it's normal and working
+---------------------------------------
+#Tools to configure listener 
+#Gui
+1 Oracle Net Manager=netmgr
+2 Oracle Net Configuration Assistant=netca
+3 Database Configuration Assistant=dbca
+4 Enterprise Manager Cloud Control
+#Cli
+5 Listener Control Utility=lsnrctl
+6 Editing files listener.ora and tnsnames.ora directly
+================================================
+#Test connection 
+tnsping <service_name>
+tnsping pdb1
+=================================================
+#Database link
+1 you must have create database link system privilege
+=================================================
+Dedicated server=default oracle net configuration where each user process connects to its own SP (server process)
+Shared server=number user processes use a pool of server processes that are shared by all sessions
+Distributed transaction=affects row in more than one db.
+================================================
+#easy connect
+sql> connect <user>/<pass>@<host>:<port>/<service_name>
+sql> connect <user>/<pass>@<service_name_from_tnsnames>
+Tip: tnsnames.ora has no relation between entry (alias) and service_name or instance name
+     But keep them same to make it simple.
+================================================
+Database Control=$ORACLE_HOME/bin/emctl is not available in release 19c (emctl start dbconsole)
+Note: Enterprise Manager Database Control is no longer available in Oracle Database 12c. 
+You can use Enterprise Manager Cloud Control 12c or EM Express 12c to manage your Oracle Database 12c databases.
+================================================
+xclock is a handy tool to test if the DISPLAY variable
+================================================

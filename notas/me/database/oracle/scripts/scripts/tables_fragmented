@@ -1,0 +1,66 @@
+#!/bin/ksh
+
+Exit_Fail() {
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "`date` - tables_fragmented - Ending failed"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  exit -1
+}
+
+Usage() {
+  echo -e "\nUsage : $0 -d <database name>\n"
+  Exit_Fail
+}
+
+Analyze_options_passed() {
+  [ -z "$Pdatabase" ] && echo -e "\nNo database specified..." && Usage
+}
+
+Execute_environment_file() {
+  export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${Pdatabase}
+}
+
+Fragment_tables() {
+  sqlplus -s /nolog << !
+  connect / as sysdba
+  set linesize 132;
+  select name, owner, table_name, num_rows, chain_cnt, (chain_cnt/num_rows) * 100
+    from dba_tables, v\$database
+   where owner not in ('SYS','SYSTEM')
+     and chain_cnt > 0
+     and num_rows > 0
+     and (chain_cnt / decode(nvl(num_rows,1),0,1,num_rows))*100 >= 20;
+!
+}
+
+main() {
+  echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "`date` - $0 for $Pdatabase - Starting"
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+  Analyze_options_passed
+
+  Execute_environment_file
+
+  Fragment_tables
+
+  echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "`date` - $0 for $Pdatabase - Ending"
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+while getopts "d:" opt
+do
+  case $opt in
+    d) Pdatabase=$OPTARG ;;
+    *) Usage
+       Exit_Fail
+       ;;
+  esac
+done
+
+main
+exit 0
+
+

@@ -1,0 +1,86 @@
+#=================================
+# X forwarding
+#On the server side, X11Forwarding yes must specified in /etc/ssh/sshd_config
+ssh user@server
+grep -inHR x11 /etc/ssh/sshd_config
+#see xauth installed
+rpm -qa | grep -i xauth
+which xauth
+#install xauth
+yum install xauth
+#logout, login via ssh -X user@server and ~/.Xauthority file will be created
+ssh -X user@server
+yum install xclock
+yum install xeyes
+#execute and see graphical output on client side
+xclock
+#===================================
+#static ip
+#see network interface
+ifconfig
+#edit file and remove DHCP=yes
+nano /etc/sysconfig/network-scripts/ifcfg-enp0s3
+DEVICE=enp3s0
+ONBOOT=yes
+IPADDR=192.168.1.10
+NETMASK=255.255.255.0
+GATEWAY=192.168.1.1
+#restart network interface
+ifdown enp0s3
+ifup enp0s3
+#validate route
+ip a show enp0s3
+#==================================
+#resize disk 
+#In vbox, stop vm; select vm, settings, storage, controller:SATA, +, Add Hard Disk; start vm
+#on vm
+df -h
+#see /dev/mapper/my_vg-my_lv to resize
+fdisk -l | more
+#see your added disk like /dev/sdb or /dev/sdc or /dev/sdd (dont use /dev/sda - its root)
+# partition disk your found
+fdisk /dev/sdb
+#chouse n (=new partition), p (=primary), enter all for defaults, p (=partion to see your new partition), t, l, 8e (=Linux LVM), w (=write to save)
+fdisk -l | more 
+#see Device=/dev/sdb1 Id=8e System=Linux VM
+#reboot vm
+reboot now
+# after reboot
+fdisk -l /dev/sdb1
+# start extending
+# see group-disk relation (VG Name-PV Name)
+pvdisplay
+#see volume group (VG) name to extend and disk (PG)
+pvs
+#see info about VG
+vgdisply my-vg
+#create physical volume
+pvcreate /dev/sdb1
+#group extend
+vgextend my-vg /dev/sdb1
+#logical volume extend
+lvextend -L+50G /dev/mapper/my_vg-my_lv
+# grow fs system
+xfs_growfs /dev/mapper/my_vg-my_lv
+# xfs_growfs gives error: xfs_growfs: is not a mounted XFS filesystem
+#Fix xfs_growfs <mount-point-name>
+xfs_growfs /home
+#see result
+df -h
+#use if needed, gives info about block devices 
+lsblk
+#===============================
+#Block size info
+#disk block size=512 bytes (hard disk can not read less than 512 bytes)
+#kernel block size=1024 bytes 
+#oracle db block size=8192 bytes (=8K default) 
+#file system block size=4096 bytes (=4K) 
+stat -f .
+#test file system (fs) block size
+# save file world with content: hello
+echo hello>world
+# see size = 6 bytes (see size between usergroup and date)
+ls -ltra world
+# see size taken (output:4.0K    world)
+du -sch world
+#================================

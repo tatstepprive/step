@@ -1,0 +1,36 @@
+1 How to create spfile if missing?
+2 why connect as sysdba and no user sysdba in cdb_users, dba_users?
+3 Diff between v$pdbs, v$container, v$services?
+4 How often create pfile from spfile to be safe?
+5 in pfile are more lines (no comment) then in v$system_parameter isdefault='FALSE', why?
+6 Listener can have '0 handler(s) for the service' after dropping pdb. How to fix? 
+6 RESP: restart listener after connect via ssh: lsnrctl stop; lsnrctl start
+7 Why multiple listeners?
+8 How long is listener running? When started?
+8 RESP: lsnrctl status and see 'Uptime' and 'Start Date' columns.
+9 Diff between dedicated and default server for listener configuration?
+10 What will happen when user has role and we do revoke of some privileges given by role?
+11 Meaning of role without sys privileges like select_catalog_role?
+12 Why do we have refs to deleted tablespaces in dba_users? How to cleanup?
+13 What is queue on database and how it works?
+14 What are oracle managed files (OMF)?
+14 RESP: OMF= oracle managed files are file for tablespaces where creation path and name can be given by database (unique),
+the size and size extension are managed automatically by db, server alerts generation based on thresholds  etc 
+14 RESP: OMF= oracle managed files, in dbca OMF are control file and redo logs
+15 What is view for avialable calendars? (default 'Gregorian')
+16 Temp tablespace recommended size? 
+16 RESP: set workarea_size_policy=auto or use (alter tablespace temp shrink space  <-- this would disallocate not in use extents and would reduce size of Temp file on harddisk)
+16 RESP:  50gb is the  recommended minimum size  for 11g
+16 RESP:  how much of TEMP is used (select USED_BLOCKS*8192/1024/1024 "MB USED" , FREE_BLOCKS*8192/1024/1024 "MB FREE" from v$sort_segment where TABLESPACE_NAME='TEMP' )
+16 RESP: Who is consuming the blocks of temp tablespace (
+column username   format a10 
+column user       format a10 
+column tablespace format a20
+
+select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,session_addr,sqladdr from V$TEMPSEG_USAGE 
+) ref: https://community.oracle.com/mosc/discussion/3480975/recommended-temp-tablespace-size
+17 Show DBID?
+17 RESP: connect with rman and see output: connected to target database: <dbname> (DBID=xxxxxxx where x=1-9)
+17 RESP: select dbid from v$database; (DBID=xxxxxxx where x=1-9)
+18 Database vs instance in oracle?
+18 RESP: database is data on disk, instance is running db with memory SGA (=system global area) and background processes. Db mounted on instance, users connect to instance.

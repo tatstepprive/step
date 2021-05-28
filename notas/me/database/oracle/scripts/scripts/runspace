@@ -1,0 +1,154 @@
+#!/bin/ksh
+
+Exit_Fail() {
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   echo "`date` - runspace for $Pdatabase - Ending Failed"
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   exit -1
+}
+
+Usage() {
+   echo -e "\nUsage : $0 -d <database name>\n"
+   Exit_Fail
+}
+
+Analyze_options_passed() {
+   [ -z "$Pdatabase" ] && echo -e "\nNo Database Specified ..." && Usage
+}
+
+Execute_environment_file() {
+  export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${Pdatabase}
+}
+   
+
+run_space() {
+   sqlplus -s /nolog <<EOF
+   connect / as sysdba
+
+   set echo off
+   set pagesize 64
+   set linesize 118
+   set newpage 0
+
+   create view v_d_f_s
+          (tablespace_name,free_space,largest_hole)
+   as
+   select tablespace_name,
+          sum(bytes) / 1024,
+          max(bytes) / 1024
+     from sys.dba_free_space
+    group by tablespace_name
+   ;
+   
+   create view v_d_d_f
+          (tablespace_name,size_kb)
+   as
+   select tablespace_name,
+          sum(bytes) / 1024
+     from sys.dba_data_files
+    group by tablespace_name
+   ;
+
+   col TODAY  format a30 heading "Todays date"
+   col DBNAME format a8  heading "Database"
+
+   ttitle center "Database Follow" skip 3
+
+   col TABLESPACE format a20
+   col FILENAME   format a50
+   break on TABLESPACE
+
+   ttitle center "Tablespaces and Data Files" skip 3
+
+   select tablespace_name "TABLESPACE",
+          file_name       "FILENAME",
+          bytes/1024      "SIZE (KB)",
+          bytes/1048576   "SIZE (MB)"
+     from sys.dba_data_files
+    order by tablespace_name, file_name
+   ;
+
+   col TABLESPACE format a20
+
+   ttitle center "Freespace and Largest Hole" skip 3 
+
+   select tablespace_name "TABLESPACE",
+          sum(bytes)/1024 "FREE SPACE (KB)",
+          count(*)        "# OF HOLES",
+          max(bytes)/1024 "LARGEST HOLE (KB)"
+     from sys.dba_free_space
+    group by tablespace_name
+   ;
+
+   col TABLESPACE format a20
+
+   ttitle center "Space Usage within Tablespaces (in Kb)" skip 3 
+
+   select f.tablespace_name        "TABLESPACE",
+          d.size_kb                "TS SIZE",
+          d.size_kb - f.free_space "USED SPACE",
+          f.free_space             "FREE SPACE",
+          f.largest_hole           "LARGEST HOLE"
+     from v_d_f_s f, v_d_d_f d
+    where f.tablespace_name = d.tablespace_name
+    order by f.tablespace_name
+   ;
+
+   col TABLESPACE format a20
+
+   ttitle center "Percentage Space Usage within Tablespaces (in %)" skip 3 
+
+   select f.tablespace_name                            "TABLESPACE",
+          d.size_kb                                    "TS SIZE (Kb)",
+          100 - ceil((f.free_space * 100) / d.size_kb) "USED SPACE",
+          ceil((f.free_space * 100) / d.size_kb)       "FREE SPACE",
+          ceil((f.largest_hole * 100) / d.size_kb)     "LARGEST HOLE"
+     from v_d_f_s f, v_d_d_f d
+    where f.tablespace_name = d.tablespace_name
+    order by f.tablespace_name
+   ;
+ 
+   ttitle center "Tablespace filled at 100%" skip 3
+   select tablespace_name from dba_tablespaces
+    where tablespace_name not in 
+          (select tablespace_name from dba_free_space);
+   drop view v_d_f_s
+   ;
+
+   drop view v_d_d_f
+   ;
+
+EOF
+}
+
+main() {
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 for $Pdatabase - Starting"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+Analyze_options_passed
+
+Execute_environment_file
+
+run_space
+
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 for $Pdatabase - Ending"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+while getopts "d:" opt
+do
+   case $opt in
+      d) Pdatabase=$OPTARG;;
+      *) Usage
+         Exit_fail
+         ;;
+   esac
+done
+
+main
+exit 0
+
+

@@ -1,0 +1,151 @@
+#!/bin/ksh
+
+Exit_fail() {
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   echo "`date` - Daily  Check for $Pdatabase - Ending Failed"
+   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+   exit -1
+}
+
+Usage() {
+        echo -e "\nUsage : $0 -d <database name>\n"
+        Exit_fail
+}
+
+Analyze_options_passed() {
+[ -z "$Pdatabase" ] && echo -e "\nNo Database Specified..." &&  Usage
+}
+
+Execute_environment_file() {
+  export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${Pdatabase}
+}
+
+Check_Database() {
+sqlplus -s /nolog 1>> /tmp/daily_check.log <<EOS
+connect / as sysdba
+set linesize 132;
+set feedback off;
+set serverout on;
+DECLARE
+   cursor c1 is 
+      select a.tablespace_name, 
+             sum(a.bytes)/1024 tot_size,
+             sum(a.maxbytes)/1024 max_byte
+      from dba_data_files a, dba_tablespaces b
+      where a.tablespace_name = b.tablespace_name
+        and b.status <> 'READ ONLY'
+      group by a.tablespace_name;
+   c1_rec c1%rowtype;
+
+   cursor c2 is
+      select tablespace_name, segment_name, segment_type, extents-1 nb_extent, max_extents
+      from dba_segments
+      where (extents - 1) > (max_extents - 10)
+        and segment_type <> 'CACHE';
+   c2_rec c2%rowtype;
+
+   free_space number;
+   largest_hole number;
+   max_next number;
+   db_name varchar2(30);
+   used_space number;
+begin
+   select name into db_name from v\$database;
+   for c1_rec in c1 loop
+      select sum(bytes)/1024, max(bytes)/1024 into free_space, largest_hole
+      from dba_free_space
+      where tablespace_name = c1_rec.tablespace_name;
+
+      select max(next_extent)/1024 into max_next 
+      from dba_segments
+      where tablespace_name = c1_rec.tablespace_name; 
+
+      if free_space < ((c1_rec.tot_size * 15.0) / 100.0) then
+         if c1_rec.max_byte > 0 then
+            used_space := c1_rec.tot_size - free_space;
+            if used_space >= ((c1_rec.max_byte * 85.0) / 100.0) then
+               dbms_output.put_line(rpad(db_name,10) || 
+                           c1_rec.tablespace_name || 
+                           ' - total size : ' || 
+                           to_char(c1_rec.tot_size,'B99999999999') || 
+                           ' KB   free space : ' || 
+                           to_char(free_space,'B99999999999') || 
+                           ' KB   LESS THAN 15%');
+            end if;
+         else
+            dbms_output.put_line(rpad(db_name,10) || 
+                        c1_rec.tablespace_name || 
+                        ' - total size : ' || 
+                        to_char(c1_rec.tot_size,'B99999999999') || 
+                        ' KB   free space : ' || 
+                        to_char(free_space,'B99999999999') || 
+                        ' KB   LESS THAN 15%');
+         end if;
+      end if;
+
+      if (max_next * 2.0) > largest_hole then
+         dbms_output.put_line(rpad(db_name,10) || 
+                     c1_rec.tablespace_name || 
+                     ' - largest hole : ' || 
+                     to_char(largest_hole,'B99999999999') || 
+                     ' KB   largest next_extent : ' || 
+                     to_char(max_next,'B99999999999') || 
+                     ' KB   CAN''T FIT TWO TIMES IN IT');
+      end if;
+   end loop;
+
+   for c2_rec in c2 loop
+       dbms_output.put_line(rpad(db_name,10) || c2_rec.tablespace_name || ' : ' || c2_rec.segment_name || 
+                            ' - ' || c2_rec.segment_type || ' nr extent : ' || to_char(c2_rec.nb_extent,'B999999') || 
+                            ' max extent : ' || to_char(c2_rec.max_extents,'B999999') || ' < 10 ');
+   end loop; 
+end;
+/
+exit
+EOS
+}
+
+Send_Mail() {
+   if [ -s /tmp/daily_check.log ] 
+   then
+#      cat /tmp/daily_check.log | mail bmb_smb_dbo@mobile.belgacom.be
+      cat /tmp/daily_check.log 
+   fi
+}
+
+main() {
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Starting for $Pdatabase"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+Analyze_options_passed
+
+Execute_environment_file
+
+cat /dev/null > /tmp/daily_check.log
+
+#check databases 
+Check_Database $dbname 
+
+Send_Mail
+
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Ending for $Pdatabase"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+while getopts "d:" opt
+do
+  case $opt in
+        d)      Pdatabase=$OPTARG ;;
+        *)      Usage
+                Exit_fail
+                ;;
+  esac
+done
+
+main
+
+exit 0
+

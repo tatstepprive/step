@@ -1,0 +1,198 @@
+Globalization=NLS (national language support)
+Time zone influence (standards) for:
+ * language
+ * date formats 
+ * numbers
+ * monetory formats 
+Character set= defined encoding schema for representing characters as a sequence of bits
+ * OS - Microsoft Word
+ * product own - Oracle (>200 character sets)
+Character set= set of distinct characters:
+ * upper/lower letters
+ * digits 0-9
+ * punctuation marcs
+ * special characters (like end of line, page break etc)
+Character set representation for one character:
+ * single byte = 7 or 8 bits / character=>2**7=128 chars 2**8=256
+ * multi byte = 1-3 bytes / character= 7-8 bits-21/24 bits / character
+   * fixed width = always use 2 bytes per character
+   * variable width = some characters use 1 byte, others 2/3 bytes
+Expl:
+ASCII single byte 7 bits 128 chars
+EBCDIC  single byte 7 bits  128 chars
+US7ASCII single byte 7 bits United States 128 chars
+YUG7ASCII single byte 7 bits Yugoslavian 128 chars
+WE8ISO8859PI5 single byte 8 bits Western European
+AL16UTF16 multibyte fixed width (2 bytes/character)
+AL32UTF8 multibyte variable width 32000 chars (ORACLE RECOMMENDS)
+
+Character set is used to store chars in column varchar2, clob, char, long.
+National Character set= second charachter set, used for chars in column nvarchar2, nclob, nchar.
+                      = only unicode (AL16UTF16 and UTF8)
+                      = UTF8 != AL32UTF8 (select * from v$nls_valid_values where parameter='CHARACTERSET' and value like '%UTF%';)
+Defaults: character set=US7ASCII and national character set=AL16UTF16
+          proposed at db creation time. 
+          now NLS_CHARACTERSET=AL32UTF8 and NLS_NCHAR_CHARACTERSET=AL16UTF16 (select * from nls_database_parameters where parameter like '%SET';)
+======================================
+Supported languages:
+select * from v$nls_valid_values where parameter='LANGUAGE';
+Supported sort orders:
+select * from v$nls_valid_values where parameter='SORT';
+Supported territories:
+select * from v$nls_valid_values where parameter='TERRITORY';
+Supported character set:
+select * from v$nls_valid_values where parameter='CHARACTERSET';
+-----------------------
+Tip: default nls_language influences: 
+ * error msgs
+ * dates language
+ * sort order
+show parameter nls_language; --default AMERICAN
+show parameter nls_date_language; --default AMERICAN 
+show parameter nls_sort; --default BINARY
+-------------------------
+Tip: default nls_territory influence:
+ * day and week numbering (US Saterday=7 Sunday=1 vs Germany Sunday=7, Monday=1)
+ * credit and debit symbols
+ * date formats
+ * decimal and group numeric separators (US 10,001 vs Germany 10001 = ten thousand and one)
+                                        (US 1.5 (point) vs Germany 1,5 (comma) = one and half decimal value)
+ * currency symbols
+
+show parameter nls_territory --default AMERICA / Geo location
+show parameter nls_currency  -- $ / Local currency symbol
+show parameter nls_dual_currency -- $ / Second currency symbol for this location
+show parameter nls_iso_currency -- AMERICA
+show parameter nls_date_format  -- DD-MM-RR / used for data type DATE
+show parameter nls_group_characters -- .,/decimal and group delimiter
+show parameter nls_timestamp_format --    DD-MM-RRHH.MI.SS.XFF AM / datatype TIMESTAMP
+show parameter nls_timestamp_tz_format -- DD-MM-RRHH.MI.SS.XFF AM TZR/ datatype TIMESTAMP WITH LOCAL TIMEZONE
+
+Show time:
+alter session set nls_territory='AMERICA';
+select systimestamp from dual;
+alter session set nls_territory='GERMANY';
+select systemtimestamp from dual;
+
+GMT=Greenwich Mean Time (+02:00 -> 2hours ahead of GMT)
+---------------------
+Other NLS settins:
+ show parameter nls_calendar -- default Gregorian
+ show parameter nls_comp -- BINARY /compares letters using nls value, not numeric equivalent
+ show parameter nls_length_semantics --BYTE / multibyte chars as complete chars than bytes
+ show parameter nchar_conv_excp --FALSE / limits error msg when converting varchar2 and nvarchar
+
+Test calendar:
+alter session set nls_calendar='Japanese Imperial';
+alter session set nls_date_format='dd-mm-yyyy';
+select sysdate from dual;
+alter session set nls_calendar='Gregorian';
+select sysdate from dual;
+
+Question: view for available calendars? (default 'Gregorian')
+======================================
+Overriding globalization:
+Database
+  |
+instance
+  |
+client environment
+  |
+session
+  |
+statement
+
+Statement can override all globalisation settings.
+Server side: instance settings can override database settings
+Client side: database settings are overriden by client environment
+Question: how to see real database or instance setting and not client environment settings, connecting to db?
+======================================
+Change character set:
+Tools: 
+ * Database Character Set Scanner ( csscan)
+ * Language and Character Set File Scanner (lcsscan)
+f: generates reports of possible problems
+
+Tip: before scan execute csminst.sql
+Tip: execute scan datafiles to see problems when converting to utf8
+csscan system/syspass full=y tochar=utf8
+Typical problem: char (1 byte) -> converson char (2 bytes), data not fit in column
+select * from nls_database_parameters;
+alter database character set;
+alter database national character set;
+restart db after change
+Attention: corruption prone change.
+See nls parameters:
+select * from nls_database_parameters; --shows character set and version
+select * from nls_instance_parameters; --shows no character set and version
+select * from v$nls_parameters; --shows character set
+select * from nls_session_parameters; --shows no character set
+====================
+Client side environment settings:
+NLS_LANG=1_2.3=<language>_<territory>.<charset>=[NLS_LANGUAGE]_[NLS_TERRITORY].[NLS_CHARACTERSET]
+1,2,3 are all optional (if language is given, territory will change according automatically)
+select * from v$nls_parameters where parameter 
+in ('NLS_LANGUAGE','NLS_TERRITORY','NLS_CHARACTERSET');
+NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+or it could be:
+NLS_LANG=FRENCH_CANADA.WEISO8859P1
+Tip: presentation to user according NLS_LANG, saving in db according database globalisation settings.
+NLS_LANG can be set on OS:
+setenv NLS_LANG American_America.UTF8
+export NLS_LANG=American_America.UTF8
+Test case1:
+export NLS_LANG=FRENCH
+export NLS_DATE_FORMAT='Day dd Month yyyy'
+sqlplus / as sysdba
+sql> select sysdate from dual;
+output:
+SYSDATE
+--------------------------
+Samedi	 24 Avril     2021
+Test case2:
+export NLS_LANG=RUSSIAN
+export NLS_DATE_FORMAT='Day dd Month yyyy'
+sqlplus / as sysdba
+sql> host echo $NLS_LANG
+sql> select sysdate from dual;
+output:
+SYSDATE
+----------------------------
+�������     24 ������	2021
+sql>select 'консэквюат' x, n'консэквюат' y from dual;
+output:
+X					 Y
+---------------------------------------- --------------------
+консэквюат			 консэквюат
+Question: why the messages and sysdate gives not readable chars, when select from table works?
+Fix: export NLS_LANG=RUSSIAN_RUSSIA.AL32UTF8 
+(Reason unreadable chars is mismatch between the locale-specific NLS characterset and the database characterset)
+-- locale-specific characterset
+select value
+from   v$nls_parameters 
+where  parameter = 'NLS_CHARACTERSET';
+-- database characterset
+select value
+from   nls_database_parameters 
+where  parameter = 'NLS_CHARACTERSET';
+output: AL32UTF8
+use it in NLS_LANG and dont skip it as optional value
+Test on error message:
+SQL> yy;
+SP2-0042: неизвестная команда "yy" - остаток строки опущен.
+SQL> select sysdate from dual;
+
+SYSDATE
+--------------------------------------------------------------------------------
+Суббота     24 Апрель   2021
+
+====================================
+Session level globalisation: (can use logon trigger)
+sql> alter session set nls_date='dd.mm.yyyy';
+sql> execute dbms_session.set_nls('nls_date_format', '''dd.mm.yyyy''');
+
+===================================
+Statement level globalisation 
+sql> select to_char(sysdate, 'Day dd, Month yyyy', 'NLS_DATE_LANGUAGE=DUTCH'), to_char(sysdate, 'Day dd, Month yyyy', 'NLS_DATE_LANGUAGE=FRENCH') from dual;
+output: weekday date, month year in multi languages
+==================================

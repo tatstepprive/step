@@ -1,0 +1,207 @@
+MTBF=mean time between failures (should increase); How frequently db not available 
+MTTR=mean time to recover (should decrease); How many time needs to be available again, repair time
+RAC=clustered db of 1 physical db opened by multiple instance on multiple pcs; 
+    f:100% availability (protects against hardware, os, software failures)
+Streams=>=2 db on separate pcs kept in sync; 
+    f:100% availability (protects against hardware, os, software, disk, network  failures)
+DG=data guard; 1 primary db and multiple standby db kept in sync;
+    f: zero/no data loss.
+
+Time line:
+MTBF              MTTR         MTBF             MTTR
+::::::::::::://///............:::::::::::::////...........:::::::::::::
+db OK        | db NOK         |db OK       |db NOK        |db OK
+
+-----------------------------------------------------------------------
+PMON=process monitor (background process)
+DDL=data definition language (create, drop etc)
+DML=data manipulation language (insert, update, delete)
+LGWR=log writer (background process)
+DBWR=DBWn=database writer (till 20 background processes DBW0-DBW20)
+SMON=system monitor f: opens db after check db files
+Categories Failures:
+1 Statement failure: 
+ * because invalid data like format or constaint viotation (no dba error)
+ * because of logical error in app programming causing deadlock (no dba error)
+ * because space management problems like unable extent a segment (dba error)
+ * because of insufficient privileges (no dba error)
+Tip: if statement fails, it will be rolled back (auto revert using of undo), other DML will remain uncommitted
+
+2 User process failure
+ * because of abnormal exit instead of logging out;
+ * because of terminal rebooting
+Tip: PMON will clean up server processes which report lost contact with user process
+     PMON will roll back transaction, release any locks held by the session, release PGA to os.
+
+3 Network failure
+ * because no entry in tns_names.ora on client side
+ * because db listener is not running (dba error)
+ * many concurrent connections (on server add second network card (on separate subnet), configure 2 listeners with different address/port) 
+Question: multiple listeners on same network card with diff port is possible? Or should be listener per card?
+
+4 User errors:
+ * DDL statements like drop table have commit included/builtin, no rollback possible
+ * DML statements with user commit, no rollback possible
+Tip: Commit built into DDL statements will include any preceding DML statements
+Tip: dba can fix commited transactions by using flashback query, flashback drop, flashback db and incomplete recovery
+Tip: with flashback database and incomplete recovery all db will be back in time before error occured, so you will lose work done
+
+5 Media failure:
+ * because of damage of disk and losing db files
+ * because of user error accidentally deleting db files 
+Tip: db files (control file, online redo logs, datafiles)
+Tip: multiplex control file, online redo logs, archive logs
+Tip: backup data files, control file, archive logs
+Tip: can not multiplex datafile, no need to backup online redo logs.
+
+6 Instance failure (disorderly shutdown of the instance):
+  * because of powercut, rebooting server
+  * because of critical hardware problems
+  * because of command SHUTDOWN ABORT
+Tip: corrupted/inconsistent db=missing commited transactions, stored uncommited transactions
+Tip: LGWR writes constanly to online redo log files, DBWn writes to data files
+Tip: a commit does not write to datafiles, but LGWR flushes log buffer to online redo log files 
+Restore= extract file from backup and put it on where it should be
+Recover= auto process, applying changes extracted from redo logs, bringing file up to date(both online and archived)
+  * complete recovery=no loss of data, bringing up to date till last change (now)
+      Steps:
+        * take damaged file offline (automatically: noncritical file of if using DRA)
+        * restore demaged file
+        * recover damaged file
+        * put recovered file online (automatic: if using DRA=data recovery advisor)
+  * incomplete recovery=with loss of data, bringing up to date to a point in time.
+      Steps:
+        * mount db
+        * restore all datafiles
+        * recover db until certain point
+        * open db with reset logs
+----------------------------------------------------------
+Recovery: command STARTUP;
+SCN=system change number; f: at this point all changes are written to the data files by DBWn.
+Tip: the more up to date the checkpoint position, the faster instance recovery
+parameter FAST_START_MTTR_TARGET in seconds (default zero, so no effect; max=3600 sec (60 min=1hour)).
+Tip: checkpoint auto-tuning is enabled if target_mttr is not zero
+-- see estimated_mttr (estimated time to recover in sec),
+-- target_mttr (=fast_start_mttr_target=sec to recover), 
+-- writes_mttr (number of times WDBn had to write in addition to meet target_mttr)
+select * from v$instance recovery;
+DRA=Data Recovery Advisor f: diagnose and repaire db problems on datafiles and controlfile (not on spfile or redo logs)
+    (depends on ADR and HM)
+ADR=Automatic Diagnostic Repository (dir of fs, parameter DIAGNOSTIC_DEST)
+HM=Health Monitor f: set of check to run auto or manually, result stored on fs (=file system, not in db)
+---------------------------------------------------------
+Checkpoint=the point in redo stream from which instance must start after following a crash)
+* incremental checkpoint (auto by DBWn, some dirty buffers are written to disk)
+* full checkpoint (all dirty buffers are written to disk)(on request, on normal/immediate/transactional shutdown)
+    cmd: alter system checkpoint;
+* partial checkpoint (auto part of certain operations)
+    * when taking tablespace offline (all tablespace blocks)
+    * when taking datafile offline (all datafile blocks)
+    * when dropping a segment (all segment blocks)
+    * when truncate a table (all table blocks)
+    * when putting tablespace in backup mode (all tablespace blocks)
+----------------------------------------------------------
+Controlfile
+f: used to mount db, while db open it will be read and written.
+Tip: multiplex (have copies) min 2 max 8. Recommends: 3 (default) 
+     by install 3 multiplexed controlfiles are in same dir, they should be in diff dirs/disks
+Note: damage of any control file-> crash db immediately
+Add or move controlfile steps:
+  show parameters control_files;
+  shutdown immediate;
+  -- move or copy control file (do no move or copy when db open)
+  startup nomount;
+ alter system set control_files="/data/control01.ctl","/data2/control01.clt","/data3/control03.ctl" scope=spfile;
+ startup force;
+ show parameters control_files;
+--------------------------------------------------------------
+Online redo log files
+Structure: >=2 online log file group, 
+           >=1 member(=physical file)/group (Recommends >=2member/group)
+(see CreateDB.sql, see control file MAXLOGFILES (=16) MAXLOGMEMBERS(=3))
+member=filename=redo0x.log (x=1,2,3, you can add new as redo01A.log etc)
+Incarnation of db=version of db with new thread or redo, beginning at log sequence 1 (backups and archive logs depends on incarnation)
+Tip: multiplex members of a log file group on separate disks
+Note: damage any member -> db stay open when any surviving member
+Note: group and member can be added/moved when db is open.
+--groups
+--column status: inactive (=not used), current (=used by LGWr), active (was recent used and will be applied by recovery if db will crash now
+--column sequence: LGWr switch counter after db start
+--column member: members/group
+select * from v$log; --1row/group
+--members
+--column member: path to physical file
+--column status: empty(=ok), stale(=member not yet used), invalid(=problem! or new member never used and we need force log switch) 
+select * from v$logfile; --1row/member
+Tip: we should monitor invalid members
+--force a log switch, LGWR will take other group to write online redo logs
+-- online redo log files are overwritten when log switch occur. Logfile switch will not trigger checkpoint, LGWR will take other member to write
+alter system switch logfile;
+--write changes to datafiles (sync redo to datafiles)
+alter system checkpoint;
+--add member
+alter database add logfile member '/ora/oracle/app/oradata/redo01a.log' to group1;
+----------------------------------------------
+Archive (redo) log files
+By default: db created in noarchive mode
+Archive mode f: on log switch online redo log will be copied to archive destination
+ARCn=archiver process (background process ARC0-ARC4 max ARC30) When problems writting to archive destination (fs full) db will hang
+log_archive_format= each archive log has unique name (%d=db id, %t=thread nr, %r=incarnation nr, %s=log switch sequence nr)
+Tip: multiplex archive log by giving archive destination log_archive_dest_n (n=1-10) 
+--Activate archivelog mode
+-- create archive dirs
+-- sqlplus / as sysdba
+sql>alter system set log_archive_dest_1='LOCATION=/u01/app/oracle/oradata/ORCL/archive1';
+sql>alter system set log_archive_dest_2='LOCATION=/u01/app/oracle/oradata/ORCL/archive2';
+sql> alter system set log_archive_format='arch_%d_%t_r%_s%.log' scope=spfile; --static parameter
+sql> shutdown immediate;
+sql> startup mount;
+sql> alter database archivelog;
+sql> alter database open;
+sql>show parameter log_archive_format;
+sql> select log_mode from v$database;
+sql> select archiver from v$instance;
+sql> alter system switch logfile;
+sql> select name from v$archived_log;
+
+Deprecated parameters: LOG_ARCHIVE_DEST (use log_archive_dest_n n=1-10)
+Deprecated parameters: LOG_ARCHIVE_DUPLEX_DEST (use log_archive_dest_n n=2-10)
+-----------------------------------------------
+FRA=Flash Recovery Area (default location of recovery related files)
+RMAN=recovery manager f: manage space in FRA (flash recovery area)
+By default: not enabled, but when created with dbca then enabled
+Tip:Flashback works without FRA (flash recovery area) dont confuse them. Dont confuse FRA (flash recovery area) and Flashback
+Files:
+  * permanent (dont remove)
+      * controlfile multiplexed copies
+      * online redo logfile members
+  * transient (can be removed automatically by RMAN)
+      * archive redo log files
+      * RMAN backups
+      * RMAN copies
+      * controlfile autobackups
+      * Flashback log files
+Tip: archivelog mode if LOG_ARCHIVE_DEST_n parameter is empty, then they will go to FRA
+Parameters (both dynamic=no need to stop db): 
+   DB_RECOVERY_FILE_DEST_SIZE (max size, 2G default, should be set first size=db size + all incremental backups since last full backup + archive redo log files)
+   DB_RECOVERY_FILE_DEST (location, define size first, $ORACLE_BASE/flash_recovery_area default)
+Views, see column is_recovery_dest_file: 
+      * v$controlfile 
+      * v$logfile
+      * v$archived_log
+      * v$backup_piece
+Storage type:
+ * primary storage (live db on disk)
+ * secondary storage (copy of db + files for fast recovery)
+ * tertiary storage (long term backups)
+--Space usage in FRA
+select * from v$flash_recovery_area_usage
+Tip: FRA has auto management of space
+-----------------------------------------------
+Block corruption=corruption of datafile block, datafile stays online (detected by rman when doing backup) 
+                =ORA-01578 when session hits corrupted block (user try to access damaged block)
+Views:
+ * v$database_block_corruption
+ * v$backup_corruption;
+ * v$copy_corruption;
+BMR=block media recovery

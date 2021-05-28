@@ -1,0 +1,307 @@
+RMAN=Recovery manager (backup util)
+Location: $ORACLE_HOME/bin/rman
+
+Files backed up by RMAN:
+ * spfile (=dynamic server parameters file)
+ * control file (rman takes read-consistent snapshot and back it up)
+ * data files
+ * archive redo log files
+ * backup set pieces
+
+Files CAN NOT backed up by RMAN:
+ * pfile (=static parameters file)
+ * password file
+ * online redo log files
+ * oracle net configuration files
+ * tempfiles
+------------------------------
+Channels=server processes of rman for backup and restore
+ * type disk = read/write backup on disk 
+ * type sbt_type = read/write on a tape device ( character devices /dev/st<nr>, /dev/nst<nr> nr=0,1...)
+ * type sbt = same as sbt_type (SBT=System Backup on Tape)
+Tip: sbt is not used for image copy.
+Repository=metadata about backups=names and locations of the pieces (files) in backupset or image copies
+          = stored in control file of  target db (and optionally in tables in catalog db)
+Catalog db=optionally db, containts rman repository (=metadata about backups)
+Target db=db to backup/restore/recover
+Auxiliary db=optionally db created from a backup of target db
+Tip: rman can connect target db (=db to backup,restore,recover), catalog db (=repository with data about target db), auxiliary db (=new db created from backup of target db)
+Fractured block=block is updated by DBWn when RMAN backup busy on it, useless in backup, rman detects and retry till block consistent
+Tip: rman backup only written blocks=allocated to segment blocks=used blocks (space saving)
+Tip: sessions per rman: 2 (default and pooling) + 1/channel. Default=connection rman to target db; Pooling=monitor rman state; PerChannel=execute backup
+------------------------------
+CTWR= Change Tracking Writer=Block change tracking for faster RMAN (additional background process)
+    f: records the address of changed block in change tracking bitmap file (not enable by default) 
+#Enable change tracking (has little perfomance overhead)
+alter database enable block change tracking using file '/u01/app/oracle/oradaa/orcl/change_tracking.dbf';
+#check change tracking file created
+select * from v$block_change_tracking;
+#check CTWR change tracking process started
+select program from v$process where program like '%CTWR%';
+------------------------------
+Rman commands:
+backup= create rman backup (backup set, compressed backup set, image copy)
+copy=create rman image copy (deprecated, use backup command)
+-----------------------------
+#Parallel backup
+* number of channels (allocate channel tn type disk; =>n times)
+* number of backup set (files per set n; 
+* number of input files (number of datafiles)
+case1: min(channels, sets, files) => min(4,13,100) =>parallelism=4
+4 channels
+100 datafiles / 8=12 sets of 8 + 1 set of 5=13 sets
+100 files
+
+case2: min(channels, sets, files) => min(4,3,20) =>parallelism=3 (so 1 channel is not used)
+4 channels
+20 datafiles / 8=2 sets of 8 + 1 set of 4=3 sets
+20 files
+
+normally=1 channel reads 1 file.
+multisection backup enabled=mutliple channels can read 1 (big) file (enable by adding 'section size <size>; where size=10g,2g etc')
+-----------------------------
+Rman scripts:
+#Rman script for offline, full, whole backup (d%=db id, %s=backup set nr, %p=piece nr starting 1 for each backup set)
+run {
+shutdown immediate;
+startup mount;
+allocate channel d1 type disk;
+backup as backupset database
+format '/ora/backup/df_%d_%s_%p';
+alter database open;
+}
+#Rman script for online, full, whole backup
+run {
+allocate channel d1 type disk;
+backup as compressed backupset database;
+}
+#Rman script for fast online, full, whole backup 
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+backup as compressed backupset filesperset 4 database;
+}
+#Rman script for fast online, full, whole backup with archivelog (and deleting archivelog because 'delete all input')                
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+backup as compressed backupset filesperset 4 database;
+backup as commpressed backupset archivelog all delete all input;
+}
+#Rman script for online backup tablespace
+run {
+allocate channel d2 type disk;
+backup as compressed backupset format '/ora/backup/df__%d_%s_%p' tablespace my_tablespace;
+}
+#Rman script for online backup individual datafile (using unique datafile number or datafile name)
+run {
+allocate channel d2 type disk;
+backup as compressed backupset datafile 4;
+}
+#Rman script for online backup archive log files in location and starting with 
+run {
+allocate channel d2 type disk;
+backup as backupset archivelog like '/u01/archive1/arch_1%';
+}
+#Rman command for incremental level 0 backup (=staring point containing all changes)
+backup as backupset incremental level 0 database;
+#Rman command for incremental level 1 backup (=only blocks changed since level 0 or level 1: 0->1->1...)
+#tip: if no level 0 backup, it will perform level 0 backup
+backup as backupset incremental level 1 database;
+#Rman command for incremental level 1 cumulative backup (=always since level 0, even if 1 exist in between 0->....->1)
+
+#Rman command for IMAGE COPY (backups all datafiles and control file to FRA)
+backup as copy database;
+#Rman backup archive logs for IMAGE COPY (moves all archivelogs in FRA, because 'delete all input')
+backup as copy archivelog all delete all input;
+
+#Enable parallelism: multisectional backup (multiple channels read 1 big file exp: 200G / 2 channels=20 pieces generated 4 at same time)
+run {
+allocate channel d1 type disk;
+allocate channel d2 type disk;
+allocate channel d3 type disk;
+allocate channel d4 type disk;
+backup as comressed backupset datafile <datafile-unique-nr> section size 10g;
+}
+
+#rman (incomplete) recover NOARCHIVE mode db (all db, restore 1 file not possible, complete recover not possible)
+#restore from full or incremental backup level 0 (no archive logs -> no recover possible)
+#dataloss between backups (resetlog is required)
+run{
+shutdown abort;
+startup mount;
+restore database;
+alter database open resetlog;
+}
+
+#rman (incomplete) recover NOARCHIVE mode db (all db, restore 1 file not possible, complete recover not possible)
+#restore from incremental backup level 1 (no archive logs -> no recover possible, use special recover)
+#dataloss between backups (resetlog is required)
+run{
+shutdown abort;
+startup mount;
+restore database;
+recover db noredo;
+alter database open resetlog;
+}
+
+#rman (complete) recover ARCHIVE mode db noncritical file
+run{
+restore datafile 5;
+recover datafile 5;
+sql 'alter database datafile 5 online'
+}
+
+#rman (complete) recover ARCHIVE mode db noncritical file using DRA (=data recovery advisor)
+rman>list failure;
+rman>advise failure;
+rman>rapair failure;
+
+#rman (complete) recover ARCHIVE mode db critical file (=control file, system, undo) (db is crashed, use mount mode)
+run{
+startup mount;
+restore datafile 5;
+recover datafile 5;
+} 
+
+#rman (incomplete) recover ARCHIVE mode db to certain desired point back in time (until)
+run(
+startup mount;
+set until time="to_date('27-10-20 10:00:00','dd-mm-yy hh24:mi:ss')";
+restore database;
+recover database;
+alter database resetlogs;}
+
+#rman restore controlfile, db NOMOUNT (if missing)
+rman>show controlfile autobackup;
+rman>list backup of controlfile;
+rman>restore controlfile from autobackup;
+
+#rman restore spfile, db NOMOUNT (if missing to default location $ORACLE_HOME/dbs)
+#start db with pfile containing only DB_NAME=<dbname>
+rman> set dbid <unique_db_nr>;
+rman>show controlfile autobackup;
+rman>list backup of spfile;
+rman> restore spfile from autobackup;
+
+#rman complete restore and recovery ARCHIVE mode db, when everything lost:
+run{
+startup nomount pfile=dummy.pfile;
+set dbid <unique_db_nr>;
+restore spfile from autobackup;
+shutdown abort;
+startup nomount;
+restore controlfile from autobackup;
+alter database mount;
+restore database;
+recover database;
+alter database open resetlogs;
+}
+
+Tip: the script should contain 'run {}' and can be saved as file on OS off_full_w.rman/on_full_w.rman and executed as command: rman target sys/pass@orcl @off_full_w.rman
+Tip: the script should not contain 'run {}' when saved in rc (=recovery catalog) as script bla and executed as command in rman: rman> run{ execute script bla;} 
+Tip: save script from os in rc script in rman: rman>  create script bla from file @bla.rman;
+Tip: if backup failes, change fra size (alter database set db_recovery_file_dest_size=10G;)
+Note: backupset database=all datafiles and controlfile
+Note: filesperset=generates more output files (pieces) of backup (backup/restore is faster) (default 1)
+Note: backupset archivelog all delete all input =all archivelog files backuped and removed from disk
+Note: resetlog=recreate log files members, reset log sequence nr to 1
+Tip: (necessary) incomplete recovery when missing any archive log from last backup or ALL redo log files missing
+Tip: (desired) incomplete recovery when missing data because of user error. You restore ALL datafiles and apply archive+redo logs until point in time.
+Tip: until is always incomplete recovery
+Tip: if restore controlfile, always resetlogs (=reinitialize redo logs)!
+------------------------------
+#Block corruption (datafile stays online, but certain blocks corrupted, errors only when accessing these blocks)
+#Rman check logical and physical corruption (when doing backup)
+rman>backup check logical datafile <file_id>;
+
+#Rman block recover (file_id and block_id see view v$database_block_corruption
+rman>block recover datafile <file_id> block <block_id>,<block_id>;
+------------------------------
+#Rman configuration details:
+#connect db
+rman target /
+#show configuration defaults
+rman>show all;
+#list all your backup sets (if no backups then output: specification does not match any backup in the repository) 
+rman> list backup;
+rman> list backup of datafile <filenr>;
+rman> list backup of tablespace users;
+rman> list backup of archivelog all;
+#list all your image copies
+rman> list copy;
+#list datafiles (not control file or archived logs)
+rman> report schema;
+#need backup
+rman> report need backup;
+#show needs to be deleted according to retention policy
+rman> report obsolete;
+#clean up, make space, remove obsolete data (remove data on disk and as repository entry (in views))
+#tip: rman will auto delete obsolete files if fra is full.
+rman> delete obsolete;
+------------------------------
+#configure rman defaults:
+rman target /
+rman> show all;
+rman> configure device type disk parallelism 4;
+rman> show all;
+#optimizaton on-> allows rman not backup files where are sufficient copies of the files exit (read-write datafiles are always backed up, no optimalisation; read-only and offline tablespaces use optimalisation)
+rman> configure backup optimization on;
+#redundancy level=number of copies to keep (default 1)
+rman>CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
+rman>show device type;
+rman>show show retention policy;
+#reset to default
+rman>configure retention policy CLEAR;
+rman>show all;
+# check backups in repository entry still exist on disk (AVAILABLE)
+rman> crosscheck backup of database; 
+#clean up out of date repository entry, where backup not exist on disk anymore (no removal data on disk, only adapt repository entry)
+rman> delete expired;
+#rman delete all backups (dont do it)
+rman> delete backupset all;
+rman> delete copy all;
+------------------------------
+#Backup control file and spfile (=set backupset to always include control file. recommendation)
+rman target /
+rman> configure controlfile autobackup on;
+------------------------------
+#recover from rman using DRA (Data Recovery Advisor)
+rman target /
+rman> list backup of tablespace sysaux;
+rman> backup as backupset tablespace sysaux;
+rman> shutdown immediate;
+rman> exit;
+# remove file sysaux01.dbf
+sqlplus / as sysdba
+sql>startup;
+rman target /
+rman>list failure;
+rman>advise failure;
+rman>repair failure;
+------------------------------
+Views:
+ v$backup_files;
+ v$backup_set;
+ v$backup_piece;
+ v$backup_redolog;
+ v$backup_spfile;
+ v$backup_datafile;
+ v$backup_device;
+ v$rman_configuration;
+-----------------------------
+Recovery Catalog=store repository forever, indefenitely (vs controlfile stores data for 7 days see param CONTROL_FILE_RECORD_KEEP_TIME)
+Repository=store of metadata about target db and its backups etc (saved in controlfile and recovery catalog) 
+Repository contains:
+ * details about physical structure of db
+ * location of datafiles of db
+ * details about made backups 
+ * rman settings
+ * rman scripts (view rc_stored_script, rc_stored_script_line)
+Recovery catalog plus points:
+ * undependent from controlfile
+ * store rman scripts
+ * support many databases (centralized repository)
+ * no limit in time to retain data
+ * ability to create a new db from backup 
+------------------------------

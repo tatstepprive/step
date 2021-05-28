@@ -1,0 +1,12 @@
+ctrl-enter : executes the current statement(s)
+F5 : executes the current code as a script (think SQL*Plus)
+ctrl-space : invokes code insight on demand
+ctrl-Up/Dn : replaces worksheet with previous/next SQL from SQL History
+ctrl-shift+Up/Dn : same as above but appends instead of replaces
+shift+F4 : opens a Describe window for current object at cursor
+ctrl+F7 : format SQL
+ctrl+/ : toggles line commenting
+ctrl+e : incremental search
+ctrl-shift+d : duplicate line
+alt-shift+d : delete line
+Configuring Keyboard Shortcuts in SQL Developer: Tools > Preferences > Shortcut Keys

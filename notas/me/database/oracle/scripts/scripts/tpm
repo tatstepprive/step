@@ -1,0 +1,17 @@
+#!/bin/ksh
+
+for DBSID in ITINP
+do
+  export ORACLE_SID=${DBSID}
+  export ORACLE_HOME=`grep ^${ORACLE_SID}: /etc/oratab | cut -f2 -d :`
+  rm /tmp/tpm_${ORACLE_SID}.log 2>/dev/null
+  sqlplus -s /nolog << EOS >/tmp/tpm_${ORACLE_SID}.log
+  connect / as sysdba
+  select to_char(sysdate,'DD-MON-YYYY HH:MI:SS'), sum(value)
+    from v\$sysstat where name in ('user commits','user rollbacks');
+  exit;
+EOS
+  DESTINATION=
+  mailx -s "TPM for ${ORACLE_SID}" "${DESTINATION}" < /tmp/tpm_${ORACLE_SID}.log
+
+done

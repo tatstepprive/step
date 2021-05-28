@@ -54,6 +54,15 @@ iptables -t nat -S
 iptables -t mangle -S
 iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8081 -j ACCEPT
 iptables-save
+#change-order-iptables-rules
+sudo iptables-save > /tmp/iptables.txt
+sudo nano /tmp/iptables.txt
+sudo iptables-restore < /tmp/iptables.txt
+iptables --lin -vnL
+iptables-save
+#delete entry (flag -D for delete)
+iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport 8081 -j ACCEPT
+iptables --lin -vnL
 #==========================
 #show port usage
 netstat -tulpn | grep 8081
@@ -98,4 +107,9 @@ sed -i "s|$myvar|bla|g" file
 #======================================
 #Issue  /bin/bash^M: bad interpreter: No such file or directory when from window to linux
 sed -i -e 's/\r$//' scriptname.sh
+#======================================
+https://tldp.org/HOWTO/Bash-Prompt-HOWTO/
+#======================================
+# Math calculation on bash command line
+echo 300*1.5+22 | bc
 #======================================

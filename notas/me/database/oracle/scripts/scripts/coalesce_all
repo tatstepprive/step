@@ -1,0 +1,140 @@
+#!/bin/ksh
+
+Exit_fail() {
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "`date` -  coalesce_all for $Pdatabase - Ending Faile"
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  exit -1
+}
+
+Usage() {
+  echo -e "\nUsage : $0 -d <database name>\n"
+  Exit_fail
+}
+
+Analyze_options_passed() {
+[ -z "$Pdatabase" ] && echo -e "\nNo Database Specified..." && Usage
+}
+
+Execute_environment_file() {
+  export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${Pdatabase}
+}
+
+coalesce_all() {
+sqlplus -s /nolog <<EOS 
+connect / as sysdba
+set term on
+pro Working...
+set serverout on size 1000000 ver off head off pages 0 lines 200 
+set feedb off echo off term on array 1 trims on
+
+DECLARE
+   v_Stat  VARCHAR2(400);
+   v_Curs  PLS_Integer;
+   v_Owner dba_Indexes.Owner%TYPE := user;
+
+   cursor c_Opt is
+      select 'x'
+        from v\$option
+       where Parameter ='Coalesce Index'
+         and Value     ='TRUE';
+
+   cursor c_Ind is
+      select owner, index_name
+        from dba_indexes
+       where Compression ='DISABLED'
+         and Partitioned ='NO'
+         and Status ='VALID'
+         and Table_Name not in 
+             (select table_name from dba_tables where temporary ='Y')
+         and Index_Type not in 
+             ('LOB', 'CLUSTER', 'IOT - TOP', 'DOMAIN', 'FUNCTION-BASED DOMAIN')
+    order by owner;
+
+   cursor c_Coa is
+      select Tablespace_Name
+        from dba_free_space_coalesced
+       where PERCENT_EXTENTS_COALESCED !=100
+    order by Tablespace_Name;
+BEGIN
+-- Coalesce Index / option "Coalesce Index" equal to TRUE
+   FOR r_Opt in c_Opt LOOP
+       BEGIN
+          v_Curs := dbms_sql.Open_Cursor;
+          FOR r_Ind in c_Ind LOOP
+             v_Stat :='ALTER INDEX "'|| r_Ind.Owner ||'"."'|| 
+                      r_Ind.Index_Name ||'" COALESCE';
+             dbms_sql.parse(v_Curs, v_Stat, dbms_sql.Native);
+
+             IF v_Owner != r_Ind.Owner THEN
+                v_Owner := r_Ind.Owner;
+                dbms_output.put_line('Coalising Indexes of '|| r_Ind.Owner ||'...');
+             END IF;
+          END LOOP;
+          dbms_sql.Close_Cursor(v_Curs);
+       EXCEPTION
+          WHEN Others THEN
+             dbms_output.put_line('Error: '|| SQLErrm ||' - '|| v_Stat);
+             IF dbms_sql.Is_Open(v_Curs) THEN
+                dbms_sql.Close_Cursor(v_Curs);
+             END IF;
+       END;
+   END LOOP;
+
+   -- Tablespaces
+   BEGIN
+      v_Curs := dbms_sql.Open_Cursor;
+      FOR r_Coa in c_Coa LOOP
+          v_Stat :='ALTER TABLESPACE "'|| r_Coa.Tablespace_Name ||'" COALESCE';
+          dbms_sql.parse(v_Curs, v_Stat, dbms_sql.Native);
+          dbms_output.put_line('Coalesing Tablespace '|| r_Coa.Tablespace_Name ||'...');
+      END LOOP;
+      dbms_sql.Close_Cursor(v_Curs);
+   EXCEPTION
+      WHEN Others THEN
+         dbms_output.put_line(substr('Error: '||SQLErrm ||' - '||v_Stat,1,255));
+         IF dbms_sql.Is_Open(v_Curs) THEN
+            dbms_sql.Close_Cursor(v_Curs);
+         END IF;
+   END;
+EXCEPTION
+   WHEN Others THEN
+      dbms_output.put_line(substr('Error: '||SQLErrm||' - '||v_Stat, 1, 255));
+      IF dbms_sql.Is_Open(v_Curs) THEN
+            dbms_sql.Close_Cursor(v_Curs);
+      END IF;
+END;
+/
+EOS
+}
+
+main() {
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $0 - Starting for $Pdatabase"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+Analyze_options_passed
+
+Execute_environment_file
+
+coalesce_all $dbname
+
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "`date` - $O Ending for $Pdatabase"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+}
+
+while getopts "d:" opt
+do
+  case $opt in
+        d)  Pdatabase=$OPTARG ;;
+        *)  Usage
+            Exit_fail
+            ;;
+  esac
+done
+
+main
+exit 0
+

@@ -1,0 +1,125 @@
+#File system:
+SAN=storage area network
+NAS=network attached storage
+NFS=network file system
+ASM=automatic storage management
+#===============================================
+#Storage
+Logical:               Physical:
+Database
+  |
+  n
+Tablespace ----------n Data file (Storage System: SAN,NAS,NFS,
+  |                                               ASM,Exadata,File System)
+  n
+Segment
+  |
+  n
+Extent
+  |
+  n
+Oracle data block
+
+Database is set of tablespaces (System,Sysaux,Temp,Undo,Users)
+Tablespace is set of segments
+Segment is set of extents
+Extent is set of oracle data blocks
+Oracle data block (1block=8K) contains one or more rows (=row pieces)
+One oracle data block has block header, free space, row data
+#=========================================================
+#Tablespaces 
+* System f: used for core functionality, belong to sys schema
+            auto created with db, can not be renamed or dropped
+* Sysaux f: auxiliary(=help) tablespace to system tablespace,
+            reduce the load or system tablespace, 
+            auto created with db, can not be renamed or dropped
+* Temp   f: storing global temp tables, sort and join operations
+* Undo   f: used to rollback (=undo) changes in db,
+            used by recovering db, when rollback statement used,
+            provide read consistency
+*Users   f: stores user objects and data, 
+            default tablespace for all new users
+All these tablespaces exist in cdb and pdbs.
+#Types of tablespace
+* Permanent  (system, sysaux, users) f: persistent schema objects
+* Undo       (undo)                  f: manages undo data
+* Temporary  (temp)                  f: objects for session duration
+#State of tablespace
+*online (default)
+	* read write (default)
+	* read only
+* offline (normal, temporary,immediate)
+Note: system tablespace may not be offline
+#Creating tablespace clauses (clauses=options)
+datafile or tempfile f: location and name of datafile of tempfile
+inital size of datafile of tempfile
+segment management
+   auto   f: managing the free space in the segments using a bitmap (='locally managed')
+   manual f: managing the free space in the segments using free lists
+   (not valid for temp tablespace)
+data segment compression
+   nocompress (disabled default)
+   compress 
+extend management
+   autoallocate (default for all tablespaces except temp) f: managed by system
+   uniform (default for temp tablespace) f: tablespace is managed with uniform extends in size bytes, default 1M
+autoextend on (optional but recommended)  f: extend the file if it's full
+    increment and max size (max size can be unlimited)
+type 
+   bigfile (optional) = only one datafile or temfile containing till 4 billion blocks
+   smallfile (optional)= till 1022 datafiles or tempfiles, each containing till 4 million blocks
+status (select tablespace_name, status from dba_tablespaces;)
+   online (default)
+   offline
+blocksize   f: to set non-standard blocksize
+   8K (default)
+   (parameters db_cache_size and db_nk_cache_size must be set)
+logging f: logging in redo log file
+   logging (default)
+   nologging (for temp and undo tablespaces)
+# exp: create tablespace ts2
+# see default options given by db, see file location from parameter db_create_file_dest
+  CREATE TABLESPACE "TS2" DATAFILE 
+  SIZE 104857600 --100MB inital size
+  AUTOEXTEND ON NEXT 104857600 MAXSIZE 32767M --autoextend on
+  LOGGING ONLINE PERMANENT BLOCKSIZE 8192 --logging, state and blocksize
+  EXTENT MANAGEMENT LOCAL AUTOALLOCATE DEFAULT --extent management
+  NOCOMPRESS  SEGMENT SPACE MANAGEMENT AUTO --segment compression
+#====================================================== 
+# data files size
+select * from dba_data_files;
+--bytes: file size in bytes
+--blocks: file size in oracle blocks
+--maxbytes: maximum file size in bytes
+--maxblocks: maximum file size in blocks
+--increment_by: number of blocks used for auto extention increment
+--user_bytes: file size available for user data (file size without metadata)
+--user_blocks: file size available for user data in blocks (file size in blocks without metadata)
+-- calculate metadata file size= bytes-user_bytes
+#====================================================
+Segment is a set of extents allocated for a certain logical structure
+Segment type:
+ * Table and cluster
+ * Index
+ * Undo
+ * Temporary
+#=====================================================
+coalesce free space=merge separated free space (fragmented) together to one consecutive unit (contiguous section of block)
+row chaining= row does not fit in one block and goes in a chain od data blocks. Exp: column with datatype LONG or LONG RAW
+row migration= after update row does not more fit in one block and will be migrated to new block to fit content as one block one row.
+Note: if row chained or migrated, IO performance decreases (more work to do, lower performance)
+#=====================================================
+Critical file=db will terminate if its open, can not be opened untill file repaired.
+Critical files:
+ * controlfile and his copies
+ * datafile from system tablespace
+ * datafile from undo tablespace
+ * ALL online redo log files missing
+
+Noncritical file=db will stay open if its open, can be restarted and be open.
+Noncritical files:
+ * multiplexed online log files
+ * tempfiles
+ * datafiles from other tablespaces (not system, not undo)
+Tip: if ALL online log files are damaged/missing, db will terminate.
+#=======================================================

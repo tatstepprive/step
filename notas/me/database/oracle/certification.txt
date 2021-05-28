@@ -1,0 +1,10 @@
+OJA=oracle certifified junior associate
+OCA=oracle certified associate (SQL+AdminI)
+OCP=oracle certified professional (AdminII+topic)
+OCM=oracle certified master (must be OCP)
+OCE=oracle certified expert 
+OCS=oracle certified specialist
+
+Oracle DBA= Oracle SQL + Oracle Administration
+
+Oracle Developer=Oracle SQL + Oracle PL/SQL

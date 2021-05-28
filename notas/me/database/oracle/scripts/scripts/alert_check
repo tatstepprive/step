@@ -1,0 +1,211 @@
+#!/bin/ksh 
+
+#===========================================================================================
+Usage() {
+        echo -e "\nUsage : alert_check -d <Database> \n"
+	exit -1
+}
+
+#===========================================================================================
+Analyze_options_passed () {
+
+[ -z "$Pdatabase" ] && echo -e "\nNo Database Specified..." &&  Usage
+
+}
+
+#===========================================================================================
+
+#===========================================================================================
+Get_db_info()
+{
+export ORACLE_HOME=`grep ^${Pdatabase}: /etc/oratab | cut -f2 -d :`
+export ORACLE_SID=$Pdatabase
+sqlplus -s /nolog 1>/tmp/alert_path <<EOF
+whenever sqlerror exit -1
+connect / as sysdba
+set feedback off termout off pages 0 heading off line 100 echo off
+set trimspool on timing off
+select value from v\$parameter where name = 'background_dump_dest';
+exit
+EOF
+}
+#===========================================================================================
+
+Archive_alert_files() {
+
+if [ -f ${Lbackupalert} ]
+then
+   echo
+   echo "================================"
+   echo "ALERT LOG ALREADY ARCHIVED TODAY"
+   echo "================================"
+   echo 
+else
+   if [ -f ${Lactualalert} ] 
+   then 
+      mv ${Lactualalert} ${Lbackupalert}
+   fi
+fi
+}
+
+#==========================================================================================
+Suppress_old_alert () {
+
+if [ -d ${Alertdir} ]
+then
+  find ${Alertdir}/alert* -mtime +180 -exec rm {} \;
+  find ${Alertdir}/alert* -mtime +1 -exec compress {} \; 2>/dev/null
+fi
+}
+
+#==========================================================================================
+Create_tmp_copy_of_alert_files () {
+
+> ${Ltmpcopy}
+
+# First of all check that the backup copy of the alertfile exists.....Copy it
+[ -f ${Lbackupalert} ] && cat ${Lbackupalert} >> ${Ltmpcopy}     
+
+[ -f ${Lactualalert} ] && cat ${Lactualalert} >> ${Ltmpcopy}     
+}
+
+#===========================================================================================
+Put_alert_summary_on_stdout () {
+
+# get the various counts from the ORA File
+
+Lalert_total=`grep "ORA-" ${Ltmpcopy} | grep -v "WARNING" | wc -l`
+
+# write the formatted counts to the screen & to the given file
+
+echo -e "-ALERT STATUS----Total Number of Alerts \c" 
+echo "${Lalert_total}" | awk '{ printf "%28d\n\n",$1}' 
+
+}
+
+#===========================================================================================
+Put_alert_details_on_file () {
+
+# If the index count is not the same as the required indexes then select them
+
+if [ ${Lalert_total} -gt 0 ]; then
+
+   echo -e "\n--------------Oracle Error Messages from the Alert File\n" 
+
+   # An awk script is used to identify the complete error message associated with an ORA-
+   # error message found in the alert log file.
+   check_alert_logfile
+   # grep "ORA-" ${Ltmpcopy} >> ${Poutputfile}
+
+fi
+
+}
+#===========================================================================================
+check_alert_logfile () {
+
+#
+# This script is used in conjunction with the Oracle alert logfile.
+# It scans all information between successive timestamps and if an
+# ORA- error exists, then all lines between the timestamps are
+# displayed.
+#
+
+/bin/awk '
+BEGIN {
+	counter = 0;
+	dberror = 0;
+}
+{
+	if($1 == "Mon" || $1 == "Tue" || $1 == "Wed" || $1 == "Thu" || $1 == "Fri" || $1 == "Sat" || $1 == "Sun") {
+		if(dberror == 1) {
+			for(i=0; i <= counter; i++) {
+				print line[i];
+			}
+			printf("\n");
+		}
+		counter = 0;
+		line[counter] = $0;
+		dberror = 0;
+	}
+
+	counter++;
+	line[counter] = $0;
+	if ($0 ~ /ORA-/) {
+		dberror = 1;
+	}
+
+}
+END {
+	if(dberror == 1) {
+		for(i=0; i <= counter; i++) {
+			print line[i];
+		}
+	}
+}' ${Ltmpcopy} 
+
+}
+
+Switch_logfile() {
+sqlplus -s /nolog <<EOF
+whenever sqlerror exit -1
+connect / as sysdba
+alter system switch logfile;
+exit
+EOF
+
+}
+
+#===========================================================================================
+main () {
+
+Analyze_options_passed              # parse the parameters passed to the script
+
+Get_db_info                        # get the info from the database
+
+Alertdir=`tail -1 /tmp/alert_path`
+Lbackupalert=${Alertdir}/alert_${Pdatabase}_`date '+%Y'``date '+%m%d'`.log
+Lactualalert=${Alertdir}/alert_${Pdatabase}.log
+
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"  
+echo "`date` - ALERT_CHECK - Starting for database ${Pdatabase}" 
+echo -e "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"    
+
+Archive_alert_files                           # Try to archive the alert file
+
+Suppress_old_alert                            # Remove the archived alert oldest than 6 months
+
+Create_tmp_copy_of_alert_files                # May be more than 1 alert files - Cat them in /tmp/alert$$
+
+Put_alert_summary_on_stdout                   # Get the Summary of the ORA Errors
+
+Put_alert_details_on_file                     # Get the Details of the Alerts
+
+Switch_logfile
+
+rm ${Ltmpcopy}
+
+echo -e "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"    
+echo "`date` - ALERT_CHECK - Ending for database ${Pdatabase}" 
+echo -e "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"    
+
+}
+#==SCRIPT START=========================================================================================
+
+Ltmpcopy=/tmp/alert$$.lst
+
+while getopts ":d:" opt
+do
+  case $opt in
+        d)      Pdatabase=$OPTARG ;;
+        *)      Usage
+                exit -1
+                ;;
+  esac
+
+done
+
+
+main
+
+exit 0
+

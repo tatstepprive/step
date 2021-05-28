@@ -1,0 +1,432 @@
+#!/bin/ksh
+
+menu()
+{
+  tput clear
+  echo "                            ${bold}CHECKS FOR THE DATABASES${offbold}"
+  echo "                            ${bold}------------------------${offbold}"
+  echo " "
+  echo "${bold}- 1-${offbold} Check filesystem space             ${bold}-13-${offbold} Audit the database"
+  echo "${bold}- 2-${offbold} Check if databases are running     ${bold}-14-${offbold} Coalesce index and tablespaces"
+  echo "${bold}- 3-${offbold} Daily check                        ${bold}-15-${offbold} Outstanding alert"
+  echo "${bold}- 4-${offbold} Check space usage of tablespaces   ${bold}-16-${offbold} Connection oldest than 3 days"
+  echo "${bold}- 5-${offbold} Check tables fragmented"
+  echo "${bold}- 6-${offbold} Check alert.log"
+  echo "${bold}- 7-${offbold} Clean trace"
+  echo "${bold}- 8-${offbold} Clean listener logs"
+  echo "${bold}- 9-${offbold} Compile invalid Objects"
+  echo "${bold}-10-${offbold} Purge Recyclebin"
+  echo "${bold}-11-${offbold} Index to move"
+  echo "${bold}-12-${offbold} Index good to rebuild"
+  echo " "
+  echo "                                    ${bold}-0- EXIT${offbold}"
+  echo " "
+  echo -e "                                ${bold}Your choice : ${offbold}\c"
+  read answer
+}
+
+#-----------------------------------------------------------
+# check the filesystems that are filled to more than 85%
+#-----------------------------------------------------------
+check_filesystem()
+{
+  echo
+  ./scripts/check_filesystem
+  echo -e "\n\nPress Return to continue"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# Retrieve the list of the ORACLE_SID from the oratab file
+#-----------------------------------------------------------
+retrieve_db()
+{
+cat /etc/oratab | grep -v "^#" | grep -v "^*" | grep -v "^ " | grep -v "^$" | cut -f1 -d : > ${DATABASE_LIST}
+}
+
+#-----------------------------------------------------------
+# Check if the processes of the databases are there and 
+# also if we can connect on the database
+#-----------------------------------------------------------
+check_db()
+{
+cat ${DATABASE_LIST} | while read DBSID
+do
+ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+if [ $? != 0 ]
+then
+  tput bold
+  echo "Database $DBSID IS NOT RUNNING !!!!!!"
+  tput sgr0
+else
+  export ORACLE_HOME=`grep ^${DBSID}: /etc/oratab | cut -f2 -d :`
+  export ORACLE_SID=${DBSID}                    #-- check if we can connect
+  sqlplus -s /nolog <<EOS >/dev/null
+  whenever sqlerror exit -1
+  connect / as sysdba
+  select sysdate from dual;
+  exit;
+EOS
+
+  if [ $? -ne 0 ]
+  then
+    tput bold
+    echo "Database $DBSID NOT AVAILABLE !!!!!!"
+    tput sgr0
+  else
+    echo "Database $DBSID AVAILABLE"
+  fi
+fi
+
+done
+echo -e "\n\nPress Return to continue"
+read tmp
+}
+
+#-----------------------------------------------------------
+# make some checks for the space
+#-----------------------------------------------------------
+check_daily()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/daily_check -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp 
+}
+
+#-----------------------------------------------------------
+# Check the space usage of the tablespaces
+#-----------------------------------------------------------
+check_space()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/runspace -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# Check the space usage of the tablespaces
+#-----------------------------------------------------------
+check_fragmented()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/tables_fragmented -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# Check in the alert.log of the databases if there is errors
+# and archive the file
+#-----------------------------------------------------------
+check_alert()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/alert_check -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# compress the trace and audit files
+#-----------------------------------------------------------
+clean_trace()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/clean_trace -d $DBSID 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+
+#-----------------------------------------------------------
+# compress the listener logs
+#-----------------------------------------------------------
+clean_listener()
+{
+  day=`date '+%d'`
+#  cd $ORACLE_HOME/network/log
+  cd /opt/oracle/app/oracle/diag/tnslsnr/lafamdbs002a/lsnr01/trace
+  lfile=`ls *.log`
+  for i in $lfile
+  do
+    echo -e "\nCleaning of $i busy \c"
+    newname=`echo $i | cut -f1 -d .`
+    echo -e ".\c"
+    newname="${newname}.${day}"
+    echo -e ".\c"
+    cat $i > ${newname} 2>/dev/null
+    echo -e ".\c"
+    cat /dev/null > $i 2>/dev/null
+    echo -e ".\c"
+    compress ${newname} 2>/dev/null
+    echo " Done"
+  done
+  cd
+
+  echo -e "\n\nPress Return to continue"
+  read tmp
+}
+
+#-------------------------------------------------------------
+# recompile invalid object and display a list of still invalid
+#-------------------------------------------------------------
+invalid_object()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null  #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/invalid_object -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-------------------------------------------------------------
+# purge the object in recyclebin older than 3 months
+#-------------------------------------------------------------
+purge_recyclebin()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/purge_recyclebin -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-------------------------------------------------------------
+# display a list of indexes in data tablespaces and not in indexes
+#-------------------------------------------------------------
+index_to_move()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/index_to_move -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#------------------------------------------------------------
+# display a list of indexes with a blevel > 4
+#------------------------------------------------------------
+index_to_rebuild()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/index_to_rebuild -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# Audit the database with the package plato
+#-----------------------------------------------------------
+audit_db()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/plato -d $DBSID | more
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# Coalesce the indexes and the tablespaces
+#-----------------------------------------------------------
+coalesce_all()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/coalesce_all -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#-----------------------------------------------------------
+# Outstanding alert
+#-----------------------------------------------------------
+outstanding_alert()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/outstanding_alert -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+#----------------------------------------------------------
+# Old connections
+#----------------------------------------------------------
+old_connection()
+{
+  cat ${DATABASE_LIST} | while read DBSID
+  do
+    ps -ef | grep smon | grep "${DBSID}" > /dev/null #-- check the processes
+    if [ $? == 0 ]
+    then
+      ./scripts/old_connection -d $DBSID | more
+      echo -e "\n\nPress Return for next database"
+      read input </dev/tty 
+    fi
+  done
+
+  echo -e "\n\nNo more database - Press Return to go back to the menu"
+  read tmp
+}
+
+main()
+{
+DATABASE_LIST=/tmp/database_list
+
+  retrieve_db
+
+  answer=9
+  while [ ${answer} != "0" ]
+  do
+    menu
+
+    case $answer in
+       1) check_filesystem
+          ;;
+       2) check_db
+          ;;
+       3) check_daily
+          ;;
+       4) check_space
+          ;;
+       5) check_fragmented
+          ;;
+       6) check_alert
+          ;;
+       7) clean_trace
+          ;;
+       8) clean_listener
+          ;;
+       9) invalid_object
+          ;;
+       10) purge_recyclebin
+           ;;
+       11) index_to_move
+           ;;
+       12) index_to_rebuild
+           ;;
+       13) audit_db
+           ;; 
+       14) echo "TO DANGEROUS !!!!!"
+           echo -e "\n\nPress Return to continue"
+           read tmp 
+#           coalesce_all
+           ;;
+       15) outstanding_alert
+           ;;
+       16) old_connection
+           ;;
+       0) exit 0
+          ;;
+       *) echo -e "\n\n                              ${bold}INVALID CHOICE !!!!!${offbold}"
+          sleep 3
+          menu
+          ;;
+    esac
+  done
+}
+
+bold=`tput smso`
+offbold=`tput rmso`
+main

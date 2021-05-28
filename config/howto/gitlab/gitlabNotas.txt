@@ -56,4 +56,41 @@ $ git push github && git push gitlab
  git push -u gitlab master
  git push -u github master
 
+===========================================================
+#https://docs.gitlab.com/ee/administration/troubleshooting/gitlab_rails_cheat_sheet.html
+#Gitlab reset user password (even admin pass):
+ssh user@gitlabhost
+sudo gitlab-rails console -e production
+user = User.find_by_username('my_user')
+or 
+user = User.find(123)
+user.password = 'new_pass'
+user.password_confirmation = 'new_pass'
+user.send_only_admin_changed_your_password_notification!
+user.save!
+exit
+#login via browser with the new password
+==========================================================
+#After installing bitnami via ova in virtualbox
+VirtualBox, menu File, Import Appliance
+# login with bitnami bitnami, change pwd
+# change querty to azerty 
+apt install console-data
+choose 4 to reconfigure
+choose 43 for azerty belgian standard
+# enable sshd server 
+nano /etc/ssh/sshd_config
+PasswordAuthentication yes
+/etc/init.d/ssh force-reload
+rm /etc/ssh/sshd_not_to_be_run
+systemctl restart ssh
+systemctl status ssh
+# disable ci/cd on bitnami
+ grep -in gitlab_default_projects_features_builds /etc/gitlab/gitlab.rb
+ nano +135 /etc/gitlab/gitlab.rb 
+ gitlab-ctl reconfigure
+ /opt/bitnami/ctlscript.sh restart
+#login via webbrowser with credentials from /home/bitnami/bitnami_credentials and change root passwd 
+https://<hostname>/-/profile/password/edit
 
+=======================================================

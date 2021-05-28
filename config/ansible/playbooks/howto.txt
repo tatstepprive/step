@@ -13,3 +13,7 @@ ansible localhost -m debug -a 'var=groups'
 ansible-inventory --graph
 # show host vars
 ansible-inventory --list
+#========================
+#install intellij command line
+sudo snap install intellij-idea-community --classic
+
