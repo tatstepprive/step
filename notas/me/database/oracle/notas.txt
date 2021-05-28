@@ -109,6 +109,18 @@ alter system set max_idle_time=30 scope=both;
 # if db started with spfile, then default scope=both and no need to be type;
 # if db started with pfile as parameter, the default scope=memeory and no need to type;
 # BUT when testing on 19c: scope both with using spfile is not applied if not typed. !!!
+======================================================
+#remove deprecated parameter value in spfile (BACKGROUND_DUMP_DEST (replaced by DIAGNOSTIC_DEST)
+SELECT name FROM v$parameter WHERE isdeprecated = 'TRUE';
+show parameter BACKGROUND_DUMP_DEST;
+alter system reset parameter_name scope=spfile; --OR scope=both
+#remove deprecated parameter second way
+sqlplus / as sysdba
+create pfile from spfile;
+--- edit pfile to remove extraneous lines
+create spfile from pfile;
+startup
+exit
 =======================================================
 #Db is not running if message
 sqlplus / as sysdba
