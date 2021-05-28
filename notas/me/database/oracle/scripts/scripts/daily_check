@@ -109,7 +109,7 @@ EOS
 Send_Mail() {
    if [ -s /tmp/daily_check.log ] 
    then
-#      cat /tmp/daily_check.log | mail bmb_smb_dbo@mobile.belgacom.be
+#      cat /tmp/daily_check.log | mail user@mail.com
       cat /tmp/daily_check.log 
    fi
 }
