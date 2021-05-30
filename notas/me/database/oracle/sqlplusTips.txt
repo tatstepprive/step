@@ -12,3 +12,7 @@ SQL> history 3 run;
 SQL> history 2 edit;
 #when exit, history will be set to off
 #============================
+#Customize sqlplus sql prompt SQL>
+#edit $ORACLE_HOME/sqlplus/admin/glogin.sql
+set sqlprompt "user'@'_connect_identifier' SQL'>";
+#============================
