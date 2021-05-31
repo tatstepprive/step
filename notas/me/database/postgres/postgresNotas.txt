@@ -168,4 +168,17 @@ select session_user, current_user;
 #switch user
 set role <other_user>;
 =============================
+#configure log name as postgresql-date.log instead of postgresql-weekday.log (exp: postgresql-Fri.log)
+nano /var/lib/pgsql/12/data/postgresql.conf
+#change to
+#log_filename = 'postgresql-%a.log'     # log file name pattern,
+log_filename = 'postgresql-%Y-%m-%d.log'        # log file name pattern,
+#restart db 
+ systemctl status postgresql-12
+ systemctl stop postgresql-12
+ systemctl restart postgresql-12
+ systemctl status postgresql-12
+#Default log location
+/var/lib/pgsql/12/data/log
 
+============================
