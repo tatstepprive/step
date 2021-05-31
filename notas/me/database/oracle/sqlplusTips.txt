@@ -14,5 +14,5 @@ SQL> history 2 edit;
 #============================
 #Customize sqlplus sql prompt SQL>
 #edit $ORACLE_HOME/sqlplus/admin/glogin.sql
-set sqlprompt "user'@'_connect_identifier' SQL'>";
+set sqlprompt "_user'@'_connect_identifier' SQL'>";
 #============================
