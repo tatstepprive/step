@@ -74,8 +74,14 @@ and 100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace))>95
 order by 100-round(100 * ( (df.totalspace - tu.totalusedspace)/ df.totalspace)) desc;
 
 --Monitor not autoextensible
-select tablespace_name, autoextensible
+select file_name, tablespace_name, autoextensible 
 from dba_data_files where autoextensible='NO';
+--Fix not autoextensible
+-- analyse filesystem which grow can be permitted (grow to 4096M=4G)
+alter database datafile '/u01/xxxx/xxx.dbf' autoextend on maxsize 4096M;
+--Check your fix
+select file_name, tablespace_name, autoextensible
+from dba_data_files where tablespace in ('<your_tablespace_name>');
 ------------------------------------------------
 --system tablespace analyse content
 SELECT owner, segment_name, segment_type, bytes/(1024*1024) size_m
