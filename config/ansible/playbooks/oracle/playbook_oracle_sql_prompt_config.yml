@@ -1,0 +1,14 @@
+--- 
+- 
+  hosts: oracle
+  become: true
+  vars:
+      ORACLE_HOME: /u01/app/oracle/product/19/db_1
+  tasks: 
+    -
+      name: "Change sqlprompt in configuration files."
+      lineinfile:
+          dest: "{{ORACLE_HOME}}/sqlplus/admin/glogin.sql"
+          line:  "set sqlprompt \"_user'@'_connect_identifier' SQL'>\";"
+          state: present
+          insertafter: EOF
