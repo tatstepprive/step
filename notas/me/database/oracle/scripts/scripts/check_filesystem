@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 df -k | grep -v proc | grep -v Filesystem | grep -v mapper | grep -v tmpfs | grep -v sda1 | grep -v : | sed -f scripts/concat_space > /tmp/filesystem
 cat /tmp/filesystem | while read line

@@ -1,0 +1,14 @@
+Scheduler f: automate scheduling and running of jobs (like crontab in os)
+CJQ0=coordinator job queue, bg process
+Innn=job queue process (no bg, no server process)
+Job=what to do and when to do
+Job what to do:
+ * PL/SQL block
+ * PL/SQL stored procedure
+ * java stored procedure
+ * os command
+ * shell script
+ * binary file
+Job when to do:
+ * time
+ * event
