@@ -1,4 +1,6 @@
+--make all pdbs open 
 alter pluggable database all open;
+--show sql about object
 select dbms_metadata.get_ddl('TABLESPACE','TS2') from dual;
 grant unlimited tablespace to john;
 --see if db in archive mode
