@@ -28,6 +28,8 @@ $ORACLE_BASE/diag/rdbms/db_id/instance_id
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/diag/rdbms/db_id/instance_id/alert 
 $ORACLE_BASE/diag/rdbms/orcl/orcl/alert/log.xml
+select value from v$diag_info where NAME='Diag Trace'; --oracle12
+select value from v$parameter where name = 'background_dump_dest'; --oracle11
 #Incident log
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/diag/rdbms/db_id/instance_id/incident/ 
