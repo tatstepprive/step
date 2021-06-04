@@ -2,6 +2,8 @@
 alter pluggable database all open;
 --show sql about object
 select dbms_metadata.get_ddl('TABLESPACE','TS2') from dual;
+--generate output on server
+dbms_output.put_line('my first anonimous block');
 grant unlimited tablespace to john;
 --see if db in archive mode
 select log_mode from v$database;

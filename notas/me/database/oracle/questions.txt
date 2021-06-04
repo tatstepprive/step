@@ -34,3 +34,7 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 17 RESP: select dbid from v$database; (DBID=xxxxxxx where x=1-9)
 18 Database vs instance in oracle?
 18 RESP: database is data on disk, instance is running db with memory SGA (=system global area) and background processes. Db mounted on instance, users connect to instance.
+19 How to execute a script in sqldeveloper or sqlplus from disk in windows and in linux?
+19 RESP1: in windows @Path\script.sql (exp: @C:\test.sql
+19 RESP2: go to dir where script located and execute 'sqlplus user/pass@db' and then '@test.sql' 
+19 RESP3: in sqldeveloper execute 'cd /home/oracle' and then '@test.sql'

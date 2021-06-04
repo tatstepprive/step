@@ -17,3 +17,14 @@ Window: name: ts_01.dbf
        Tab Default parameters: Table compression: no compress
        Tab DDL: (check sql command)
 #=======================================
+#Sqldeveloper show dbms output
+After plsql block execution in 'Script output' you see: PL/SQL procedure successfully completed.
+Menu View, Dbms Output, + connection and to see output execute 
+begin
+dbms_output.put_line('Hi PLSQL world!');
+end;
+#======================================
+#sqldeveloper execute script
+cd /home/oracle;
+@test.sql
+#=====================================

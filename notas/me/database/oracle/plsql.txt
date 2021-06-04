@@ -1,0 +1,87 @@
+#plsql block structure
+DECLARE --optional
+--variables, cursors, user defined exceptions
+BEGIN   --mandatory
+--sql statements (select, insert, delete, update etc)
+--plsql statements (if, for while loop, etc)
+EXCEPTION --optional
+--actions to perform when errors occurs
+END;      --mandatory
+#=================================================
+#Block types
+#anonymous block type (unnamed, compiled every time, not stored in db, can not be invoked, dont return value, no parameters)
+[DECLARE]
+BEGIN
+--statements
+[EXCEPTION]
+END;
+#procedure block type (subprogram) = perform action (named, compiled once, stored in db, invoked, parameters)
+PROCEDURE name IS 
+BEGIN
+--statements
+[EXCEPTION]
+END;
+#function block type (subprobram) = return value (named, compiled once, stored in db, invoked, return value, parameters)
+FUNCTION name 
+RETURN datatype
+IS
+BEGIN
+--statements
+RETURN value;
+[EXCEPTION]
+END;
+#======================================================
+Package=container of related procedures and functions
+#=====================================================
+#declare without variables, cursors is OK, no errors
+declare
+begin
+dbms_output.put_line('Hi PLSQL world!');
+end;
+#=====================================================
+#initialize variable with value via assing operator := or DEFAULT keyword
+#a:=5 (assign (new) value to variable named a in declare or between begin and end)
+declare
+a number DEFAULT 10;
+b number:=20;
+begin
+a:=369;
+b:=963;
+dbms_output.put_line('Hi PLSQL world!');
+dbms_output.put_line(a);
+dbms_output.put_line(b);
+dbms_output.put_line('a value is '||b);
+dbms_output.put_line('b='||b);
+end;
+#=====================================================
+#variable usage (between DECLARE and BEGIN)
+#syntax: identifier [CONSTANT] datatype [NOT NULL] [:= | DEFAULT expr];
+#tip: avoid using column names as identifier
+DECLARE
+v_my_date DATE;
+v_deptno NUMBER(2) not null :=10;
+v_location VARCHAR2(13) :='Brussels';
+c_comm CONSTANT NUMBER :=1500;
+v_date DATE :=sysdate;
+v_no NUMBER :=10*2;
+v_pi constant number:=3.14;
+v_student_id number(6);
+BEGIN
+dbms_output.put_line('Hi');
+select student_id into v_student_id 
+from students
+where fname='John';
+END;
+#===================================================
+# quotes or apostrophe in string ('' is escape ') or new char for qoute q'<new_quote_char><string_with_quote><new_quote_char>'
+DECLARE
+v_first varchar2(50):='Father''s day';
+v_second varchar2(50):=q'!Mother's day!';
+v_third varchar2(50):=q'[Kid's day]';
+BEGIN
+dbms_output.put_line('Hi my quoted strings');
+dbms_output.put_line(v_first);
+dbms_output.put_line(v_second);
+dbms_output.put_line(v_third);
+END;
+#==================================================

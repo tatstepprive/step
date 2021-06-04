@@ -16,3 +16,9 @@ SQL> history 2 edit;
 #edit $ORACLE_HOME/sqlplus/admin/glogin.sql
 set sqlprompt "_user'@'_connect_identifier' SQL'>";
 #============================
+#show dbms_output.put_line('Hi PLSQL world!');
+set serveroutput on;
+#============================
+#repeat anonimous block by typing / in sqlplus
+sql>/
+#===========================

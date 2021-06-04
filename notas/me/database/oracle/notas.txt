@@ -348,4 +348,4 @@ You can use Enterprise Manager Cloud Control 12c or EM Express 12c to manage you
 ================================================
 xclock is a handy tool to test if the DISPLAY variable
 ================================================
-ERD=Entity Relationship Diagram
+ERD=Entity Relationship Diagram=ER Diagram=ER model
