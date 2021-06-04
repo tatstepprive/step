@@ -25,7 +25,8 @@ whenever sqlerror exit -1
 connect / as sysdba
 set feedback off termout off pages 0 heading off line 100 echo off
 set trimspool on timing off
-select value from v\$parameter where name = 'background_dump_dest';
+--select value from v\$parameter where name = 'background_dump_dest';
+select value from v\$diag_info where NAME='Diag Trace';
 exit
 EOF
 }
