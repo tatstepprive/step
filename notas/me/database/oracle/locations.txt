@@ -1,0 +1,44 @@
+=====================================================
+#Locations
+#oracle base local $ORACLE_BASE
+/u01/app/oracle
+#oracle home local $ORACLE_HOME
+/u01/app/oracle/product/19/db_1
+#parameter file location (spfile=server parameter file):
+$ORACLE_HOME/dbs
+#sqlplus location
+$ORACLE_HOME/bin
+#ADR location (automatic diagnostic reposistory)
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id 
+(ex: $ORACLE_BASE/diag/rdbms/orcl/orcl)
+#Alert log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/alert 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/alert/log.xml
+select value from v$diag_info where NAME='Diag Trace'; --oracle12
+select value from v$parameter where name = 'background_dump_dest'; --oracle11
+#Trace log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/trace/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/trace/
+#DDL log (default no log enabled for ddl)
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/log/ddl/
+$ORACLE_BASE/diag/rdbms/orcl/orcl/log/ddl
+#Incident log
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/incident/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/incident/
+#Health monitor reports
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/diag/rdbms/db_id/instance_id/hm/ 
+$ORACLE_BASE/diag/rdbms/orcl/orcl/hm/
+# datafiles location
+$ORACLE_BASE=/u01/app/oracle
+$ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
+# listener location
+$ORACLE_HOME/network/admin/listener.ora
+$TNS_ADMIN/listener.ora  ($TNS_ADMIN can be empty, should be not empty/used if more than one TNSNAMES.ORA files exists on a system)
+======================================================
+
