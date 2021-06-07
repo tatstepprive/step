@@ -16,6 +16,7 @@ db OK        | db NOK         |db OK       |db NOK        |db OK
 PMON=process monitor (background process)
 DDL=data definition language (create, drop etc)
 DML=data manipulation language (insert, update, delete)
+DCL=data control language (grant, revoke)
 LGWR=log writer (background process)
 DBWR=DBWn=database writer (till 20 background processes DBW0-DBW20)
 SMON=system monitor f: opens db after check db files

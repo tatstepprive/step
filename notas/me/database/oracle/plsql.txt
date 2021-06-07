@@ -85,3 +85,190 @@ dbms_output.put_line(v_second);
 dbms_output.put_line(v_third);
 END;
 #==================================================
+#Varible types plsql (scalar, composite, reference, lob=large object); non plsql (bind variables=host variables)
+Types:
+ * scalar (single value; category: character, number, date, boolean)
+   ** character (char, varchar2)
+   ** number (number[(precision,scale)] p=1-38, s=-84-127; binary_integer, pls_integer, binary_float, binary_double)
+   ** boolean (true, false, null)
+   ** date (date y,m,d and include h,m,s; timestamp includes fraction of second; timestamp with time zone; timestamp with local time zone) default 'dd-mm-rr'
+   ** lob (clob=caracter large object=book; blob=binary large object=photo; bfile=movie; nclob=international system caracter large object=book in japain)
+ * composite (contains segments like date-boolean-varchar2-blob)
+#==================================================
+#Dates
+declare
+v_no number:=300;
+v_date date;
+v_timestamp timestamp;
+v_project_period interval year to month;
+begin
+v_no:=125;
+v_date:=sysdate;
+v_timestamp:=current_timestamp;
+v_project_period:='03-04';
+dbms_output.put_line(v_no);
+--print without hours
+dbms_output.put_line(v_date);
+--print with hours
+dbms_output.put_line(to_char(v_date, 'dd-mm-yyyy hh24:mm:ss'));
+dbms_output.put_line(v_timestamp);
+dbms_output.put_line('bla '||v_project_period);
+end;
+#==================================================
+#Using %TYPE f: declare var with type according to column definition or type according to other var; Take the data type over
+emp_lname employees.last_name%TYPE;
+
+balance number(7,2);
+max_balance balance%TYPE:=10000;
+
+#Expl
+declare
+v_fname employees.first_name%type;
+v_lname employees.last_name%type;
+begin
+select first_name, last_name
+into v_fname, v_lname
+from employees
+where employee_id =100;
+dbms_output.put_line(v_fname||' '||v_lname);
+end;
+#===============================================
+# Bind variables (=like public variables, can be used outside plsql block=host variables=declared with variable/var <varname>=referenced by :<var_name>=related to session not to block)
+variable v_sal number;
+begin
+select salary into :v_sal
+from employees 
+where employee_id =100;
+end;
+/
+print v_sal;
+#expl 2
+variable v_sal number;
+set autoprint on;
+begin
+select salary into :v_sal
+from employees
+where employee_id =100;
+end;
+#Tip: if number - no size, if varchar2 - give size when using variable
+#==============================================
+#Nested blocks
+declare
+...
+begin
+... 
+  declare
+  ...
+  begin
+  ...
+  end;
+end;
+#==============================================
+#Cursor attributes:
+SQL%notfound;
+SQL%found;
+SQL%rowcount;
+#expl 1
+declare
+v_rows_updated number:=0;
+begin
+update employees 
+set salary =salary +100
+where department_id=20;
+v_rows_updated:=sql%rowcount;
+DBMS_OUTPUT.PUT_LINE('The records are updated: '|| v_rows_updated);
+end;
+
+#expl 2
+declare
+v_rows_exist boolean:=true;
+begin
+update employees 
+set salary=salary +100
+where department_id=9999;
+v_rows_exist:=sql%found;
+if  v_rows_exist=false then
+DBMS_OUTPUT.PUT_LINE('No records');
+else
+DBMS_OUTPUT.PUT_LINE('Found records '||sql%rowcount);
+end if;
+end;
+#=============================================
+#Control flow execution
+IF ... THEN ... END IF;
+IF ... THEN ... ELSE ... END IF;
+IF ... THEN ... ELSIF ... THEN ... ELSE ... END IF;
+
+CASE
+WHEN ... THEN
+WHEN ... THEN
+...
+ELSE
+END CASE;
+
+
+#expl 1
+Declare
+v_num number:=&v;
+Begin
+ if v_num >=10 then
+ dbms_output.put_line('Input is less or equal then 10 input='||v_num);
+ end if;
+end;
+#=============================================
+#Handle null value nvl(x,0) = if x is null use zero as default
+#Handle null if x is null and y is null then (because if they are not defined both null and null but they are still not equal)
+# operator with null value is always equal null
+#=============================================
+LOOPS: LOOP, FOR, WHILE
+
+LOOP 
+statement1;
+...
+EXIT [ WHEN cond];
+END LOOP;
+
+#expl 1
+Declare
+v_counter number:=0;
+Begin
+ loop
+ v_counter:=v_counter+1;
+ dbms_output.put_line('Hi '||v_counter);
+ exit when v_counter=3;
+ end loop;
+end;
+
+
+WHILE cond 
+LOOP
+statement1;
+...
+END LOOP;
+
+
+FOR i in 1..3
+LOOP
+statement1;
+...
+END LOOP;
+
+Declare
+v_counter number:=0;
+v_stars varchar2(50):='*';
+Begin
+ loop
+ v_counter:=v_counter+1;
+-- dbms_output.put_line('Hi '||v_counter);
+  dbms_output.put_line(v_stars);
+   v_stars:=v_stars||'*';
+ exit when v_counter=5;
+ end loop;
+end;
+--output:
+*
+**
+***
+****
+*****
+#============================================

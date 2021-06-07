@@ -28,3 +28,11 @@ end;
 cd /home/oracle;
 @test.sql
 #=====================================
+#sqldeveloper change text cursor
+Tools > Preferences : +Caret Behavior : change Caret Color , for example red.
+#====================================
+#sqldeveloper templates
+ssf=select * from table
+ii=INSERT INTO table VALUES ()
+Tools > Preferences : Code Templates
+#===================================
