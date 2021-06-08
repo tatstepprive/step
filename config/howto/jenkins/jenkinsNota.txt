@@ -138,6 +138,7 @@ SCM API is NOT AVAILABLE
 Shelve Project
 Schedule Build
 SonarQube Scanner
+SSH plugin (This plugin executes shell commands remotely using SSH protocol)
 SSH Build Agents
 Subversion I DO NOT INSTALL
 Selenium
