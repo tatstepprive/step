@@ -36,3 +36,7 @@ ssf=select * from table
 ii=INSERT INTO table VALUES ()
 Tools > Preferences : Code Templates
 #===================================
+#execute bash command in sqldeveloper with prefix !
+#but even if connection to remote host, the output is from local host when sqldeveloper is running
+!df -h
+#===================================
