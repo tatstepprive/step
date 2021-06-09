@@ -1,12 +1,29 @@
 #!/bin/bash
 
+min_gb=200;
+min_mb=1;
+min_perc=50;
 df -k | grep -v proc | grep -v Filesystem | grep -v mapper | grep -v tmpfs | grep -v sda1 | grep -v : | sed -f scripts/concat_space > /tmp/filesystem
 cat /tmp/filesystem | while read line
 do
-   size=`echo $line | cut -f4 -d " "`
-   if [ $size -ge 85 ]
+   #echo "line=$line"
+   size_perc=$(echo $line | grep -o [0-9]*%)
+   size=$(echo $size_perc | sed s/%//g)
+   filet=$(echo $line | tr ' ' '\n' | tail -1)
+   available_size=$(df --output=avail $filet | grep -iv avail)
+   available_size_mb=$((available_size/1024))
+   available_size_gb=$((available_size/1024/1024))
+   #first condition: little mb available
+   if [ $available_size_mb -le $min_mb ]
    then
-      filet=`echo $line | cut -f5 -d " "`
-      echo "filesystem $filet filled at $size"
+      echo "WARNING: filesystem $filet filled at $size_perc available=$available_size ($available_size_gb GB|$available_size_mb MB)"
+   fi
+   #second condition: high percentage usage
+   if [ $size -ge $min_perc ]
+   then
+      if [ $available_size_gb -le $min_gb ]
+      then
+      echo "WARNING: filesystem $filet filled at $size_perc available=$available_size ($available_size_gb GB|$available_size_mb MB)"
+      fi
    fi
 done
