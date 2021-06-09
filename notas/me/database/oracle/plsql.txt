@@ -272,3 +272,94 @@ end;
 ****
 *****
 #============================================
+#Cursors (implicit by oracle, explicit by devs)
+Cursor is valid select statement
+Flow: Declare->Open->Fetch(load in var)->Empty?->Close
+
+Declare
+  cursor <cursor_name> is
+  select ... from table 
+  where ...
+  order by ...;
+  v_name1 varchar2(100)
+  v_name2 varchar2(100)
+Begin
+open <cursor_name>;
+loop 
+   fetch <cursor_name> into v_name1, v_name2;
+   exit when <cursor_name>%notfound;
+   dbms_output.put_line(v_name1||' '||v_name2);
+  -- update, insert etc statements
+end loop;
+close <cursor_name>;
+commit; --after closing cursor
+end;
+
+#Tip: in for loop is no need to open and close cursor, for loop will handle it
+Declare
+  cursor <cursor_name> is
+  select ... from table
+  where ...
+  order by ...;
+  v_name1 varchar2(100)
+  v_name2 varchar2(100)
+Begin
+for i in <cursor_name> 
+loop
+   dbms_output.put_line(i.value1||' '||i.value2);
+  -- update, insert etc statements
+end loop;
+commit; --after closing cursor
+end;
+
+#Tip: no cursor declaration (implicit cursor)
+Declare
+Begin
+for i in (select ... from table where ... order by ...)
+loop
+   dbms_output.put_line(i.value1||' '||i.value2);
+  -- update, insert etc statements
+end loop;
+commit; --after closing cursor
+end;
+
+Attributes:
+%ISOPEN true if cursor is open
+%NOTFOUND true if recent fetch has no row
+%FOUND true if recent fetch has row
+%ROWCOUNT number of rows
+#===============================================
+#Catch exception
+Declare
+Begin
+--statements
+Exception
+  when ex1 [OR ex2 ...] then
+--  statements;
+  when others then
+--  statements;
+End;
+
+#Predefined exceptions:
+NO_DATA_FOUND (ORA-01403)
+TOO_MANY_ROWS (ORA-01422)
+INVALID_CURSOR (ORA-01001)
+ZERO_DIVIDE
+DUP_VAL_ON_INDEX (ORA-00001)
+etc
+
+#Own exception
+Declare
+e_insert exception;
+pragma exception_init (e_insert, -101400);
+Begin
+--statements
+Exception
+when e_insert then 
+dbms_output.put_line('insert failed');
+dbms_output.put_line(sqlcode);
+dbms_output.put_line(sqlterm);
+when others then null;
+End;
+#==============================================
+
