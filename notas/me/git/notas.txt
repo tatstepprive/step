@@ -45,3 +45,20 @@ mv mediris eva
 #close terminal !!! If  you dont want always get notifications 'Please 
 update your Git remote' ... 
 -------------------
+#using stash
+git pull
+git status
+git diff
+git stash show
+git stash
+git status
+git stash show
+git pull
+git stash list
+git stash pop stash@{0}
+git status
+git commit config/ -m 'your message'
+git push origin master
+git stash list
+git stash show
+-------------------
