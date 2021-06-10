@@ -19,3 +19,7 @@ sudo service grafana-server start
 sudo service grafana-server status
 navigate to http://servername:3000
 #=============================
+#Log
+/var/log/grafana/grafana.log
+#=============================
+
