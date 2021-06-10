@@ -1,0 +1,23 @@
+#command line
+mysql
+sudo mysql
+#show current connection user
+SELECT USER();
+#show current db
+SELECT DATABASE();
+# db info
+status;
+#show all users
+select user from mysql.user;
+#Show current logged users
+SELECT 
+    user, 
+    host, 
+    db, 
+    command 
+FROM 
+    information_schema.processlist;
+#show privileges for user
+show grants for root@localhost;
+SELECT * FROM information_schema.user_privileges;
+
