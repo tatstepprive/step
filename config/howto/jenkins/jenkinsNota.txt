@@ -12,6 +12,20 @@
      sudo service jenkins stop
      ps -ef| grep -i java
      sudo shutdown now
+#===================================================
+#Install jenkins on redhat6
+# install java
+# download jenkins rpm
+export JAVA_HOME=/usr/lib/jvm/java
+export JRE_HOME=/usr/lib/jvm/java/jre
+sudo rpm -ivh jenkins-2.263.1-1.1.noarch.rpm
+sudo /sbin/chkconfig --add jenkins
+sudo nano /etc/init.d/jenkins
+#add 
+#candidates="
+#/usr/lib/jvm/java/bin/java
+sudo service jenkins start
+#===================================================
 #INSTALL ansible required packages
      sudo apt-get update
      sudo apt-get install python-minimal
