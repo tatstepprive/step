@@ -349,3 +349,11 @@ You can use Enterprise Manager Cloud Control 12c or EM Express 12c to manage you
 xclock is a handy tool to test if the DISPLAY variable
 ================================================
 ERD=Entity Relationship Diagram=ER Diagram=ER model
+================================================
+#Db has unique sid and multiple service_names for db:
+#show service_name(s)
+select value from v$parameter where name like '%service_name%';
+show parameter service_name ;
+#show sid
+select * from global_name;
+================================================
