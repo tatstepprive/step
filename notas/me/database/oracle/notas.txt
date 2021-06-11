@@ -357,3 +357,6 @@ show parameter service_name ;
 #show sid
 select * from global_name;
 ================================================
+# Transaction control
+commit is transactional control
+===============================================
