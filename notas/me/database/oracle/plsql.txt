@@ -361,5 +361,19 @@ dbms_output.put_line(sqlcode);
 dbms_output.put_line(sqlterm);
 when others then null;
 End;
-#==============================================
 
+# Raise error (wiht true last parameter you will display your defined error and oracle error too.
+# default is false and only your error will be displayed
+raise_application_error(xxx, 'text', true);
+
+#Meaning
+sqlcode=sql code for error like ORA-xxx
+sqlerrm=sql error message
+sqlterm=
+#==============================================
+#Triggers (on table, view, schema, database)
+Trigger event types:
+* DML statement (insert, update, delete)
+* DDL statement (create, alter, truncate, drop)
+* DCL statement (grant, revoke)
+* DB operation (logon, logoff, startup, shutdown, servererror)
