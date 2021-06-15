@@ -1,0 +1,22 @@
+#Oracle packages:
+utl_mail
+show parameter smtp_out_server;
+--should be defined on init.ora
+--install $ORACLE_HOME/rdbms/admin/utlmail.sql
+--install $ORACLE_HOME/rdbms/admin/prvtmail.plb
+#====================================
+# package dbms_db_version (f: constants about db version)
+--show source code:
+select text
+from all_source
+where lower(name)='dbms_db_version'
+order by line;
+
+#expl
+begin
+if dbms_db_version.ver_le_19 then 
+dbms_output.put_line('OK '||dbms_db_version.version);
+end if;
+end;
+
+#====================================

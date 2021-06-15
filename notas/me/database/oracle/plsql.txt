@@ -377,3 +377,11 @@ Trigger event types:
 * DDL statement (create, alter, truncate, drop)
 * DCL statement (grant, revoke)
 * DB operation (logon, logoff, startup, shutdown, servererror)
+#===============================================
+#plsql parameters to optimize
+plsql_code_type (interpreted (default), better=> native)
+plsql_optimize_level (2 (default), better=> 3)
+plsql_ccflags (null (default))
+plsql_warnings( disable:all (default) )
+plsql_v2_compatibility (false (default))
+#================================================
