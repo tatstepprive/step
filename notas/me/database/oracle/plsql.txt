@@ -373,9 +373,9 @@ sqlterm=
 #==============================================
 #Triggers (on table, view, schema, database)
 Trigger event types:
-* DML statement (insert, update, delete)
-* DDL statement (create, alter, truncate, drop)
-* DCL statement (grant, revoke)
+* DML statement (=data manipulation language: insert, update, delete)
+* DDL statement (=data definition language: create, alter, truncate, drop)
+* DCL statement (=data control language: grant, revoke)
 * DB operation (logon, logoff, startup, shutdown, servererror)
 #===============================================
 #plsql parameters to optimize

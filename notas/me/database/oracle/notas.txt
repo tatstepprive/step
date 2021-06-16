@@ -357,6 +357,10 @@ show parameter service_name ;
 #show sid
 select * from global_name;
 ================================================
-# Transaction control
-commit is transactional control
+# sql statement type Transaction control
+commit
+rollback
+savepoint
 ===============================================
+OLTP=high-volume Online Transaction Processing
+==============================================

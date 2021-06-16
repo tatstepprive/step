@@ -4,7 +4,11 @@
 /u01/app/oracle
 #oracle home local $ORACLE_HOME
 /u01/app/oracle/product/19/db_1
-#parameter file location (spfile=server parameter file):
+#parameter file location (spfile=server parameter file (default name: spfile<sid>.ora or spfile.ora (exp: spfileorcl.ora)
+#dynamic (read/write, binary)
+$ORACLE_HOME/dbs
+#text parameter file location (pfile=parameter file (default name: init.ora or init<sid>.ora or custom name)
+#static (read, text key-values pairs)
 $ORACLE_HOME/dbs
 #sqlplus location
 $ORACLE_HOME/bin
