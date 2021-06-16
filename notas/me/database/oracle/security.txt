@@ -245,3 +245,13 @@ See the current setup: show parameter resource_limit;
 #show error explaination
 ! oerr ora 2377
 =================== 
+#Forgotten sys pass
+#solution1
+sqlplus /nolog
+connect / as sysdba
+Once connected, you can change the SYS password to something you know:
+ALTER USER sys IDENTIFIED BY new_password;
+#solution2
+connect as system user and
+ALTER USER SYS IDENTFIED BY SysPassWord ; --case sensitive
+====================

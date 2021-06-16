@@ -348,6 +348,9 @@ You can use Enterprise Manager Cloud Control 12c or EM Express 12c to manage you
 ================================================
 xclock is a handy tool to test if the DISPLAY variable
 ================================================
+ERM=Entity Relation Model (Entity=table, Attribute=column, Relationship=assosiation between entities, verb, FK (foreign key f: refers PK or other unique key in other table))
+Attribute notations= * mandatory; o optional; #* PK=(primary key f: unique column id) 
+================================================
 ERD=Entity Relationship Diagram=ER Diagram=ER model
 ================================================
 #Db has unique sid and multiple service_names for db:
