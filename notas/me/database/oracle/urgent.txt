@@ -1,0 +1,12 @@
+#Unlock table
+#option1
+SELECT object_id FROM dba_objects WHERE object_name='YOUR TABLE NAME';
+SELECT sid FROM v$lock WHERE id1=OBJECT ID FROM STEP1
+SELECT sid, serial# from v$session where sid in (COMMA SEPARATED LIST OF SIDs FROM STEP2.)
+ALTER SYSTEM KILL SESSION (SID,SERIAL#)
+#option2
+select * from v$locked_object;
+select * from v$session where sid= put the sid you found on v$locked_object;
+alter system kill session 'sid, serial#'; -- Execute this command as sysdba as normal user won't have privilege.
+
+#=====================================================
