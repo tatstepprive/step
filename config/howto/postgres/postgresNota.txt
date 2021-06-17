@@ -1,0 +1,7 @@
+#Install on centos7 postgres 12
+#db server
+sudo yum install -y postgresql12-server
+#db client
+sudo yum install -y postgresql12-client
+#extra modules (extensions)
+sudo yum install -y postgresql12-contrib
