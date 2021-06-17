@@ -372,11 +372,31 @@ sqlerrm=sql error message
 sqlterm=
 #==============================================
 #Triggers (on table, view, schema, database)
-Trigger event types:
+Trigger on:
+* table
+* view
+* schema (schema owner)
+* database (all users)
+
+Trigger timing:
+* before
+* after
+* instead of
+
+Trigger EVENT types:
 * DML statement (=data manipulation language: insert, update, delete)
 * DDL statement (=data definition language: create, alter, truncate, drop)
 * DCL statement (=data control language: grant, revoke)
 * DB operation (logon, logoff, startup, shutdown, servererror)
+
+Trigger body: (f: action)
+* plsql block
+* call procedure
+
+Trigger level:
+* statement level (once on event, fired even if no rows) default
+* row level (for each affected row, no fired if no rows) FOR EACH ROW
+
 #===============================================
 #plsql parameters to optimize
 plsql_code_type (interpreted (default), better=> native)
