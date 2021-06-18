@@ -43,3 +43,6 @@ Tools > Preferences : Code Templates
 #but even if connection to remote host, the output is from local host when sqldeveloper is running
 !df -h
 #===================================
+#Export select result to file
+1 make select query, in query result R-mouse click, Export, choose Format (excel), type file location and name or browse button, next, finish
+#================================== 

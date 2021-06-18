@@ -367,3 +367,97 @@ savepoint
 ===============================================
 OLTP=high-volume Online Transaction Processing
 ==============================================
+#Tip: arithmetic expression with null will evaluate to null (exp:null+10=> null)
+==============================================
+#Tip: column alias (renames column heading) exp: 
+select first_name as name, last_name  ...
+select first_name name, last_name ...
+select first_name "Name" ...
+==============================================
+#Tip: concatenation operator ||
+select first_name||' '||last_name "Full Name" ...
+==============================================
+#Tip: number no quotes, characters string and date values in quotes
+... where age=25
+... where first_name='Maya'
+... where birth_date='18-nov-77' ---'dd-mm-yy'
+==============================================
+#Tip: using between put bigger smaller value first. The order is important
+... where age between 30 and 40 --OK, result
+... where age between 40 and 30 --NOK, no rows
+===============================================
+#Tip: using like % is >=1 char, _ is 1 char
+#Tip: using escape
+... where job_id like 'SYS/_%' escape '/';
+===============================================
+#Tip: using null value
+... where name is null --OK, result
+... where name is not null --OK, result
+... where name=null    --NOK, no rows
+... where name!=null    --NOK, no rows
+===============================================
+#Tip: using not equal (same result, different notation)
+... where name<>'Maya'
+... where name!='Maya'
+===============================================
+#Tip: rule of precedence
+ 1 arithmetic operator
+ 2 concatenation operator
+ 3 comparison conditions
+ 4 is (not) null, like, (not) in
+ 5 (not) between
+ 6 not equal to
+ 7 NOT logical operator
+ 8 AND logical operator
+ 9 OR logical operator
+exp: cond1 or cond2 and cond3 (like in math cond1 + cond2 * cond3 => 10+20*5)
+use () if you dont know rules or hesitate or when you want override rules of precedence
+=================================================
+#Tip: using order by containing null values
+... order by name nulls first;
+#Tip: using order by column alias
+select first_name fn from persons order by fn;
+#Tip: using order by column order
+select first_name, last_name from persons order by 1,2;
+=================================================
+#Tip using fetch (from 12c) f: get limited result with row count
+select first_name, last_name 
+from persons
+order by 1,2
+fetch first 10 rows only;
+#Tip using fetch (from 12c) f: get limited result with percent
+...
+fetch first 50 percent rows only;
+#Tip using fetch (from 12c) f: get limited result with skipping some rows with offset
+...
+offset 10 rows fetch next 5 rows only;
+#Tip using fetch (from 12c) f: get limited result with ties (+ extra row if result is not same)
+fetch first 2 rows with ties;
+=================================================
+#Tip: substitution variables with & and && f: oracle will ask for value 
+#They used in where conditions, order by, column expressions, table names, all select statement
+... where id=&id; --for numbers no quotes
+... where first_name='&name' --for strings or dates with quotes
+#Tip: multiple substitutions are possible in one statement
+select first_name, &my_last_name
+from persons
+where &condition
+order by &order_column;
+=================================================
+#Tip: using define f: declare vars for session duration
+define my_first_name='Maya';
+select last_name from persons where first_name=&my_first_name -- asking window will not appear, because var is defined for session
+undefine my_first_name;
+select last_name from persons where first_name=&my_first_name -- asking window will appear
+=================================================
+#Tip: define own asking window
+ACCEPT my_first_name PROMPT 'Please, provide the first name:';
+select last_name from persons where first_name=&my_first_name 
+=================================================
+#Tip: diff between substitution variables with & and &&: 
+#with & value is given in asking window and forgotten, with && value is remembered for session duration
+================================================
+#Tip: using SET VERIFY ON f: shows old and new value in query (it default in sqlplus, but should be set in sqldeveloper)
+#Tip: using SET VERIFY OFF f: escape meanig of charakter & and using it query
+select * where departement like '%&%' -- asking window will not appear, meanig of & is charakter 
+================================================
