@@ -1,0 +1,12 @@
+--- 
+- 
+  hosts: postgres-hosts
+  become: true
+  gather_facts: yes
+  tasks: 
+    - name: "Populate service facts"
+      service_facts:
+    - name: "See postgresql-12.service state"
+      debug: 
+           msg: "{{ ansible_facts.services['postgresql-12.service'].state }}"
+

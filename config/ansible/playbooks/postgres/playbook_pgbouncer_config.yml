@@ -1,0 +1,41 @@
+--- 
+- 
+  hosts: postgres-hosts
+  become: true
+  tasks: 
+    -
+      name: "Change in PGBOUNCER configuration files."
+      lineinfile:
+          dest: /etc/pgbouncer/pgbouncer.ini
+          regexp: '^default_pool_size\s*='
+          line:   "default_pool_size = 40"
+          backup: yes
+      register: config0
+    -
+      name: "Change in PGBOUNCER configuration files."
+      lineinfile:
+          dest: /etc/pgbouncer/pgbouncer.ini
+          regexp: '^max_client_conn\s*='
+          line:   "max_client_conn = 16000"
+          backup: yes
+      register: config1  
+    -
+      name: "Change in PGBOUNCER configuration files."
+      lineinfile:
+          dest: /etc/pgbouncer/pgbouncer.ini          
+          regexp: '^max_db_connections\s*='
+          line:   "max_db_connections = 0"
+          backup: yes
+      register: config2
+    -
+      name: "Restart pgbouncer if changes."
+      service:
+          name: pgbouncer
+          state: restarted
+      register: pgbouncer_restart
+      when:  (config0.changed) or (config1.changed) or (config2.changed)  
+
+    -
+      name: debug pgbouncer restart
+      debug: var=pgbouncer_restart 
+      when:  (config0.changed) or (config1.changed) or (config2.changed)  

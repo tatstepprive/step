@@ -1,0 +1,16 @@
+--- 
+- 
+  hosts: postgres-hosts
+  become: true
+  tasks: 
+    -
+      name: "Restart pgbouncer."
+      service:
+          name: pgbouncer
+          state: restarted
+      register: pgbouncer_restart
+
+    -
+      name: debug pgbouncer restart      
+      debug: var=pgbouncer_restart       
+

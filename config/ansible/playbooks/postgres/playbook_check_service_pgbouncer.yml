@@ -1,0 +1,28 @@
+--- 
+- 
+  hosts: postgres-hosts
+  become: true
+  tasks: 
+    - name: checking service status
+      command: systemctl status "{{ item }}"
+      with_items:
+           - sshd
+           - postfix
+           - pgbouncer
+      register: result
+      ignore_errors: yes
+    - name: showing report
+      debug:
+         var: result
+    - name: checking service status active
+      command: systemctl is-active "{{ item }}.service"
+      with_items:
+           - sshd
+           - postfix
+           - pgbouncer
+      register: result
+      ignore_errors: yes
+    - name: showing report
+      debug:
+         var: result
+
