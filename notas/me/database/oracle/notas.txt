@@ -461,3 +461,9 @@ select last_name from persons where first_name=&my_first_name
 #Tip: using SET VERIFY OFF f: escape meanig of charakter & and using it query
 select * where departement like '%&%' -- asking window will not appear, meanig of & is charakter 
 ================================================
+Single row functions:
+ * general (nvl, nvl2, nullif, coalesce, decode, case etc)
+ * character (lower, upper, initcap etc)
+ * number    (round, trunc, mod etc)
+ * date  (months_between, add_months, next_day, last_day, round, trunc etc)
+ * conversion (to_date, to_char, to_number etc)

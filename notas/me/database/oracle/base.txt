@@ -1,0 +1,51 @@
+#Constraints
+#Constraint types
+NOT NULL (column can not be null) (type C) (name_nn) (can not be null) (many)
+UNIQUE (must be unique, but can me many null values) (type U) (name_uk or name_uq) (can be null) (many)
+PRIMARY KEY (identifies uniquely each row in the table) (type P) (name_pk) (can not be null) (one)
+FOREIGN KEY (references to pk in other table) (type R) (name_fk) (can be null) (many)
+CHECK (condition) (type C) (name_chq) (can be null) (many)
+Tip: see for types in user_constraints table
+Tip: for fk constraint see R_CONSTRAINT_NAME to know column in other table
+Tip: constraint name should be unique, so use <table>_pk, <table>_<column>_uk, <table>_<column>_fk, <table>_<column>_chq
+Tip: (many) or (one) is how many constraint per table
+Tip: only not null and pk constraint are never null
+Tip: fk can be null, unique can be null and have many nulls
+Tip: unique column can have many null values, nulls are not considered equal to anything, no uniqueness for nulls
+Tip: indexes are only pk and fk
+#Constraint guidelines
+* Give name or oracle server gives SYS_Cn name format (can be renamed after)
+* Create at table creation time or after
+* On column or table level
+#Constraint on delete for fk
+constraint <constraint_name> foreign key (<this.column>) references <other_table> (<other_table_pk>) on delete cascade
+f: if on other table delete row the rows with fk in this table will be removed too
+constraint <constraint_name> foreign key (<this.column>) references <other_table> (<other_table_pk>) on delete set null
+f: if on other table delete row the rows with fk in this table will be set on fk column to value null, so ref is removed but the row stays in this table
+Tip: if no 'on delete' clause then row removal on other table will give error if the refs (fk) to row (pk) in remove operation exits
+Tip: other table=main table with pk, this table=dependent table with fk to pk
+#========================================================
+#Table
+Alter table when:
+add new column (alter table <table_name> add <column_name_and_definition> [ not null default 'my_value']) 
+modify column definition exp: size, type, default (alter table <table_name> modify <column_name_and_definition>)
+rename column (alter table <table_name> rename column <old_name> to <new_name>;)
+set column unused (alter table <table_name> set unused [column] <column_name>)
+drop column (alter table <table_name> drop <column_name>)
+add new constraint
+rename constraint
+disable constraint
+drop constraint
+change table status read-only, read-write (alter table <table_name> read only;) (alter table <table_name> read write;) f: DML are not allowed, DDL are stil allowed like add column, drop table
+Tip: the added column will be always the last column, can not specify place
+Tip: select * from user_unused_col_tabs;
+
+Rename table: (never do on production)
+rename <old_table_name> to <new_table_name>;
+
+Drop table:
+drop table <table_name> [purge];
+Tip: drop table moves it in recyclebin (select * from user_recyclebin where original_name=<dropped_table_name>)
+Tip: drop table with purge option removes it permanently (select * from user_recyclebin where original_name=<dropped_table_name> --output no rows )
+#=======================================================
+
