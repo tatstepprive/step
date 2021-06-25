@@ -467,3 +467,30 @@ Single row functions:
  * number    (round, trunc, mod etc)
  * date  (months_between, add_months, next_day, last_day, round, trunc etc)
  * conversion (to_date, to_char, to_number etc)
+================================================
+Tip: null come last in order asc, but you can change order
+order by fname; --same as order by fname nulls last;
+order by fname nulls first;
+Tip: select replace to replace or remove some chars
+select replace ('test', 'te', 'xx') from dual;
+--output (replaced chars) xxst
+select replace ('test', 'te') from dual;
+--output (removed chars) st
+Tip: select trim to remove spaces or chars from beginning and and, no removal in between
+select trim('  HELLO    WORLD   ') from dual;
+--output HELLO   WORLD
+select trim ('b' from 'bbbbbbeginb') from dual;
+--output egin
+select trim('he' from 'hello') from dual;
+--gives error, because only one char allowed to be trimmed
+Tip: you can not make constraint for long column or use it in group by or order by
+ 
+================================================
+The same formating using 9 or 0, G (=group delimiter), D (=decimal delimiter)
+0 and 9 are can be used together, G and D should be used together (9G999.99 will give error)
+select to_char(1001.50, '9,999.99') from dual;
+select to_char(1001.50, '0,000.00') from dual;
+select to_char(1001.50, '9G999D99') from dual;
+select to_char(1001.50, '0G000D00') from dual;
+select to_char(1001.50, '9G909D99') from dual;
+================================================

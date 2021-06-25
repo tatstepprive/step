@@ -11,3 +11,6 @@ create table copy_emp AS select id, fname, lname from emp where id >200;
 
 --create table using subquery with conditions and other columnames (only not null constraints are respected, other are not copied, no fk and pk constriants)
 create table copy_emp (emp_id, first_name, last_name) AS select id, fname, lname from emp where id >200;
+
+--create emty table like other table (using invalid condition 1=2 is never true)
+select table copy_emp AS select * from emp where 1=2;

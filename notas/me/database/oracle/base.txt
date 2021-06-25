@@ -13,6 +13,7 @@ Tip: only not null and pk constraint are never null
 Tip: fk can be null, unique can be null and have many nulls
 Tip: unique column can have many null values, nulls are not considered equal to anything, no uniqueness for nulls
 Tip: indexes are only pk and fk
+Tip: long column can not be used for constraint as pk, unique, fk (only not null constraint can be set)
 #Constraint guidelines
 * Give name or oracle server gives SYS_Cn name format (can be renamed after)
 * Create at table creation time or after
@@ -24,6 +25,7 @@ constraint <constraint_name> foreign key (<this.column>) references <other_table
 f: if on other table delete row the rows with fk in this table will be set on fk column to value null, so ref is removed but the row stays in this table
 Tip: if no 'on delete' clause then row removal on other table will give error if the refs (fk) to row (pk) in remove operation exits
 Tip: other table=main table with pk, this table=dependent table with fk to pk
+Tip: you can temporary disable constraints without deleting it
 #========================================================
 #Table
 Alter table when:
@@ -48,4 +50,27 @@ drop table <table_name> [purge];
 Tip: drop table moves it in recyclebin (select * from user_recyclebin where original_name=<dropped_table_name>)
 Tip: drop table with purge option removes it permanently (select * from user_recyclebin where original_name=<dropped_table_name> --output no rows )
 #=======================================================
-
+#Dictionary views prefix
+user_xxx f: user's view, what is in your schema, what you own
+all_xxx  f: expanded user's view (what you can access so your objects and granted objects, has owner column)
+dba_xxx  f: db admin's view (what is in everyone's schema, has owner column)
+v$xxx    f: dynamic db views, performance releated data
+select * from dictionary where table_name='USER_OBJECTS'; 
+select * from dictionary; --about 1000 rows (961 rows)
+select * from user_catalog; --contains table, view, index, synonym, sequence of user
+select * from cat; -- same as from user_catalog
+select * from user_objects;
+select * from all_objects;
+select * from dba_objects; --only for sys or system default
+select * from user_tables;
+select * from tabs; --same as from user_tables;
+select * from user_tab_columns;
+select * from all_tables; 
+select * from all_tab_columns;
+select * from user_constraints;
+select * from user_cons_columns;
+select * from all_constraints;
+select * from all_cons_columns;
+select * from user_tab_comments;
+select * from user_col_comments;
+#=======================================================
