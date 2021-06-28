@@ -49,6 +49,52 @@ Drop table:
 drop table <table_name> [purge];
 Tip: drop table moves it in recyclebin (select * from user_recyclebin where original_name=<dropped_table_name>)
 Tip: drop table with purge option removes it permanently (select * from user_recyclebin where original_name=<dropped_table_name> --output no rows )
+#======================================================
+#Sequence
+create sequence <seq_name> (seq_name=xxx_seq)
+increment by <int> --(default 1)
+start with <int>   --(default 1)
+maxvalue <int>| nomaxvalue --(default nomaxvalue)
+minvalue <int>| nominvalue --(default nominvalue)
+cycle | nocycle --f: generate value after reaching max, default nocycle
+cache <int> | nocache --f: preallocate and keep in memory, default 20 values
+order | noorder; --(default noorder)
+
+Sequence is separete from table object and can be shared (used for multiple tables)
+Used for create pk values
+select * from user_sequences;
+insert into test1 (id, fname) values (<seq_name>.nextval, 'diana');
+--show current value
+select <seq_name>.currval from dual;
+--get next value, executing without exection will create a gap
+--gap will be created too when rollback issued
+select <seq_name>.nextval from dual;
+Tip: the start with option cannot be changed using alter sequence. 
+the sequence must be dropped and re-created to restart the sequence with a different number
+#=======================================================
+#Synonyms (=alternative name for object, no storage only entry in data dictionary)
+private
+public
+create [public] synonym for object;
+exp: create synonym e for employees; select * from e; drop synonym e;
+exp: create public synonym em for hr.employees;
+select * from user_synonyms;
+#=======================================================
+#Index (f: pointer to speed up query, dropped with dropping table, can be dropped independent)
+automatically (when pk or unique constraints are created, name=pk or name=sys_cxxx when unique constraint)
+manually
+create [unique][bitmap] index <index_name> on table (column...); --index_name=xxx_idx
+select * from user_indexes; --to find index on table
+select * from user_ind_columns; -- to find column name with index
+select * from user_ind_expressions; -- to find index column name for index sys_ncxxx
+#Index creation guidelines
+* column contains a wide range of values
+* column contains a large number of null values
+* column is frequenty used in where or join condition
+* table is large
+* table is updated not frequently
+alter index a rename to b; 
+Question: can i rename index SYS_ILxxx? (it's lob index)
 #=======================================================
 #Dictionary views prefix
 user_xxx f: user's view, what is in your schema, what you own

@@ -38,3 +38,6 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 19 RESP1: in windows @Path\script.sql (exp: @C:\test.sql
 19 RESP2: go to dir where script located and execute 'sqlplus user/pass@db' and then '@test.sql' 
 19 RESP3: in sqldeveloper execute 'cd /home/oracle' and then '@test.sql'
+20 Can i rename index SYS_ILxxx (it's lob index)?
+21 Can i rename index SYS_NCxxx?
+

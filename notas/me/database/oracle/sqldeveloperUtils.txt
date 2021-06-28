@@ -46,3 +46,5 @@ Tools > Preferences : Code Templates
 #Export select result to file
 1 make select query, in query result R-mouse click, Export, choose Format (excel), type file location and name or browse button, next, finish
 #================================== 
+F10 or 'Explain plan' to see usage of index when do select statement
+#==================================
