@@ -26,6 +26,13 @@ f: if on other table delete row the rows with fk in this table will be set on fk
 Tip: if no 'on delete' clause then row removal on other table will give error if the refs (fk) to row (pk) in remove operation exits
 Tip: other table=main table with pk, this table=dependent table with fk to pk
 Tip: you can temporary disable constraints without deleting it
+Tip: when you disable pk or unique constraints, the releated index will be dropped, when enable again index will be recreated automatically
+#Deferrable constraints
+Defferable constraint allow change constraint value in main table which is referred by fk in other table without many action like it was before (add new recored in main table with new value, change value in fk, remove old record in main table)
+Everything is done in on step and applied on commit. Before oracle reacted before commit with error if you try to do operation explained above.
+deferrable initially deferred f: constraint check will be postponed after commit, if error transaction will be rollbacked
+defferable initially immediate f: acting like normal behaviour, constraint will be checked/fired before commit, for ex by doing insert, if error direct error message shown
+Tip: when creating constraint with option deferrable initially (default is not defferable), you can change behaviour by set constraint <constraint_name> immediate (only for current session);
 #========================================================
 #Table
 Alter table when:
@@ -49,6 +56,72 @@ Drop table:
 drop table <table_name> [purge];
 Tip: drop table moves it in recyclebin (select * from user_recyclebin where original_name=<dropped_table_name>)
 Tip: drop table with purge option removes it permanently (select * from user_recyclebin where original_name=<dropped_table_name> --output no rows )
+#GTT=global temporary table f: rows exist only for the duration of the transaction (session), each session can see and modify only its data
+# benefit: fast, all rows manipulations are in memory, no redo logs
+create global temporary table my_glob
+(item_nr number, 
+item_desc varchar2(100)) 
+on commit delete rows; -- on commit rows deleted
+--on commit preserve rows; -- on commit rows stay in the table, when session ends then rows are removed
+
+--show all temporary tables:
+select table_name
+from all_tables
+where TEMPORARY = 'Y';
+
+#External tables and sqlloader
+sqlloader f: move data from external files (xxx.csv) into oracle database
+xxx.csv file contains data separated by comma, space etc
+create control file xxx.ctl with content:
+---------------
+Load Data
+INFILE 'C:\data\emp.csv'
+APPEND
+INTO TABLE my_emp
+FILEDS TERMINATED BY ','
+(emp_id,
+fname,
+lname
+)
+--------------
+execute on command line:
+sqlldr control=C:\data\emp.ctl log=C:\data\emp.log
+password: user/pass@db
+result: emp log created, if bad rows emp.bad log file created, the data is inserted in the table defined in control file
+#External table = read-only table with metadata stored in database, but data stored outside the database, no dml allowed, no indexes can be created
+Data in external table come from xxx.csv file or from xxx.dump file on disk, no data are really loaded, just viewed and can not be manipulated.
+Syntax:
+create table my_table
+(emp_id number,
+fname varchar2(100),
+lname varchar2(100)
+)
+organization external 
+(type oracle_loader
+default directory my_dir
+access parameters 
+  (records delimited by newline
+  fields terminated by ','
+  )
+location ('my_data.csv')
+)
+reject limit unlimited;
+
+#======================================================
+#View=named select statement
+simple view=select on 1 table, not contain functions, no groups data, dml operations throgh the view
+complex view=select on one/many tables, contain functions (max(), min()), groups data (distinct, group by), not always dml operation through the view
+create [or replace] [force|noforce] view <view_name> as subquery [with read only];
+noforce= is default, create view only if base tables exist
+with read only=no dml operation are allowed
+select * from user_views;
+#View vs materialized view
+* view is never stored only displyed; materialized view is stored on the disk
+* view is virtual table formed from one/many basic tables or views; materialized view is a physical copy of the base table
+* view is updated each time when virtual table (view) is used; materialized view has to be updated manually or using triggers
+* speed for view is slow processing; speed for materialized view is fast processing
+* memory: view do not require memory space; materialized view use memory space
+* syntax: create view <view_name> as ...; create materialized view <view_name> build [clause] refresh [clause] on [trigger] as ...;   
 #======================================================
 #Sequence
 create sequence <seq_name> (seq_name=xxx_seq)

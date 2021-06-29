@@ -122,3 +122,30 @@ where  table_name = 'TEST';
 --TEST_PK               ID
 --1 row selected.
 
+------------------------------------------
+--Add pk constraint to existant table way 1:
+alter table emp
+modify emp_id primary key; --constraint sys_cxxx will be added with type P
+
+select * from user_constraints where table_name='EMP';
+
+alter table emp drop constraint <constraint_name>;
+alter table emp drop primary key; --same as above, works only if no ref data in other tables
+
+--Add pk constraint to existant table way 2 (better):
+alter table emp
+add constraint emp_id_pk primary key (emp_id); --constraint emp_id_pk will be added with type P
+
+select * from user_constraints where table_name='EMP';
+-------------------------------------------
+--Add fk constraint to existant table way 1:
+alter table emp
+modify dep_id references dep (dep_id);
+
+alter table emp drop constraint <constraint_name>;
+
+--Add fk constraint to existant table way 2 (better):
+alter table emp
+add constraint emp_dep_id_fk foreign key(dep_id) references dep (dep_id);
+
+
