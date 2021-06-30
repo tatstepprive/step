@@ -84,3 +84,6 @@ ls -ltra world
 # see size taken (output:4.0K    world)
 du -sch world
 #================================
+#show who has mounted your system
+showmount -a
+#================================
