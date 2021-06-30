@@ -2,9 +2,9 @@ Data security:
 1 system security
 2 data security
 
-System privileges: perform an action within db (create table, view, sequence etc)
+System privileges: perform an action within db (create/modify/drop user, create/modify/drop table, view, sequence etc) =250 system privileges (see system_privilege_map table)
 Object privileges: manipulate the content of the db objects
-Schema: collection of objects such as tables, views, sequences.
+Schema: collection of objects such as tables, views, sequences. Owned by db user and has the same name as that user, so schema~user in oracle db.
 
 Users and schemas are db users, 
 but when the user has/owns objects then we call it schema
@@ -37,7 +37,7 @@ select * from all_users;
 alter user demo identified by demo456;
 
 #change own pass as user demo (not super user): use replace !
-alter user demo identified by demo123 replace demo456;
+alter user demo identified by demo123 replace demo456; --or alter user <you> idetified by <new_pass>;
 
 #check user
 select * from user_users;
@@ -55,7 +55,7 @@ to demo;
 revoke <privilege>|ALL
 on <object>
 from {<user>|<role>|PUBLIC}
-
+[cascade constraints];
 ==================================
 # Role
 Role is collection of privileges and/or roles.
@@ -76,7 +76,9 @@ grant manager to demo;
 =====================================
 Object privileges
 * Object privileges vary from object to object
-   table (select, insert, update, delete, alter, index, references, all)
+   table (alter, delete, index, select, insert, update, references (=other users can create fk on your table), all) Attention: create table is system privilege
+   view  (delete, select, insert, update) Attention: create view is system privilege
+   sequence (alter, select) Attention: create sequence is system privilege
    procedure,function (execute)
    cache group (flush,load,unload,refresh)
 * an owner has all privileges on the object;
@@ -87,7 +89,7 @@ on <object>
 to {<user>|<role>|PUBLIC}
 [with_grant_option];
 
-grantee=user, who has privilege
+grantee=user, TO who the privilege is given 
 grantor=user, who gives privilege
 ======================================
 Data dictionary view=Description
@@ -108,7 +110,7 @@ user_col_privs_made=object privileges granted on the columns f: same as user_tab
                     of the user's objects
 user_col_privs_recd=object privileges granted to the user on columns
 #what i can do in my own world because of roles AND direct grants to me
-session_privs=privileges for the user given directly AND via roles (see user_sys_privs for only directly given privileges)
+session_privs=current system privileges for the user given directly AND via roles (see user_sys_privs for only directly given privileges)
 #roles that i have
 session_roles= roles that are currently enabled to the current user
 
@@ -177,6 +179,9 @@ DBA=includes system privileges and other roles, connect to cdb/pdb,
 only for admins. (sys and system have this role by default)
 Tip: 235 rows: select * from dba_sys_privs where grantee='DBA';
 
+CONNECT=create session, set container;
+Tip: select * from dba_sys_privs where grantee='CONNECT';
+
 RESOURCE=create table, create sequence, create triger, create type, 
 create procedure, create indextype, create operator, create cluster
 Tip: select * from dba_sys_privs where grantee='RESOURCE';
@@ -192,6 +197,7 @@ Tip: all roles 89 rows: select role from dba_roles ;
 Tip: roles without sys privs like SELECT_CATALOG_ROLE
 60 rows: select role from dba_roles  where role not in (select grantee from dba_sys_privs group by grantee) order by role;
 Tip: create local admin for each pdb with role dba to have local admin for pdb.
+Tip: to see who has privilege to create table => select * from dba_sys_privs where privilege='CREATE TABLE';
 #sysdba vs dba
 Tip: login as sys and see diff in 18 rows:
 select * from session_privs 
@@ -255,3 +261,6 @@ ALTER USER sys IDENTIFIED BY new_password;
 connect as system user and
 ALTER USER SYS IDENTFIED BY SysPassWord ; --case sensitive
 ====================
+#Change own password 
+ALTER USER <you> IDENTFIED BY <new_pass> ; --case sensitive
+===================

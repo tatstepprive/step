@@ -27,7 +27,7 @@ connect donald/donald123@oracledb:1521/orclpdb;
 
 --Start giving system privileges
 --grant login
-grant create session to donald;
+grant create session to donald; --or grant connect to donald;
 --try login (OK)
 
 
@@ -111,7 +111,8 @@ select * from all_synonyms where table_name='COUNTRIES';
 
 --Show all privileges for user given by roles and directly
 select * from session_privs;
-
+--if connected as hr user then 14 privileges (create session, table, cluster, synonym, view, sequence, procedure, trigger, type, operator, indextype, database link, unlimited tablespace)
+--if just added user with grant connect then only 2 privileges (create session, set container)
 ------- End giving objects privileges--------------
 
 --User can login and change his pass

@@ -152,6 +152,7 @@ create [public] synonym for object;
 exp: create synonym e for employees; select * from e; drop synonym e;
 exp: create public synonym em for hr.employees;
 select * from user_synonyms;
+select * from all_synonyms;
 #=======================================================
 #Index (f: pointer to speed up query, dropped with dropping table, can be dropped independent)
 automatically (when pk or unique constraints are created, name=pk or name=sys_cxxx when unique constraint)

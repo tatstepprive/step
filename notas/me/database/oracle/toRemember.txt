@@ -1,5 +1,7 @@
 --make all pdbs open 
 alter pluggable database all open;
+--switch database
+alter session set container=orclpdb;
 --show sql about object
 select dbms_metadata.get_ddl('TABLESPACE','TS2') from dual;
 --generate output on server
