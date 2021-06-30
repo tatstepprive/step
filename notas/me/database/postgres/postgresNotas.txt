@@ -118,6 +118,8 @@ psql \q  = quit
 psql \?  = help
 psql \d  = show tables
 psqi \i  = reads file , connect as psql -s mydb and then \i myfile.sql
+psql \dx = show extentions on current connected db
+psql \c dbname = connect db or switch current connected db to other db
 ===========================
 SQL
 create table <table-name> (...); 
@@ -182,3 +184,34 @@ log_filename = 'postgresql-%Y-%m-%d.log'        # log file name pattern,
 /var/lib/pgsql/12/data/log
 
 ============================
+#Password authenticaton:
+pg_hba.conf controls the authentication method. 
+* md5 (if you want to request a password, use md5 authentication)
+* trust (If you want to allow login with no password to anyone, use trust) 
+* peer (If you want to require the same username in the operating system as in PostgreSQL, use peer (UNIX, only for local connections) or sspi (Windows).
+* sspi (same as above for windows)	
+
+If there's a password set, but pg_hba.conf doesn't tell PostgreSQL to ask for it, the password is ignored.
+If pg_hba.conf tells PostgreSQL to ask for a password but there's none set, then all login attempts will fail no matter what password is supplied.
+
+------------------------------
+Default config (not asking for pass for postgres user on host, asking for other users even if they are in postgres group):
+cat pg_hba.conf
+##a lot of comment
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+# IPv6 local connections:
+host    all             all             ::1/128                 ident
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     peer
+host    replication     all             127.0.0.1/32            ident
+host    replication     all             ::1/128                 ident
+host    all             all              0.0.0.0/0                       md5
+host    all             all              ::/0                            md5
+----------------------------
+=============================

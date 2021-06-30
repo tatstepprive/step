@@ -1,0 +1,31 @@
+psql -U postgres
+
+Most \d commands support additional param of <schema>.<name> and accept wildcards like *.*
+\?: Show help (list of available commands with an explanation)
+\q: Quit/Exit
+\c <database>: Connect to a database
+\d <table>: Show table definition (columns, etc.) including triggers
+\d+ <table>: More detailed table definition including description and physical disk size
+\l: List databases
+\dy: List events
+\df: List functions
+\di: List indexes
+\dn: List schemas
+\dt *.*: List tables from all schemas (if *.* is omitted will only show SEARCH_PATH ones)
+\dT+: List all data types
+\dv: List views
+\dx: List all extensions installed
+\df+ <function> : Show function SQL code.
+\x: Pretty-format query results instead of the not-so-useful ASCII tables
+\copy (SELECT * FROM <table_name>) TO 'file_path_and_name.csv' WITH CSV: Export a table as CSV
+\des+: List all foreign servers
+\dE[S+]: List all foreign tables
+\! <bash_command>: execute <bash_command> (e.g. \! ls)
+
+\du: List users
+\du <my_role>: List a username if present.
+create role <my_role1>: Create a role with an existing username.
+create role <my_role2> noinherit login password <my_passsword>;: Create a role with username and password.
+set role <my_role1>;: Change role for current session to <my_role1>.
+grant <my_role2> to <my_role1>;: Allow <my_role1> to set its role as <my_role2>.
+\deu+: List all user mapping on server
