@@ -365,7 +365,9 @@ commit
 rollback
 savepoint
 ===============================================
-OLTP=high-volume Online Transaction Processing
+OLTP=(high-volume) Online Transaction Processing (select, insert, update delete operations on db)
+OLAP= Online Analytical Processing (select operations on db, query answering system) f: reporting, ananlytics, data mining
+ETL= Extract Transfer Load
 ==============================================
 #Tip: arithmetic expression with null will evaluate to null (exp:null+10=> null)
 ==============================================
@@ -461,12 +463,26 @@ select last_name from persons where first_name=&my_first_name
 #Tip: using SET VERIFY OFF f: escape meanig of charakter & and using it query
 select * where departement like '%&%' -- asking window will not appear, meanig of & is charakter 
 ================================================
-Single row functions:
+Single-row functions (f: return one result per row):
  * general (nvl, nvl2, nullif, coalesce, decode, case etc)
  * character (lower, upper, initcap etc)
  * number    (round, trunc, mod etc)
  * date  (months_between, add_months, next_day, last_day, round, trunc etc)
  * conversion (to_date, to_char, to_number etc)
+Multiple-row functions (f: return one result per set of rows)
+ * sum() (only number, if not error ORA-01722 invalid number)
+ * avg() (only number, if not error ORA-01722 invalid number)
+ * count() (return number of rows => count(*), count(1), count(nvl(<column_name>, 0)) are the same, but count(<column_name>) will not count null values, null values will be ignored )
+ * max() (number, character, date)
+ * min() (number, character, date)
+ * stddev()
+ * variance()  
+Tip: using other columns and multi-row functions in select statement, obligate using all other column in group by statement, if not error ORA-00937 not a single-group group function
+Tip: group by can not use alias for column, but order by can (!!!)
+Tip: use having if you want to use condition with group function like sum(), avg() etc
+Tip: only 2 group functions can be nested max(sum(salary)) is OK, max(sum(avg(salary))) is NOK
+Tip: all group functions ignore null values except count(*)
+Tip: count(distinct <column_name>) will count distinct values and ignore null (null is not distinct value, null values will be ignored)
 ================================================
 Tip: null come last in order asc, but you can change order
 order by fname; --same as order by fname nulls last;
