@@ -166,6 +166,11 @@ WMI Windows Agents Plugin
 Workspace Cleanup
 Xvnc
 #==========================================================
+#Extra plugins
+plugin Log File Filter
+f: i've used to mask git repository
+Global Configuration on http:<jenkins_host>:8080/configure is: Enable globally on, Enable default regex on, Regexp git@\S* Replacement xxxxxxx 
+#==========================================================
 #when updating use war downloaded for LTS version from
 https://www.jenkins.io/download/
 #==========================================================
