@@ -1,0 +1,4 @@
+DDL=data definition language (create, drop etc)
+DML=data manipulation language (insert, update, delete)
+DCL=data control language (grant, revoke)
+Pseudo column=column that behaves like table column that not stored in disk, the value of column can not be changed by insert, delete, update (ex: ROWNUM)

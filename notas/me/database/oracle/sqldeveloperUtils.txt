@@ -48,3 +48,7 @@ Tools > Preferences : Code Templates
 #================================== 
 F10 or 'Explain plan' to see usage of index when do select statement
 #==================================
+#Set tnsnames.ora in sqldeveloper
+Menu Tools > Preferences > Database > Advanced > Tnsnames Directory: btn 'browse' go to install directory $ORACLE_HOME/network/admin, OK
+If tnsnames.ora location is set, then you can use Connection Type TNS , Network Alias in combobox from tnsnames.ora, when adding new connection.
+#=================================

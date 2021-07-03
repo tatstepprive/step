@@ -1,0 +1,27 @@
+#Functions to generate reports (used by BI=business intelligence)
+rollup
+cube
+rank
+dense_rank
+percent_rank
+cume_dist
+listagg
+ntile
+row_number
+lag (f: function provides access to a row at a given offset prior to the current position; look at one row before current row)
+lead (f: function provides access to a row at given offset after the current position; look at one row after current row)
+first_value
+last_value
+#=======================================
+#Aggregate functions vs Analytic functions
+Aggregate functions:
+  aggregate data from several rows into a single row, reduce the number of rows to one row, return one result per group. Needs GROUP BY for other columns not used in function as arg.
+  (syntax: <func_name>(<column_name>)) 
+  (ex: avg(), sum() etc)
+Analytic functions: 
+ operates on subset of rows, but do not reduce the number of rows returned by the query, NO need for GROUP BY.
+ (syntax: <func_name>([args]) OVER (<analytic_clause>)) ; analytic_clause=( [query_partition_clause] order_by_clause [window_clause] )
+ (ex: rank(salary) OVER (order by salary desc)
+ (ex: avg(salary) OVER ()) Explaining: OVER () means over the full table, all rows
+
+
