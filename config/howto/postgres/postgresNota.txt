@@ -1,7 +1,30 @@
 #Install on centos7 postgres 12
+sudo yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 #db server
 sudo yum install -y postgresql12-server
 #db client
 sudo yum install -y postgresql12-client
 #extra modules (extensions)
 sudo yum install -y postgresql12-contrib
+#initial setup
+sudo /usr/pgsql-12/bin/postgresql-12-setup initdb
+# enable and start
+sudo systemctl enable postgresql-12
+sudo systemctl start postgresql-12
+#change config postgresql.conf
+nano +59 /var/lib/pgsql/12/data/postgresql.conf
+From: listen_addresses = 'localhost'
+To: listen_addresses = '0.0.0.0'
+#change config pg_hba.conf  add
+nano /var/lib/pgsql/12/data/pg_hba.conf  
+host    all             all              0.0.0.0/0                       md5
+host    all             all              ::/0                            md5
+#=====================================
+#migrate data:
+#export all
+pg_dumpall  > all.dmp
+scp all.dmp postgres@new_host:~
+#import all
+ssh postgres@new_host
+psql -f all.dmp postgres
+#=====================================
