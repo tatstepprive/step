@@ -20,3 +20,10 @@ end if;
 end;
 
 #====================================
+#dbms_errlog (f: shows error details )
+exec dbms_errlog.create_error_log('<table_name>');
+desc err$_<table_name>;
+insert into <table_name>
+select <something> from <other_table>
+log errors reject limit unlimited; -- record all errors in log table
+select * from err$_<table_name>; -- show all errors

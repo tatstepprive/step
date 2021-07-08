@@ -23,5 +23,108 @@ Analytic functions:
  (syntax: <func_name>([args]) OVER (<analytic_clause>)) ; analytic_clause=( [query_partition_clause] order_by_clause [window_clause] )
  (ex: rank(salary) OVER (order by salary desc)
  (ex: avg(salary) OVER ()) Explaining: OVER () means over the full table, all rows
+#=======================================
+#Generate random number between - power(2,31) and + power(2,31)
+select dbms_random.random from dual;
+--output 1760988209 (random value, can be negatif)
+select abs(dbms_random.random) from dual;
+--output 1762383718 (random value, only positif because abs() function converting to absolute value)
+select dbms_random.value from dual;
+--output 0.58595941519983018120507434809769664869 (with 38 digit precision)
+select dbms_random.value(1,10) from dual;
+--output 5.35874952841996640754387551440260915631 (random value between 1 and 10)
+select round(dbms_random.value(1,10)) from dual;
+--output 4 (random value between 1 and 10, no decimal)
+#======================================
+#Generate random string (1st param charakter type, 2nd param length)
+* u, U = uppercase alpha charakters
+* l, L = lowercase alpha charakters
+* a, A = mixed case alpha charakters
+* x, X = uppercase alpha numeric charakters
+* p, P = string in any printable charakter
+select dbms_random.string('P', 10) from dual;
+--output (4oH9SJE\v
+select dbms_random.string('X', 10) from dual;
+--output 49W5HA5Y9R
+#=====================================
+#Create dynamic scripts (add column to each table in user schema)
+select 'alter table '|| table_name ||'add created_by varchar2(100);' from user_tables;
+--copy output and execute it
+#=====================================
+#Hierarchical query=query using 'start with' and 'connect by prior', producing kind of tree
+select EMPLOYEE_ID, first_name, manager_id 
+from employees
+start with EMPLOYEE_ID=100
+connect by prior EMPLOYEE_ID=manager_id; -- connect by prior pk=fk => top-down query
+
+select EMPLOYEE_ID, first_name, manager_id 
+from employees
+start with EMPLOYEE_ID=113
+connect by prior manager_id=EMPLOYEE_ID; -- connect by prior fk=pk => buttom-up query
+
+--other presentation
+select first_name||' '||last_name||' works for '|| ( select first_name||' '||last_name 
+                                                    from employees e where e.employee_id=a.manager_id)
+from employees a
+start with employee_id=100
+connect by prior employee_id=manager_id;
 
 
+--other presentation with pseudo column level (root level is 1)
+select level, EMPLOYEE_ID, first_name, last_name, manager_id 
+from employees
+start with EMPLOYEE_ID=100
+connect by prior EMPLOYEE_ID=manager_id;
+
+--other presentation like tree
+select level, 
+       case 
+           when level=1 then first_name||' '||last_name
+           when level>1 then lpad(first_name||' '||last_name, length(first_name||' '||last_name)+level-1, '-')
+       end tree
+from employees
+start with EMPLOYEE_ID=100
+connect by prior EMPLOYEE_ID=manager_id;
+--Tip: dont use 'order by' cause it will produce unwanted result
+#=======================================
+#Generate matrix report from tabular report
+-- first part tabular report
+select DEPARTMENT_ID, job_id, count(*) 
+from employees
+group by DEPARTMENT_ID, job_id
+order by 1,2;
+
+-- second part subquery in pivot () will not work, so use result of selection with in (...)
+select distinct job_id from employees;
+
+--last part matrix (using first part without group by and onder by and count function between first () and second part in pivot()
+select * from
+(
+select DEPARTMENT_ID, job_id
+from employees
+)
+pivot
+(
+count(1) for job_id in (
+'AC_ACCOUNT',
+'AC_MGR',
+'AD_ASST',
+'AD_PRES',
+'AD_VP',
+'FI_ACCOUNT',
+'FI_MGR',
+'HR_REP',
+'IT_PROG',
+'MK_MAN',
+'MK_REP',
+'PR_REP',
+'PU_CLERK',
+'PU_MAN',
+'SA_MAN',
+'SA_REP',
+'SH_CLERK',
+'ST_CLERK',
+'ST_MAN')
+)
+order by 1;
+#=========================================
