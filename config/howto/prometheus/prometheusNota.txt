@@ -55,3 +55,52 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 sudo systemctl start prometheus
 #=================================================================
+Prometheus alternatives:
+graphite
+opentsdb
+sensu
+influxdb
+nagios
+#==================================================================
+Target=definition of object to scrape, object whose metrics are to be monitored
+Instance=endpoint host:port1, host:port2, host2:port1, host2:port2
+Job=collection of targets/instances with same purpose
+Sample=single value at a point in time in a time series
+Exporter=software or number of libraries and servers that help to export existing metrics from 3d-party systems (like Linux or Windows OS) in the same format as of prometheus metrics, useful when original prometheus metrics are not sufficient like gathering Linux system stats (prometheus-exporter(f: gather data and transfor to correct format readable for prometheus)-linux system) 
+Exporter exp: 
+* Node Exporter f: hardware and OS metrics exposed by *NIX kernels (metrics as cpu, memory, disk usage, disk I/O, network bandwidth)
+* WMI Exporter f: hardware and OS matrics exporsed by Windows OS (WMI=windows management instrumentation)
+PromQL=prometheus query language
+#==================================================================
+PromQL data types:
+* Instant vector (prometheus_http_requests_total: 1 value for each setting))
+* Range vector (prometheus_http_requests_total[1m]: multiple values for each setting))
+* Scalar (simple numeric floating point value)
+* String (charakter value, not used according to documentation)
+#===================================================================
+Matchers and Selectors.
+Matcher:
+* Equality matcher =
+* Negative Equality matcher !=
+* Regular Expression matcher =~
+* Negative Regular Expression matcher !~
+Operatiors:
+* Binary operators (f: takes 2 operands)
+  ** Arithmetic (+,-,*,/,%,^)
+  ** Comparison (==, !=, >, <, >=, <=)
+  ** Logical/set ( and, or, unless)
+* Aggregation operators (sum(), min(), max(), avg(), stddev(), stdvar(), count(), count_values(), bottomk(), topk(), quantile())
+
+Selector: process_cpu_seconds_total{job="prometheus"}
+#====================================================================
+Infrastructure: Prometheus server: retrieval, tsdb/storage, http_server 
+Prometheus server pull metrics from targets (jobs/exporters)
+Pushgateway: short lived jobs push metrics at exit to pushgateway, prometheus server pull metrics from pushgateway
+Service discovery: f: discover targets (2 ways to find targets: hardcode or service discovery)
+Data visualization and exports: prometheus web ui, grafana, api clients
+Prometheus alerting:prometheus server push alerts to alert manager and he notifies via email, paperduty, slack, etc
+
+#=====================================================================
+Metrics:
+up (f: scraping data about prometheus self on localhost up{instance="localhost:9090", job="prometheus"} 1); value 1 means the script was successful
+#=========================================================================
