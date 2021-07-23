@@ -104,3 +104,21 @@ Prometheus alerting:prometheus server push alerts to alert manager and he notifi
 Metrics:
 up (f: scraping data about prometheus self on localhost up{instance="localhost:9090", job="prometheus"} 1); value 1 means the script was successful
 #=========================================================================
+Prometheus client official libraries:
+Go,
+Java,
+Scala,
+Python,
+Ruby
+Prometheus client unofficial libraries:
+Bash
+C
+C++
+PHP
+etc
+Metric types for libraries:
+Counter (only go up, only increment or reset, can not decrease)
+Gauge (go up and down)
+Summary
+Histogram
+#==================================================
