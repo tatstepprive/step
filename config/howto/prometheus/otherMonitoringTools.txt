@@ -1,0 +1,34 @@
+Postgres monitoring tools:
+
+1 pganalize
+
+2 grafana
+
+3 pgMonitor
+
+4 pgbadger
+
+
+
+
+General monitorig tools:
+
+1 Nagios
+
+2 Zabbix
+
+3 Grafana
+
+4 Icinga2
+
+5 Cacti
+
+6 Jmeter
+
+7 DataDog
+
+8 NewRelic
+
+10 Telegraf
+
+11 Prometheus
