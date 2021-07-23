@@ -7,7 +7,8 @@ select
    round((nvl(b.bytes_free, 0) / a.bytes_alloc) * 100) Pct_Free,
    100 - round((nvl(b.bytes_free, 0) / a.bytes_alloc) * 100) Pct_used,
    round(maxbytes/1024 / 1024) Max
-   ,(select 'Warning: FULL or ALMOST FULL' from dual where round(maxbytes/1048576)-round((a.bytes_alloc - nvl(b.bytes_free, 0)) / 1024 / 1024)<10) status
+   --,(select 'Warning: FULL or ALMOST FULL' from dual where round(maxbytes/1048576)-round((a.bytes_alloc - nvl(b.bytes_free, 0)) / 1024 / 1024)<10) status
+   , (select 'WARNING: FULL or ALMOST FULL' from dual where round((nvl(b.bytes_free, 0) / a.bytes_alloc) * 100)<10) status --Pct_Free < 10%
    from ( select f.tablespace_name, sum(f.bytes) bytes_alloc,
    sum(decode(f.autoextensible, 'YES',f.maxbytes,'NO', f.bytes)) maxbytes
 from
