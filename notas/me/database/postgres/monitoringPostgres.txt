@@ -1,0 +1,55 @@
+Postgres what needs to be monitored:
+1 Queries/sql (throughput, latency, concurrency, load, errors
+2 postgres server ( dml, ddl, logs, wait-time, users, objects, backups, replication)
+3 os and hardware ( I/O, memory, network, CPU, disk)
+
+Tasks:
+1 Database monitoring (operators, dba)
+2 Database administration (operators, dba)
+3 Database development (dba, developers)
+4 App development (developers)
+
+Questions:
+1 did the backup complete successfully?
+2 which queries are consuming the most resources?
+3 is replication running and up to date?
+4 why a query is slow?
+5 did auto vacuum run? are database bloated?
+6 are config settings optimal?
+7 when i will run out of disk space?
+8 what user accounts exist?
+9 what is in the schema ( tables, data types, indexes etc)?
+10 etc
+
+Monitoring tools:
+1 Datadog
+2 EDB Postgres Enterprise Manager (not free)
+3 Nagios
+4 VividCortex (not free)
+
+Monitoring and tasks:
+1 Reporting and administration
+   1 pgAdmin
+   2 DBeaver
+   3 Adminer
+2 Health check and Alerting
+   1 Nagios
+   2 Zabbix
+   3 VividCortex 
+   4 Datadog
+3 Query Performance
+   1 pgAnalize
+   2 APM (Application Perfomance Monitoring)
+   3 pgBadger
+   4 VividCortex
+4 General purpose monitoring 
+   1 Datadog
+   2 SignalFx
+   3 Prometheus + Grafana
+   4 Graphite
+   5 Wavefront
+   6 MRTG
+   7 RRDTool
+   8 Cacti
+5 All above
+   1 EDB PEM (EnterpriseDB Postgres Enterprise Manager)
