@@ -92,3 +92,9 @@ WHERE tablespace_name = 'SYSTEM'
 
 ORDER BY size_m DESC;
 ----------------------------------------------
+--check extent management (should be LOCAL, because DIRECTORY is deprecated)
+select tablespace_name, extent_management from dba_tablespaces;
+----------------------------------------------
+--check tablespace status online 
+select tablespace_name, status from dba_tablespaces where status <> 'ONLINE';
+----------------------------------------------

@@ -1,3 +1,11 @@
+#Dba roles
+Installation, configuration, upgrade and migration 
+Backup and recovery
+Database security
+Storage and capasity planning
+Performance monitoring and Tuning
+Troubleshooting
+High Availability
 #Names
 spfile=server parameter file (binary)
 pfile= parameter file (text)
@@ -366,7 +374,17 @@ rollback
 savepoint
 ===============================================
 OLTP=(high-volume) Online Transaction Processing (select, insert, update delete operations on db)
-OLAP= Online Analytical Processing (select operations on db, query answering system) f: reporting, ananlytics, data mining
+* current data
+* constantly updated
+* highly detailed data
+* day to day operations
+* normalization design
+OLAP= Online Analytical Processing (select operations on db, query answering system) f: reporting, ananlytics, data mining (data come from OLTP)
+* historical data
+* less frequently updated
+* summarized data
+* reports/dashboards for decision making
+* denormalized design
 ETL= Extract Transfer Load
 ==============================================
 #Tip: arithmetic expression with null will evaluate to null (exp:null+10=> null)
