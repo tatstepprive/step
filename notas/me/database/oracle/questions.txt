@@ -42,3 +42,4 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 21 Can i rename index SYS_NCxxx?
 22 How to check if spfile of pfile is used?
 22 RESP: show parameter spfile; (if query returns no rows then pfile is used; if query returns any value with a filename with its path then spfile is used by current running instance.
+23 Diff between index rebuild, index move, index shrink?
