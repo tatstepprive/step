@@ -325,8 +325,8 @@ SID_LIST_LISTENER3 =
 ---------------------------------------
 #Tools to configure listener 
 #Gui
-1 Oracle Net Manager=netmgr
-2 Oracle Net Configuration Assistant=netca
+1 Oracle Net Manager=netmgr (f: add tnsnames.ora entries graphical way)
+2 Oracle Net Configuration Assistant=netca (f: configure listener graphical way)
 3 Database Configuration Assistant=dbca
 4 Enterprise Manager Cloud Control
 #Cli

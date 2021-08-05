@@ -17,3 +17,11 @@ select * from v$logfile;
 -- Logfile switch will not trigger checkpoint, LGWR will take other inactive member to write
 -- force LGWR switch
 alter system switch logfile;
+-- connect via sqlplus on server
+SQL> conn user/pass
+-- connect via sqlplus on client (method 1)
+SQL> connect user/pass@<hostname>:<port>/<service_name>
+-- connect via sqlplus on client (method 2)
+sqlplus user/pass@<hostname>:<port>/<service_name>
+-- connect via sqlplus on client (method 3 with tnsnames.ora entry)
+sqlplus user/pass@<tnsnames_entry>
