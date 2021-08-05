@@ -44,5 +44,9 @@ $ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, temp
 # listener location
 $ORACLE_HOME/network/admin/listener.ora
 $TNS_ADMIN/listener.ora  ($TNS_ADMIN can be empty, should be not empty/used if more than one TNSNAMES.ORA files exists on a system)
+#oracle net configurations files
+$ORACLE_HOME/network/admin/listener.ora
+$ORACLE_HOME/network/admin/tnsnames.ora
+$ORACLE_HOME/network/admin/sqlnet.ora
 ======================================================
 
