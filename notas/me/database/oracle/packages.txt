@@ -1,9 +1,30 @@
 #Oracle packages:
 utl_mail
+utl_mail package is not installed by default
 show parameter smtp_out_server;
 --should be defined on init.ora
 --install $ORACLE_HOME/rdbms/admin/utlmail.sql
 --install $ORACLE_HOME/rdbms/admin/prvtmail.plb
+ssh user@oracledb
+. oraenv
+sid
+cd $ORACLE_HOME/rdbms/admin
+sqlplus / as sysdba
+SQL>@utlmail.sql
+SQL>@prvtmail.plb
+SQL>exit;
+--check if traffic open
+telnet mailserverhost 25
+--execute query
+begin
+execute immediate 'alter session set smtp_out_server=''mailserverhost''';
+utl_mail.send( sender => 'dbserver@domain',
+               recipients => 'user@domain',
+               subject => 'test mail',
+               MESSAGE => 'Hello world');
+end;
+/
+--check mail in mailbox
 #====================================
 # package dbms_db_version (f: constants about db version)
 --show source code:
