@@ -47,3 +47,22 @@ end;
 select * from dba_scheduler_jobs where job_name='SAVEDATE';
 
 select * from dba_scheduler_job_log where job_name='SAVEDATE';
+
+--execute job manually
+begin
+dbms_scheduler.run_job('SAVEDATE');
+end;
+/
+
+--job action with parameters
+begin
+dbms_scheduler.create_job (
+    job_name => 'myjob',
+    job_type => 'PLSQL_BLOCK',
+    job_action => 'BEGIN myproc(''first arg'',''second arg''); END;',
+    start_date => sysdate,
+    repeat_interval => 'FREQ=HOURLY',
+    enabled => true
+);
+end;
+/
