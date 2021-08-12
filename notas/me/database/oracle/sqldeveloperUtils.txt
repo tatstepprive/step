@@ -22,10 +22,17 @@ Window: name: ts_01.dbf
 #=======================================
 #Sqldeveloper show dbms output
 After plsql block execution in 'Script output' you see: PL/SQL procedure successfully completed.
-Menu View, Dbms Output, + connection and to see output execute 
+Menu View, Dbms Output, click the green + symbol to enable it for this connection. Execute block:  
+--first expl
 begin
 dbms_output.put_line('Hi PLSQL world!');
 end;
+--second expl (tip: Chr(10) is the Line Feed character and Chr(13) is the Carriage Return character. Used together. General: chr(asci_number) )
+begin
+dbms_output.put_line('my first anonimous block'||chr(13)||chr(10)||'with multiple lines');
+end;
+/
+
 #======================================
 #sqldeveloper execute script
 cd /home/oracle;

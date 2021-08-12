@@ -41,6 +41,9 @@ auto_drop=>false);
 end;
 /
 
+--   start_date      =>  TO_DATE('22-02-2013 14:00','DD-MM-YYYY HH24:MI'),
+--   repeat_interval => 'FREQ=DAILY;BYHOUR=7,13,18; BYMINUTE=00', 
+
 select * from dba_scheduler_jobs where job_name='SAVEDATE';
 
 select * from dba_scheduler_job_log where job_name='SAVEDATE';
