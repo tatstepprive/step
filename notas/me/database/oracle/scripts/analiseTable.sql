@@ -14,3 +14,8 @@ create table copy_emp (emp_id, first_name, last_name) AS select id, fname, lname
 
 --create emty table like other table (using invalid condition 1=2 is never true)
 select table copy_emp AS select * from emp where 1=2;
+
+--shrink table (not work for tables containing lobs)
+select * from dba_segments where tablespace_name like 'USE%';
+alter table hr.sales enable row movement;
+alter table hr.sales shrink space;
