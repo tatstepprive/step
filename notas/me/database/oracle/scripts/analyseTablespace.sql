@@ -98,3 +98,5 @@ select tablespace_name, extent_management from dba_tablespaces;
 --check tablespace status online 
 select tablespace_name, status from dba_tablespaces where status <> 'ONLINE';
 ----------------------------------------------
+--Move datafile 
+ALTER DATABASE MOVE DATAFILE '/u01/app/oracle/oradata/cdb1/system01.dbf' TO '/tmp/system01.dbf';
