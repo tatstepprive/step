@@ -87,3 +87,7 @@ du -sch world
 #show who has mounted your system
 showmount -a
 #================================
+#check corrupted blocks
+sudo fdisk -l
+sudo badblocks -sv /dev/blabla
+#================================
