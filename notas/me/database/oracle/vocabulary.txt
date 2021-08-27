@@ -7,7 +7,7 @@ Pseudo column=column that behaves like table column that not stored in disk, the
 OLTP=online transaction processing
 OLAP=online analytical processing
 RAC=real application cluster
-ASM=automatic storage management
+ASM=automatic storage management (own oracle volume manager of fs)
 CDB=container database
 PDB=pluggable database
 IRP=insert row piece
@@ -28,3 +28,4 @@ ADR=automatic diagnostic repository
 Dedicated Server Mode=new server process for each new client connection. UGA is in PGA. (there is enough memory on host to handle all these server processes, one process per client connect)
 Shared Server Mode=shared >=1 dispatcher process(es), that will set client query in 1 shared request queue of SGA Large Pool, query is treated by limited pool of server processes,
 response is set in response queue owned by dispatcher (1/dispatcher), he will send result to the client. UGA is in SGA. No server process per client connection. (little memory on host)
+CFS=cluster file system (=fs installed on undependant shared hard disk, that is connected by multiple computers and used by multiple os on connected computers) 
