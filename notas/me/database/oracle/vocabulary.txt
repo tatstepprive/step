@@ -13,8 +13,9 @@ PDB=pluggable database
 IRP=insert row piece
 URP=update row piece
 DRP=delete row piece
-SGA=system global area
-PGA=program global area
+SGA=system global area (one/instance)
+PGA=program global area (one/server process established by client connection) (contains: Private SQL area, Session memory(UGA), SQL work area)(resides in server process)
+UGA=user global area (resides in PGA)
 DBWn=database writer process (required)
 LGWR=log writer process (required) (f:writes redo log buffer to redo log file on disk)
 SCN=system change number
@@ -24,3 +25,6 @@ PMON=process monitor (required)
 RECO=recoverer process (required)
 ARC=archiver process (optional) 
 ADR=automatic diagnostic repository
+Dedicated Server Mode=new server process for each new client connection. UGA is in PGA. (there is enough memory on host to handle all these server processes, one process per client connect)
+Shared Server Mode=shared >=1 dispatcher process(es), that will set client query in 1 shared request queue of SGA Large Pool, query is treated by limited pool of server processes,
+response is set in response queue owned by dispatcher (1/dispatcher), he will send result to the client. UGA is in SGA. No server process per client connection. (little memory on host)

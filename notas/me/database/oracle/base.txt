@@ -1,19 +1,20 @@
 #Constraints
 #Constraint types
-NOT NULL (column can not be null) (type C) (name_nn) (can not be null) (many)
-UNIQUE (must be unique, but can me many null values) (type U) (name_uk or name_uq) (can be null) (many)
-PRIMARY KEY (identifies uniquely each row in the table) (type P) (name_pk) (can not be null) (one)
-FOREIGN KEY (references to pk in other table) (type R) (name_fk) (can be null) (many)
-CHECK (condition) (type C) (name_chq) (can be null) (many)
+NOT NULL (column can not be null) (type C) (name_nn) (can not be null) (many/table)
+UNIQUE (must be unique, but can me many null values) (type U) (name_uk or name_uq) (can be null) (many/table)
+PRIMARY KEY (=unique/not_null; identifies uniquely each row in the table, can be 1 or combination of column) (type P) (name_pk) (can not be null) (one/table)
+FOREIGN KEY (references to pk in other table. Table with fk=child table; referenced table (other table)=parent table) (type R) (name_fk) (can be null) (many/table)
+CHECK (condition) (type C) (name_chq) (can be null) (many/table)
 Tip: see for types in user_constraints table
 Tip: for fk constraint see R_CONSTRAINT_NAME to know column in other table
 Tip: constraint name should be unique, so use <table>_pk, <table>_<column>_uk, <table>_<column>_fk, <table>_<column>_chq
-Tip: (many) or (one) is how many constraint per table
+Tip: (many/table) or (one/table) is how many constraint per table. Only pk is one per table.
 Tip: only not null and pk constraint are never null
 Tip: fk can be null, unique can be null and have many nulls
 Tip: unique column can have many null values, nulls are not considered equal to anything, no uniqueness for nulls
 Tip: indexes are only pk and fk
 Tip: long column can not be used for constraint as pk, unique, fk (only not null constraint can be set)
+Tip: unique key versus primary key: unique key allows null values, primary key does NOT allow null values
 #Constraint guidelines
 * Give name or oracle server gives SYS_Cn name format (can be renamed after)
 * Create at table creation time or after
