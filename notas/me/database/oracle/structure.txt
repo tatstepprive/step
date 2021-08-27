@@ -1,0 +1,55 @@
+Physical Storage Structures ( files you can locate on host on filesystem):
+1 Oracle binary files and oracle software files (in $ORACLE_HOME)
+2 parameter file (pfile=static parameter file and spfile=dynamic server parameter file) (init<sid>.ora) (contains configuration=itinialization parameters to start db)
+3 control files
+4 datafiles (*.dbf)
+5 tempfiles 
+6 online redo log files
+7 archive log files (optional)
+8 diagnostic files (alert log and trace files)
+
+Logical Data Structures (objects you can find when you logged in database):
+1 Cluster
+2 Consumer group
+3 Context
+4 Database link
+5 Destination
+6 Directory
+7 Edition
+8 Evaluation context
+9 Function
+10 index
+11 index partition
+12 indextype
+13 java class
+14 java data
+15 java resource
+16 java source
+17 job
+18 job class
+19 library
+20 lob
+21 lob partition
+22 operator
+23 package
+24 package body
+25 procedure
+26 program
+27 queue
+28 resource plan
+29 rule
+30 rule set
+31 schedule
+32 scheduler group
+33 sequence
+34 synonym 
+35 table
+36 table partition
+37 table subpartition
+38 trigger
+39 type
+40 type body
+41 undefined
+42 view
+43 window
+44 xml schema
