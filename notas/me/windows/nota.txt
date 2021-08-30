@@ -27,3 +27,15 @@ dir
 =======================
 #show graphic card and other info, run like you run cmd
 dxdiag
+=======================
+#linux: export ORACLE_SID=MYDB
+#windows
+set ORACLE_SID=MYDB
+#linix echo $ORACLE_SID
+#windows
+echo %ORACLE_SID%
+========================
+#linux: clear
+#windows
+cls
+=======================
