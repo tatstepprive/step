@@ -1,9 +1,11 @@
 --Startup modes
 sqlplus / as sysdba;
 startup nomount; --db in nomount mode. oracle software and parameter file used. By default spfile. (default name: spfile<sid>.ora or spfile.ora)
-shutdown immediate;
+-- only v$instance view available
+shutdown immediate; -- or without shutdown: alter database mount;
 startup mount; --db in mount mode. oracle software, parameter file, control file used.
-shutdown immediate;
+-- v$database view available
+shutdown immediate; -- or without shutdown: alter database open;
 startup; --db is open. oracle software, parameter file, control file, datafiles and redo log files used.
 ---------------------------------------------
 --Usage startup modes

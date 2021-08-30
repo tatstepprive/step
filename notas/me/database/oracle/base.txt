@@ -295,7 +295,8 @@ user_xxx f: user's view, what is in your schema, what you own
 all_xxx  f: expanded user's view (what you can access so your objects and granted objects, has owner column)
 dba_xxx  f: db admin's view (what is in everyone's schema, has owner column)
 v$xxx    f: dynamic db views, performance releated data
-select * from dictionary where table_name='USER_OBJECTS'; 
+select * from dictionary where table_name='USER_OBJECTS'; --you can use short name: select * from dict where table_name='USER_OBJECTS'
+select * from dict where table_name like 'V$%'; -- show all dynamic views 
 select * from dictionary; --about 1000 rows (961 rows)
 select * from user_catalog; --contains table, view, index, synonym, sequence of user
 select * from cat; -- same as from user_catalog
