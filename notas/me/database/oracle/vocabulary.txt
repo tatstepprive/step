@@ -29,3 +29,6 @@ Dedicated Server Mode=new server process for each new client connection. UGA is 
 Shared Server Mode=shared >=1 dispatcher process(es), that will set client query in 1 shared request queue of SGA Large Pool, query is treated by limited pool of server processes,
 response is set in response queue owned by dispatcher (1/dispatcher), he will send result to the client. UGA is in SGA. No server process per client connection. (little memory on host)
 CFS=cluster file system (=fs installed on undependant shared hard disk, that is connected by multiple computers and used by multiple os on connected computers) 
+SEQUEL=Structured English QUery Language (developed by IBM on Dr. E.F.Codd's paper 'A Relational Model of Data for Large Shared Data Banks' in 1970)
+SQL=Structured Query Language
+SQL CTAS=sql for 'Create Table As Select'
