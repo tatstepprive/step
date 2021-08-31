@@ -6,7 +6,7 @@ select connection, R-click, Manage Database
 Exp: column pct_used=percent used
 #======================================
 # Sqldeveloper create tablespace
-Menu View, Dba, + connection to db as dba user
+Menu View, Dba, + (green plus), add connection to db as dba user
 Tree: Storage, Tablespaces, button Actions..., create new
 Window: name: ts_01.dbf
         directory: /u01/app/oracle/ORCL/pdb1
