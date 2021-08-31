@@ -273,6 +273,11 @@ exp: create synonym e for employees; select * from e; drop synonym e;
 exp: create public synonym em for hr.employees;
 select * from user_synonyms;
 select * from all_synonyms;
+Tip: invalid synonyms trick. Using synonym can give error when the status column is 'VALID', it happens when referenced valid object is dropped, as result the synonym is pointing to dead end, to nothing.
+You can query the ALL_OBJECTS view for object_type = 'SYNONYM' and status != 'VALID'. 
+However all_objects status is set based on the status of the object that it is referring to. Synonyms, which aren't automatically invalidated if the underlying table disappears. So the STATUS column of ALL_OBJECTS is not reliable to use.
+For monitoring you need to find dead end (deleted,dropped referenced object) to avoid exception like
+ "ORA-01775: looping chain of synonyms" => (because public synonym still exists but referencing table have been dropped)
 #=======================================================
 #Index (f: pointer to speed up query, dropped with dropping table, can be dropped independent)
 automatically (when pk or unique constraints are created, name=pk or name=sys_cxxx when unique constraint)
