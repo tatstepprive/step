@@ -15,15 +15,18 @@ URP=update row piece
 DRP=delete row piece
 SGA=system global area (one/instance)
 PGA=program global area (one/server process established by client connection) (contains: Private SQL area, Session memory(UGA), SQL work area)(resides in server process)
-UGA=user global area (resides in PGA)
-DBWn=database writer process (required)
-LGWR=log writer process (required) (f:writes redo log buffer to redo log file on disk)
+UGA=user global area (resides in PGA in dedicated server env; resides in SGA in shared server env)
+DBWn=database writer process (required) (n=number, max=32) (f: writes data from memory (data buffer cache) to data files on diks)
+LGWR=log writer process (required) (f:writes from memory (redo log buffer) to redo log file on disk)
 SCN=system change number
-CKPT=checkpoint process (required)
-SMON=system monitor process (required)
-PMON=process monitor (required)
+CKPT=checkpoint process (required) (f: ondependant of commits all modified data are written from memory to data files, this is triggered by CKPT process, which in turn makes the DBWn processes to write)
+SMON=system monitor process (required) (f: performs instance recovery during restart of a failure)
+PMON=process monitor (required) (f: monitors and cleans up user processes)
 RECO=recoverer process (required)
-ARC=archiver process (optional) 
+ARC=archiver process (optional) (f: make a copy of redo log files)
+MMON=manageability monitor (f: used for monitoring the db, issuing alerts etc)
+CJQo=job queue processes (f: responsible for running user jobs)
+Jnnn=job queue processes (f: responsible for running user jobs)
 ADR=automatic diagnostic repository
 Dedicated Server Mode=new server process for each new client connection. UGA is in PGA. (there is enough memory on host to handle all these server processes, one process per client connect)
 Shared Server Mode=shared >=1 dispatcher process(es), that will set client query in 1 shared request queue of SGA Large Pool, query is treated by limited pool of server processes,
