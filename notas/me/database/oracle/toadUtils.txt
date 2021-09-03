@@ -1,0 +1,4 @@
+#Improve the performance on startup Toad
+Toad, menu View, Toad Options, Startup, uncheck 'Play Toad wave file', click OK
+Toad, menu View, Toad Options, Startup, Atomatic updates : select 'Dont automatically check for updates. I will check for updates manually'
+#========================================
