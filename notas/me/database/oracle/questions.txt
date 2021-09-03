@@ -45,3 +45,9 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 23 Diff between index rebuild, index move, index shrink?
 24 Diff local and remote listener? 
 24 RESP: A local listener is a listener on the same host as the database instance. A remote listener is a listener on a different (remote) host from the database instance. Remote listeners are used in a RAC configuration.
+25 If set all scheduler jobs on disable and / or remove them, will bg process CJQ0 stop running?
+26 Why CJQn multiple job coordinators needed? Is CJQ0 not enough?
+27 How job works with arguments (NUMBER_OF_ARGUMENTS) parameter?
+28 Example of job running a shell program?
+29 For every 30 minutes why 'freq=minutely; byminute=30' and not 'freq=hourly; byminute=30'?
+

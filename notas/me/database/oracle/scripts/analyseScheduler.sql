@@ -1,18 +1,29 @@
+--show all jobs
 select * from dba_scheduler_jobs;
 --output 22 rows (default)
+
+--show all user jobs
 select * from user_scheduler_jobs;
 --output 20 rows for user sys
+
+--show job time runs
+select * from times;
 
 --show job running status, shows also dropped jobs
 select * from dba_scheduler_job_log;
 select * from user_scheduler_job_log;
---detailed info about runned jobs
+
+--detailed info about runned jobs (content is cleared by job purge_log for data older then 30 days)
 select * from dba_scheduler_job_run_details;
 
+--show current running processes that are job related (CJQn/Jnnn n=number)
 select program from v$process where program like '%J%';
 --output 1 row=CJQ0
+
+--Show if scheduler can function (job_queue_processes value > 0; default=1000)
 show parameter job_queue_processes;
 --output 20 (tip: when 0=zero the scheduler wont work)
+
 desc dbms_scheduler;
 
 --show resource manager plans

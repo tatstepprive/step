@@ -1,14 +1,113 @@
 Scheduler f: automate scheduling and running of jobs (like crontab in os)
-CJQ0=coordinator job queue, bg process
-Innn=job queue process (no bg, no server process)
+CJQ0=coordinator job queue, bg process f: monitor for defined and active jobs and if any launches Jnnn (job queue process) to run job
+Jnnn=job queue process (no bg, no server process)
+#==================================
 Job=what to do and when to do
-Job what to do:
- * PL/SQL block
- * PL/SQL stored procedure
- * java stored procedure
- * os command
- * shell script
- * binary file
+
+Job what to do per type (job_type):
+ * PLSQL_BLOCK (PL/SQL block: BEGIN ... END;)
+ * STORED_PROCEDURE (PL/SQL stored procedure, java stored procedure)
+ * CHAIN (a named job chain object)
+ * EXTERNAL_SCRIPT (os command, or shell script)
+ * SQL_SCRIPT (sql script)
+ * BACKUP_SCRIPT (binary file)
+ * EXECUTABLE (binary file)
+
 Job when to do:
  * time
  * event
+
+Job when to do time:
+repeat_interval=>'freq=xxxLY; interval=n' (interval=1 is default)
+Frequency values= (xxxLY)
+YEARLY
+MONTHLY
+WEEKLY
+DAYLY
+HOURLY
+MINUTELY
+SECONDLY
+
+Specifiers values= (BYxxx)
+BYMONTH
+BYWEEKNO
+BYYEARDAY
+BYMONTHDAY
+BYHOUR
+BYMINUTE
+BYSECOND
+
+Job time examples:
+--every 12 hours
+repeat_interval=>'freq=hourly; interval=12'
+
+--each year on 02 jan, mar, may
+repeat_interval=>'freq=yearly; bymonth=jan,mar,may; bymonthday=2'
+
+--on alternate Mondays at 6:10 (yes no yes no , so 2 times in a month on Monday)
+repeat_interval=>'freq=weekly; interval=2; byday=mon; byhour=6; byminute=10'
+
+--every weekday at 23:00
+repeat_interval=>'freq=weekly; byday=mon,tue,wed,thu,fri; byhour=23'
+
+--each minute (like cronjob in os)
+repeat_interval=>'freq=minutely; interval=1'
+
+--every 30 minutes
+repeat_interval=>'freq=minutely; interval=30'
+repeat_interval=>'freq=hourly; interval=1/2'
+repeat_interval=>'freq=minutely; byminute=30' (? correct ?)
+
+#===============================
+#Relations
+
+program  -> n jobs 	job -> 1 program
+schedule -> n jobs 	job -> 1 schedule
+class    -> n jobs 	job -> 1 class
+window   -> n jobs 	job -> 1 window
+
+class    -> n programs 	program -> 1 class
+class    -> n jobs 	jobs -> 1 class
+
+group    -> n directives 	directive -> 1 group
+group    -> n classes	 	class -> 1 group
+
+plan    -> n directives 	directive -> 1 plan
+plan    -> n windows 		window -> 1 plan
+
+window   -> n jobs  	job -> 1 window
+
+schedule -> n windows 	window -> 1 schedule
+plan     -> n windows 	window -> 1 plan
+
+
+GENERAL:
+program ----n-- job --n---------- schedule
+|		| |			|
+n               n n			|
+|		| |			|
+|		| |			n
+|		| |			|
+class ----------   --------------- window
+|					|
+n					n
+|					|
+|					|
+|					|
+group -------n-- directive --n------- plan
+
+#====================================
+#Job life
+dbms_scheduler.create_job (....)
+dbms_scheduler.enable(<job_name>)
+dbms_scheduler.run_job(<job_name>)
+dbms_scheduler.disable(<job_name>)
+dbms_scheduler.drop_job(<job_name>)
+
+dbms_scheduler.create_program (....)
+dbms_scheduler.create_schedule (....)
+
+#===================================
+Window f: period of time during which the jobs can run
+class f: can define priority 
+#===================================
