@@ -2,8 +2,12 @@
 alter pluggable database all open;
 --switch database
 alter session set container=orclpdb;
---show sql about object
+--show sql about tablespace
 select dbms_metadata.get_ddl('TABLESPACE','TS2') from dual;
+--show sql about public synonym
+select dbms_metadata.get_ddl('SYNONYM','GV$REPLAY_CONTEXT_SYSTIMESTAMP','PUBLIC') from dual;
+--show sql about synonym owned by SYS
+select dbms_metadata.get_ddl('SYNONYM','DATAPUMP_DIR_OBJS','SYS') from dual;
 --generate output on server
 dbms_output.put_line('my first anonimous block');
 grant unlimited tablespace to john;

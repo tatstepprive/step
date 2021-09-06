@@ -31,3 +31,11 @@ begin
    end loop;
 end;
 /
+
+--analyse public synonym before drop
+select dbms_metadata.get_ddl('SYNONYM','<synonym_name>','PUBLIC') from dual;
+select dbms_metadata.get_ddl('SYNONYM','GV$REPLAY_CONTEXT_SYSTIMESTAMP', 'PUBLIC') from dual;
+
+--analyse synonym for owner sys before drop
+select dbms_metadata.get_ddl('SYNONYM','<synonym_name','<synonym_owner') from dual;
+select dbms_metadata.get_ddl('SYNONYM','DATAPUMP_DIR_OBJS','SYS') from dual;
