@@ -35,3 +35,4 @@ CFS=cluster file system (=fs installed on undependant shared hard disk, that is 
 SEQUEL=Structured English QUery Language (developed by IBM on Dr. E.F.Codd's paper 'A Relational Model of Data for Large Shared Data Banks' in 1970)
 SQL=Structured Query Language
 SQL CTAS=sql for 'Create Table As Select'
+LRU=Least Recently Used list f: to keep track the least used block and most used block and free up space according to it if needed
