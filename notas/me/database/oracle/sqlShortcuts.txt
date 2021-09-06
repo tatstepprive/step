@@ -1,0 +1,5 @@
+conn=connect
+execute=exec
+describe=desc
+sho=show
+shu=shutdown
