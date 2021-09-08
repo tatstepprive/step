@@ -50,4 +50,4 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 27 How job works with arguments (NUMBER_OF_ARGUMENTS) parameter?
 28 Example of job running a shell program?
 29 For every 30 minutes why 'freq=minutely; byminute=30' and not 'freq=hourly; byminute=30'?
-
+30 When using logical export, the external table will be exported too? How it will be usable, if it's only metadata and imported db no file is available on os? Or external table will be skipped during export? Or not skipped and unusable after import?

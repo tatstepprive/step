@@ -89,7 +89,7 @@ execute on command line:
 sqlldr control=C:\data\emp.ctl log=C:\data\emp.log
 password: user/pass@db
 result: emp log created, if bad rows emp.bad log file created, the data is inserted in the table defined in control file
-#External table = read-only table with metadata stored in database, but data stored outside the database, no dml allowed, no indexes can be created
+#External table = read-only table with metadata stored in database, but data stored outside the database, no dml allowed, no indexes, constrains, triggers can be created on it, it's file on os)
 Data in external table come from xxx.csv file or from xxx.dump file on disk, no data are really loaded, just viewed and can not be manipulated.
 Syntax:
 create table my_table
