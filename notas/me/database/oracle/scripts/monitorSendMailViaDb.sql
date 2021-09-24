@@ -134,3 +134,76 @@ end;
 /
 
 --============================================
+--Monitor tablespace high usage (temp not incluced)
+CREATE OR REPLACE PROCEDURE SYS.MON_TBS_PROC
+AS
+v_perc number:=85;
+cursor syno is
+ select
+   a.tablespace_name,
+   100 - round((nvl(b.bytes_free, 0) / a.bytes_alloc) * 100) Pct_used,
+   (select 'WARNING: FULL or ALMOST FULL' from dual where 100 - round((nvl(b.bytes_free, 0) / a.bytes_alloc) * 100)>v_perc) status --Pct_used > 85%
+   from ( select f.tablespace_name, sum(f.bytes) bytes_alloc,
+   sum(decode(f.autoextensible, 'YES',f.maxbytes,'NO', f.bytes)) maxbytes
+from
+   dba_data_files f
+group by
+   tablespace_name) a,
+(  select
+      f.tablespace_name,
+      sum(f.bytes) bytes_free
+   from
+      dba_free_space f
+group by
+      tablespace_name) b
+where
+      a.tablespace_name = b.tablespace_name (+)
+      and (select 'WARNING: FULL or ALMOST FULL' from dual where 100 - round((nvl(b.bytes_free, 0) / a.bytes_alloc) * 100)>v_perc) like 'WARNING%'
+ORDER BY 2 desc;
+v_target_count number:=0;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='TABLESPACE_NAME'||chr(9)||'PTC_USED'||chr(9)||'STATUS';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   my_subj:='ALERT tablespace high usage '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: tablespace high usage >'||v_perc||chr(37);
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno
+   loop
+   v_target_count:=v_target_count+1;
+   msg_str:=msg_str||chr(10)||chr(13)||syno_rec.tablespace_name||chr(9)||syno_rec.Pct_used||chr(37)||chr(9)||syno_rec.status;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('The tablespace high usage found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No tablespace high usage found');
+   end if;
+end;
+/
+
+
+
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_tbs',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_TBS_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=6,13,17;byminute=45',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+
+--==============================================================
