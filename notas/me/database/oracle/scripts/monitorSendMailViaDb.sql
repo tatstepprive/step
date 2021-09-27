@@ -207,3 +207,89 @@ end;
 /
 
 --==============================================================
+--Monitor byte to char
+CREATE OR REPLACE PROCEDURE SYS.MON_BYTE2CHAR_PROC
+AS
+cursor curr is
+  select OWNER,
+         TABLE_NAME,
+         COLUMN_NAME,
+         DATA_TYPE||' ('||DATA_LENGTH||')' "DATA_TYPE",
+         CHAR_USED
+  from ALL_TAB_COLUMNS
+  where OWNER NOT IN('APEX_040200','APPQOSSYS','AUDSYS','CTXSYS','DBSNMP','FLOWS_FILES','GSMADMIN_INTERNAL','MDSYS','OJVMSYS','OLAPSYS','ORDDATA','ORDSYS','OUTLN','PERFSTAT','SYS','SYSTEM','WMSYS','XDB')
+  and TABLE_NAME not in (select v.TABLE_NAME from ALL_TAB_COMMENTS v where OWNER NOT IN ('APEX_040200','APPQOSSYS','AUDSYS','CTXSYS','DBSNMP','FLOWS_FILES','GSMADMIN_INTERNAL','MDSYS','OJVMSYS','OLAPSYS','ORDDATA','ORDSYS','OUTLN','PERFSTAT','SYS','SYSTEM','WMSYS','XDB') and TABLE_TYPE = 'VIEW')
+  and CHAR_USED='B'
+  and TABLE_NAME not in (select TABLE_NAME from all_part_tables apt where apt.owner=owner and apt.table_name=table_name) --exclude partitioned tables
+  order by OWNER, TABLE_NAME;
+v_target_count number:=0;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='OWNER'||chr(9)||'TABLE_NAME'||chr(9)||'COLUMN_NAME'||chr(9)||'DATA_TYPE'||chr(9)||'CHAR_USED';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   my_subj:='ALERT byte to char '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: byte to char ';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for curr_rec in curr
+   loop
+   v_target_count:=v_target_count+1;
+   msg_str:=msg_str||chr(10)||chr(13)||curr_rec.owner||chr(9)||curr_rec.table_name||chr(9)||curr_rec.column_name||chr(9)||curr_rec.data_type||chr(9)||curr_rec.char_used;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('The table byte to char found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No table byte to char found');
+   end if;
+end;
+/
+
+--scheduler
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_byte2char',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_BYTE2CHAR_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=6;byminute=45',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+
+-- check with partitioned table
+select OWNER,
+         TABLE_NAME,
+         COLUMN_NAME,
+         DATA_TYPE||' ('||DATA_LENGTH||')' "DATA_TYPE",
+         CHAR_USED
+  from ALL_TAB_COLUMNS
+  where OWNER NOT IN('APEX_040200','APPQOSSYS','AUDSYS','CTXSYS','DBSNMP','FLOWS_FILES','GSMADMIN_INTERNAL','MDSYS','OJVMSYS','OLAPSYS','ORDDATA','ORDSYS','OUTLN','PERFSTAT','SYS','SYSTEM','WMSYS','XDB')
+  and TABLE_NAME not in (select v.TABLE_NAME from ALL_TAB_COMMENTS v where OWNER NOT IN ('APEX_040200','APPQOSSYS','AUDSYS','CTXSYS','DBSNMP','FLOWS_FILES','GSMADMIN_INTERNAL','MDSYS','OJVMSYS','OLAPSYS','ORDDATA','ORDSYS','OUTLN','PERFSTAT','SYS','SYSTEM','WMSYS','XDB') and TABLE_TYPE = 'VIEW')
+  and CHAR_USED='B'
+ -- and TABLE_NAME not in (select TABLE_NAME from all_part_tables apt where apt.owner=owner and apt.table_name=table_name) --exclude partitioned tables
+  order by OWNER, TABLE_NAME;
+
+--check without partitioned table
+  select OWNER,
+         TABLE_NAME,
+         COLUMN_NAME,
+         DATA_TYPE||' ('||DATA_LENGTH||')' "DATA_TYPE",
+         CHAR_USED
+  from ALL_TAB_COLUMNS
+  where OWNER NOT IN('APEX_040200','APPQOSSYS','AUDSYS','CTXSYS','DBSNMP','FLOWS_FILES','GSMADMIN_INTERNAL','MDSYS','OJVMSYS','OLAPSYS','ORDDATA','ORDSYS','OUTLN','PERFSTAT','SYS','SYSTEM','WMSYS','XDB')
+  and TABLE_NAME not in (select v.TABLE_NAME from ALL_TAB_COMMENTS v where OWNER NOT IN ('APEX_040200','APPQOSSYS','AUDSYS','CTXSYS','DBSNMP','FLOWS_FILES','GSMADMIN_INTERNAL','MDSYS','OJVMSYS','OLAPSYS','ORDDATA','ORDSYS','OUTLN','PERFSTAT','SYS','SYSTEM','WMSYS','XDB') and TABLE_TYPE = 'VIEW')
+  and CHAR_USED='B'
+ and TABLE_NAME not in (select TABLE_NAME from all_part_tables apt where apt.owner=owner and apt.table_name=table_name) --exclude partitioned tables
+  order by OWNER, TABLE_NAME;
+--========================================================================================
