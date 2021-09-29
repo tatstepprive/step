@@ -293,3 +293,57 @@ select OWNER,
  and TABLE_NAME not in (select TABLE_NAME from all_part_tables apt where apt.owner=owner and apt.table_name=table_name) --exclude partitioned tables
   order by OWNER, TABLE_NAME;
 --========================================================================================
+--Monitor autoextensible
+CREATE OR REPLACE PROCEDURE SYS.MON_AUTOEXTEND_PROC
+AS
+cursor curr is
+  select file_name, tablespace_name, autoextensible
+  from dba_data_files
+  where autoextensible='NO';
+v_target_count number:=0;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='FILE_NAME'||chr(9)||'TABLESPACE'||chr(9)||'AUTOEXTEND';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   my_subj:='ALERT non autoextensible files'||my_db||chr(32)||my_host;
+   msg_str:='WARNING: non autoextensible files';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for curr_rec in curr
+   loop
+   v_target_count:=v_target_count+1;
+   msg_str:=msg_str||chr(10)||chr(13)||curr_rec.file_name||chr(9)||curr_rec.tablespace_name||chr(9)||curr_rec.autoextensible;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('Non autoextensible file found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No non autoextensible file found');
+   end if;
+end;
+/
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_autoextend',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_AUTOEXTEND_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=6,13,17;byminute=45',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+  select file_name, tablespace_name, autoextensible
+  from dba_data_files
+  where autoextensible='NO';
+
+--==============================================================================
