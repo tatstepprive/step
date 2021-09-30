@@ -215,3 +215,21 @@ host    all             all              0.0.0.0/0                       md5
 host    all             all              ::/0                            md5
 ----------------------------
 =============================
+#Execute psql and see all parameters (default on version 12 are 314 rows)
+select name, source, boot_val, sourcefile, pending_restart from pg_settings;
+select name, source, boot_val, sourcefile, pending_restart from pg_settings where name='max_connections';
+=============================
+#Show all columns in pg_settings table in psql command tool
+\d pg_settings;
+============================
+#Show all columns in pg_settings table via sql (vs oracle desc tablename)
+SELECT 
+   table_name, 
+   column_name, 
+   data_type 
+FROM 
+   information_schema.columns
+WHERE 
+   table_name = 'pg_settings';
+===========================
+
