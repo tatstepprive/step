@@ -132,7 +132,43 @@ enabled=>true,
 auto_drop=>false);
 end;
 /
+--Recreate invalid synonyms (target changed, synonyms became invalid)
+CREATE OR REPLACE PROCEDURE SYS.RECREATE_INVALID_SYN_PROC
+AS
+cursor syno is
+   select a.owner, a.synonym_name, a.table_owner, a.table_name
+   from all_synonyms a, dba_objects d
+   where d.object_type='SYNONYM'
+   and d.status='INVALID'
+   and d.object_name=a.synonym_name
+   and d.owner=a.owner;
+ddl_str varchar2(1000);
+begin
+   for syno_rec in syno
+   loop
+     execute immediate q'[SELECT regexp_replace((DBMS_LOB.substr((select dbms_metadata.get_ddl('SYNONYM', ']'||syno_rec.synonym_name||q'[',']'||syno_rec.owner||q'[') from dual),1000)),'(\s)',' ') from dual]' into ddl_str;
+     dbms_output.put_line(ddl_str||';');
+      begin
+         execute immediate ddl_str;
+      exception
+         when others then
+         dbms_output.put_line(SQLERRM);
+      end;
+   end loop;
+end;
+/
 
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_recreate_inv_syn',
+job_type=>'stored_procedure',
+job_action=>'SYS.RECREATE_INVALID_SYN_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=6,13,17;byminute=45',
+enabled=>true,
+auto_drop=>false);
+end;
+/
 --============================================
 --Monitor tablespace high usage (temp not incluced)
 CREATE OR REPLACE PROCEDURE SYS.MON_TBS_PROC
