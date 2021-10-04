@@ -232,4 +232,50 @@ FROM
 WHERE 
    table_name = 'pg_settings';
 ===========================
-
+#Object name conventions
+common names - postgresql names
+-------------------------------
+table and index - relation
+row -  tuple 
+column - attribure
+data block - page (on disk)
+page - buffer ( in memory )
+===========================
+Page=smallest unit of data storage 
+Table/index=array of pages of fixed size (default 8kb)
+Page layout=page header, itemIdData -> ... tuple, special (...=free space) 
+Bloated table=fragmented table
+===========================
+#Process and memory architecture
+On disk
+ * archive logs
+ * wal files
+ * data files
+ * log files
+Memory
+ * shared buffer
+ * wal buffer
+ * clog buffer (f: commited transactions)
+ * work memory
+ * maintenance work memory
+ * temp buffer
+Processes
+ * postmaster (f: main process, supervisor process to monitor, start, restart some processes if they die; listener to new connections from the client, authentification and authorization)
+ * postgres (f: one per client connection)
+ * stats collector (f: collect and report info about server activities and update info to optimizer directory pg_catalog)
+ * checkpointer (default every 5 min or when max_wal_size (default 1G) exceeded, start writer to sync data to data files)
+ * wal writer (f: write wal buffer to wal logs, write ahead log)
+ * auto vacuum launcher (f: maintenance of fragmented tables)
+ * logwriter/logger/logging collector (f: writes error messages and configured info to the log files)
+ * pgwriter/writer (f: periodically (on checkpoint) writes dirty databuffer to data files)
+ * archiver (disabled by default f: write to archive logs, copy wal log files to archive log files)
+ ========================
+#Init db (-D data dictionary location)
+initdb -D /usr/local/pgsql/data 
+pg_ctl -D /usr/local/pgsql/data initdb
+========================
+#shutdown types
+ * smart (disallow new connections, waits existing sessions to terminate after all work done)
+ * fast (default) (disallow new connections, aborts current transactions and exits gracefully)
+ * immediate (quits/aborts, needs recovery on next startup)
+=======================

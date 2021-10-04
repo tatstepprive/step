@@ -1,4 +1,27 @@
+#status, stop, start cluster
 systemctl status postgresql-12
 systemctl stop postgresql-12
 systemctl start postgresql-12
 systemctl restart postgresql-12
+#PGDATA var should be set
+pg_ctl status
+pg_ctl stop
+pg_ctl start
+pg_ctl restart
+----------------------------
+systemctl status postgresql-11
+systemctl stop postgresql-11
+systemctl start postgresql-11
+systemctl restart postgresql-11
+--============================
+#Reload (not all changed parameters will be adapted, some of them needs restart)
+system reload postgresql-12
+via psql command line: select pg_reload_conf();
+--============================
+# info about cluster and checkpounts
+./pg_controldata /var/lib/pgsql/12/data
+--============================ 
+# auto restart with host restart
+systemctl enable postgresql-12
+--============================
+

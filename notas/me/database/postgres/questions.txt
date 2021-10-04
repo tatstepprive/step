@@ -3,4 +3,8 @@ Q2: How to reset template1 from template0?
 Q3: How to create database from template reference?
 R3: create database newdb template template0;
 Q4: Can we have multiple templates?
-
+Q5: How to find oid of database?
+R5: select datname, oid from pg_database;
+Q6: Default any user can connect to any database. How to restrict?
+R6: Execute as postgres: revoke connect on database mydb from public; Attention: superuser can not be restricted. Postgres user or other superuser can still connect to database.
+ 
