@@ -1,0 +1,4 @@
+systemctl status postgresql-12
+systemctl stop postgresql-12
+systemctl start postgresql-12
+systemctl restart postgresql-12
