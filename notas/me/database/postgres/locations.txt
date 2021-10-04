@@ -6,3 +6,6 @@
 /var/lib/pgsql/12/data
 #Log directory
 /var/lib/pgsql/12/data/log
+#Extra log in home directory postgres
+/home/postgres/.psql_history
+/var/lib/pgsql/12/.psql_history
