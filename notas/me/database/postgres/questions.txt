@@ -1,0 +1,6 @@
+Q1: How to see diff between template0 and modified template1?
+Q2: How to reset template1 from template0?
+Q3: How to create database from template reference?
+R3: create database newdb template template0;
+Q4: Can we have multiple templates?
+
