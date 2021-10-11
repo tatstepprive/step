@@ -1,0 +1,43 @@
+#Show archive mode on or off
+#connect via psql
+postgres=# show archive_mode;
+ archive_mode 
+--------------
+ off
+(1 row)
+
+#====================================
+# To change archive mode database must restart
+export PGDATA=/var/lib/pgsql/12/data/; pg_ctl stop;
+# Edit postgres.conf and adapt 3 parameters: wal_level, archive_mode, archive_command
+# To setup archive mode change wal_level
+#wal_level = replica			# minimal, replica, or logical
+#TO
+wal_level = replica			# minimal, replica, or logical
+# To setup archive mode change archive_mode
+#archive_mode = off		# enables archiving; off, on, or always
+#TO
+archive_mode = on		# enables archiving; off, on, or always
+# To setup archive mode change archive_command
+#archive_command = ''		# command to use to archive a logfile segment
+#TO on Linux
+archive_command = 'cp -i %p /opt/archivedir/%f'		# command to use to archive a logfile segment
+#TO on Windows
+archive_command = 'copy  "%p" "c:\\archivedir\\%f"'		# command to use to archive a logfile segment
+#Start db
+export PGDATA=/var/lib/pgsql/12/data/; pg_ctl start;
+#connect via psql
+postgres=# show archive_mode;
+ archive_mode
+--------------
+ on
+(1 row)
+#==================================
+#Test archive mode setup
+#connect via psql
+select pg_start_backup('<dbname>');
+\! ls /opt/archivedir
+#1 archive file created
+select pg_stop_backup();
+#2 archive files created, total 3 files
+#==================================

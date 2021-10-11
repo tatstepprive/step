@@ -17,6 +17,7 @@ systemctl restart postgresql-11
 #Reload (not all changed parameters will be adapted, some of them needs restart)
 system reload postgresql-12
 via psql command line: select pg_reload_conf();
+export PGDATA=/var/lib/pgsql/12/data; pg_ctl reload;
 --============================
 # info about cluster and checkpounts
 ./pg_controldata /var/lib/pgsql/12/data
