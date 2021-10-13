@@ -10,6 +10,9 @@ which xauth
 yum install xauth
 #logout, login via ssh -X user@server and ~/.Xauthority file will be created
 ssh -X user@server
+yum search xclock
+yum provides */xclock
+which xclock
 yum install xclock
 yum install xeyes
 #execute and see graphical output on client side
