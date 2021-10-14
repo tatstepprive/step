@@ -113,3 +113,10 @@ https://tldp.org/HOWTO/Bash-Prompt-HOWTO/
 # Math calculation on bash command line
 echo 300*1.5+22 | bc
 #======================================
+w: show who is logged on and what they are doing
+who: show who is logged on
+tty: show current users pseudo terminal
+ps -ft pts/1: get process id for the pseudo terminal
+Kill the process: kill 28580
+Alternatively use pkill -t pts/1
+#=======================================
