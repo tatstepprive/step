@@ -16,3 +16,4 @@ At the session level - only lasts for the life of the session: set search_path=p
 At the database user level - only takes affect for new sessions: ALTER ROLE postgres IN DATABASE mydb SET search_path = public, utility;
 At the server user level -- only takes affect for new sessions: ALTER ROLE postgres SET search_path = public,utility;
 At the database level -- only takes affect for new sessions: ALTER DATABASE mydb SET search_path = public, utility;
+Q9: Location  .psql_history in windows? in Linux /home/postgres or other home dir
