@@ -8,6 +8,11 @@ R5: select datname, oid from pg_database;
 Q6: Default any user can connect to any database. How to restrict?
 R6: Execute as postgres: revoke connect on database mydb from public; Attention: superuser can not be restricted. Postgres user or other superuser can still connect to database.
 Q7: How to fix \dt+ is not showing the tables in extra schema, only the default public schema? 
-Q7: It fixed by adapting the search_path: show search_path; ALTER USER postgres SET search_path = "$user", public, <new_shema>; \q; pslq; \dt+ 
+R7: It fixed by adapting the search_path: show search_path; ALTER USER postgres SET search_path = "$user", public, <new_shema>; \q; pslq; \dt+ 
 Q8: Is search_path for all users in database? or per user setup? or per user per database setup?
-
+R8: The search_path cat be set on different levels: 
+At the function level - only lasts for life of execution of function within function: ALTER FUNCTION some_func() SET search_path=public,utility;
+At the session level - only lasts for the life of the session: set search_path=public,utility;
+At the database user level - only takes affect for new sessions: ALTER ROLE postgres IN DATABASE mydb SET search_path = public, utility;
+At the server user level -- only takes affect for new sessions: ALTER ROLE postgres SET search_path = public,utility;
+At the database level -- only takes affect for new sessions: ALTER DATABASE mydb SET search_path = public, utility;
