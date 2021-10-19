@@ -1,0 +1,32 @@
+postgres upgrade
+https://www.postgresql.org/support/versioning/
+upgrade:
+1 using pg_dumpall utility
+   * small databases
+   * enough space
+   * port 5432 and 5433 if source and target are on the same host. After dropping/stopping old version, use 5432 (psql, show port;)
+   * status: pg_ctl -D '/var/lib/psql/12/data' status
+   * version: psql, select version();
+  a) analyse database
+   * databases: psql, \l
+   * tables: psql, \dt
+   * indexes: psql, \di
+   * sequences: psql, \ds
+   * databases size:
+         psql, \l+
+         select pg_database.datname as db_name, pg_database_size(pg_database.datname)/1024/1024 as db_size_mb from pg_database order by db_size_mb;            s
+  b) take backup
+    * block all connections using pg_hba.conf and reload
+    * pg_dumpall -U postgres > all.dump  (attention, password for all databases will be asked)
+    * export PGPASSWORD=postgres_pass; pg_dumpall -U postgres > all.dump ;
+  c) shutdown old server: pg_ctl -D /var/lib/psql/12/data' stop; pg_ctl -D /var/lib/psql/12/data' status;
+  d) rename old directory for security: mv /var/lib/psql/12 /var/lib/psql/12bcp
+  e) install new version of postgres database with port 5432 (old db should be down)
+  f) start new db: pg_ctl -D '/var/lib/psql/13/data' status; pg_ctl -D '/var/lib/psql/13/data' status
+  i) stop new database; set the pg_hba.conf and postgres.conf on new database to same parameters values from old database; start new database;
+  k) edit all.dump and remove 'create role postgres;' and 'alter role postgres with superuser...;' to avoid errors during restore
+  l) restore data: export PGPASSWORD=postgres_pass; psql -U postgres -f all.dump;
+  m) see a) analyse database (after restore)
+  n) alternative for least downtime: pg_dumpall -p 5432 | psql -d postgres -p 5433
+  o) testing (2 weeks)
+  p) uninstall old version via script and additionally remove old data directory /var/lib/psql/12/data
