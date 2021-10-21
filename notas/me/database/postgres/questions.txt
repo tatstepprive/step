@@ -17,3 +17,19 @@ At the database user level - only takes affect for new sessions: ALTER ROLE post
 At the server user level -- only takes affect for new sessions: ALTER ROLE postgres SET search_path = public,utility;
 At the database level -- only takes affect for new sessions: ALTER DATABASE mydb SET search_path = public, utility;
 Q9: Location  .psql_history in windows? in Linux /home/postgres or other home dir
+Q10: How to avoid the password in clear text in the logs?
+R10: There are 2 methods:
+--1 method
+BEGIN;
+SET LOCAL log_statement = 'none';
+ALTER USER TEST WITH PASSWORD 'abc';
+COMMIT;
+--2 method
+postgres=> CREATE ROLE my_role NOLOGIN;
+CREATE ROLE
+postgres=> \password my_role
+Enter new password:
+Enter it again:
+postgres=> ALTER ROLE my_role LOGIN;
+ALTER ROLE
+==========================================
