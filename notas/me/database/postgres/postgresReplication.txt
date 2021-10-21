@@ -1,0 +1,42 @@
+Master server=source db
+Replica/standby server=target db
+
+Replication reasons:
+*High availability
+*load balancing (read-write on master, read-only on replica)
+*disaster recovery 
+*data migration
+
+Replica server (one or multiple):
+*Warm standby (no connections are allowed from users)
+*Hot standby  (read-only connections from users)
+
+Replication types:
+*Physical replication
+  * file based log schipping
+  * streaming replication
+  * all databases included (all or none)
+  * no possible between 2 diff major versions
+  * no possible between 2 diff platforms (windows vs linux)
+*Logical replication
+  * data based (data objects and their changes)
+  * table level is possible
+
+Replication modes:
+*Asynchronous
+   * replication lag=replica is out of sync with master for certain duration
+   * data loss when master is crashed
+   * no waits on transactions, better performance
+*Synchronous
+   * transactions are complete when they are replicated (waits, lower performance)
+   * no data loss when master is crashed
+
+Replication models:
+*Single Master Replication
+   * 1 master and >=1 replica's
+   * unidirectional (data flows from master to replica's)
+   * replica data is read-only
+*Multi Master Replication
+   * >1 master 
+   * bidirectional (data flows in both directions)
+   * conflict resolution schemas employed
