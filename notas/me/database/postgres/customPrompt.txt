@@ -1,3 +1,6 @@
+#Location
+On Linux psql uses ~/.psqlrc 
+On Windows - %appdata%\postgresql\psqlrc.conf
 #Custom prompt
 touch ~/.psqlrc
 nano  ~/.psqlrc
