@@ -40,3 +40,64 @@ Replication models:
    * >1 master 
    * bidirectional (data flows in both directions)
    * conflict resolution schemas employed
+#===========================================================
+#Repmgr
+On db1 PRIMARY/MASTER
+1 Create user repmgr
+  su - postgres
+  createuser -s repmgr
+  psql -c "alter user repmgr with password 'hdf456hw';"
+  createdb repmgr -O repmgr
+  psql -c 'alter user repmgr set search_path TO repmgr, "$user", public;'
+2 Config: /var/lib/pgsql/12/data/postgresql.conf
+  listen_addresses = '*'
+  max_wal_senders = 5
+  wal_keep_segments = 5
+  wal_level = replica
+  fsync = on
+  wal_log_hints = on
+  archive_mode = on
+  archive_command = '/bin/true'
+  hot_standby = on
+  shared_preload_libraries = 'repmgr'
+On db1 PRIMARY/MASTER and db2 STANDBY/SLAVE
+3 /var/lib/pgsql/12/data/pg_hba.conf
+local replication repmgr md5
+host replication repmgr 127.0.0.1/32 md5
+host replication repmgr <primary_ip>/32 md5
+host replication repmgr <slave_ip>/32 md5
+
+local repmgr repmgr md5
+host repmgr repmgr 127.0.0.1/32 md5
+host repmgr repmgr <primary_ip>/32 md5
+host repmgr repmgr <slave_ip>/32 md5
+
+4 Add pgpass file on both servers
+   su - postgres
+   echo "*:*:*:repmgr:<repmgr_pass>" > ~/.pgpass
+   chmod 600 ~/.pgpass
+5 On db1 PRIMARY/MASTER repmgr.conf
+  node_id=1
+  node_name=db1
+  conninfo='host=<primary_ip> user=repmgr dbname=repmgr connect_timeout=2'
+  data_directory='/var/lib/pgsql/12/data/'
+  pg_bindir='/usr/pgsql-12/bin/'
+6 On db2 STANDBY/SLAVE repmgr.conf          
+  node_id=2
+  node_name=db2
+  conninfo='host=<slave_ip> user=repmgr dbname=repmgr connect_timeout=2'
+  data_directory='/var/lib/pgsql/12/data/'
+  pg_bindir='/usr/pgsql-12/bin/'
+7 On db1 PRIMARY/MASTER
+  repmgr -f repmgr.conf primary register
+8 Check db1 PRIMARY/MASTER act as primary
+  repmgr -f repmgr.conf cluster show
+9 On db2 STANDBY/SLAVE
+  stop db
+  rm -r /var/lib/pgsql/12/data # remove or move if you need to keep old data
+  repmgr -h <primary_ip> -U repmgr -d repmgr -f repmgr.conf standby clone -F
+  start db
+  repmgr standby register
+10 check db2 replication cluster works
+  repmgr -f repmgr.conf cluster show
+#====================================================
