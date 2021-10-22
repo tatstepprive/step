@@ -1,0 +1,29 @@
+#Custom prompt
+touch ~/.psqlrc
+nano  ~/.psqlrc
+#edit
+\set PROMPT1 '%M:%> %n@%/%R%#%x '
+#save
+#login with psql -U user -h host
+#prompt will be for superuser:
+host:port user@db=# 
+#prompt will be for regular user:
+host:port user@db=>
+#info about set values \set PROMPT1 '%M:%> %n@%/%R%#%x '
+#  %M refers to the database server’s hostname – is “[local]” if the connection is over a Unix domain socket
+#  %> refers to the listening port
+#  %n refers to the session username
+#  %/ refers the current database
+#  %R refers to whether you’re in single-line mode (^) or disconnected (!) but is normally =
+#  %# refers to whether you’re a superuser (#) or a regular user (>)
+#  %x refers to the transaction status – usually blank unless in a transaction block (*
+#=================================================
+#Set colors (does not work)
+\set PROMPT1 '%M:%[%033[1;31m%]%>%[%033[0m%] %n@%/%R%#%x '
+#32 for green
+#33 for yellow
+#34 for blue
+#35 for magenta
+#36 for cyan
+#37 for white
+#====================================================
