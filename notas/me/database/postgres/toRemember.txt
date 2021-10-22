@@ -25,4 +25,6 @@ export PGDATA=/var/lib/pgsql/12/data; pg_ctl reload;
 # auto restart with host restart
 systemctl enable postgresql-12
 --============================
-
+#connect via psql
+select '"'||usename||'"'||' '||'"'||passwd||'"' from pg_shadow;
+--===========================
