@@ -1,0 +1,80 @@
+shared_buffers setting
+find relation between table and file in OS
+select pg_relation_filepath('<table_name>');
+
+==========
+checkpoint_flush_after (default 0 pages)
+checkpoint_timeout (in sec)
+checkpoint_completion_target
+infrequent checkpoints lead to IO spikes during checkpoints, degraded performance during checkpoint, higher recover time!
+Background Writer writes dirty buffers based on algorithm, ensures that free buffers are available for use.
+Checkpoint write all dirty buffers
+Vacuum marks space as being available for reuse. No lock on table. Table will not shrink.
+Vacuum full removes the deleted or updated records and reorders the table data. Lock on table.
+lru=least recently used
+FSM=free space management
+\x
+select * from pg_settings where name='bgwriter_delay';
+==========
+WAL use cases:
+ * recovery
+ * server startup
+ * replication
+fsync setting should be on, if off data inconsistency when power off.
+===========
+, you should at least configure the PostgreSQL buffer settings, the number of
+connections, and logging.
+log_min_duration_statement = 0 (millisec, default -1 disables logging)
+--------------
+TODO learn pgbadger
+-------------
+Vacuum test:
+create table vacuum_test (id int) with (autovacuum_enabled = off);
+insert into vacuum_test select * from generate_series(1,100000);
+select pg_size_pretty(pg_relation_size('vacuum_test'));
+update vacuum_test set id = id + 1;
+select pg_size_pretty(pg_relation_size('vacuum_test'));
+vacuum vacuum_test; 
+--table will not shrink
+-----------------
+index bloat
+table bloat (excessive dead tuples)=fragmented table
+Find table bloat (where value n_dead_tup is high vs n_live_tup):
+select * from pg_stat_user_tables;
+--see n_dead_tup
+settings 
+autovacuum_naptime=60s --default, sleep time between autovacuum execution
+autovacuum_max_workers=3
+autovacuum_vacuum_scale_factor= 0.2 --start when 20% of data is changed
+autovacuum_vacuum_threshold= 50 --list number of rows in the table for 20% rule
+autovacuum_analyze_scale_factor = 0.1
+autovacuum_analyze_threshold = 50 --10 % changed with at least 50 rows, then start stats for optimizer
+
+select * from pg_settings where name='old_snapshot_threshold';
+-1 (disabled)  limit the duration of a very slow or stuck transaction
+Autovacuum is constantly running. Solution increase maintenance_work_mem and autovacuum_naptime;
+vacuum_cost_delay
+-------------------
+create table test_indexing (id serial, name text);
+insert into test_indexing (name) select 'bob' from generate_series (1,2500000); --2mln500 rows
+insert into test_indexing (name) select 'alice' from generate_series (1,2500000);--2mln500 rows
+-- 5 mln rows total
+analyze;
+\timing
+select * from test_indexing where id=2;
+time:118.787 ms
+explain analyze select * from test_indexing where id=2;
+->Parallel Seq Scan on test_indexing
+--fix
+create index idx_id on test_indexing (id);
+select * from test_indexing where id=2;
+time: 0.827 ms
+explain analyze select * from test_indexing where id=2;
+->Index Scan using idx_id on test_indexing
+--see index space used
+\di+
+--see table space used
+\dt+
+index cardinality=low cardinality = a lot of dublicate values in column (ex gender)
+index cardinality=high cardinality = none of little dublicate values in column (ex id)
+

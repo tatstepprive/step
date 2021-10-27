@@ -1,0 +1,8 @@
+FSM=free space management
+lru=least recently used
+vacuum= marks space as being available for reuse. No lock on table. Table will not shrink.
+Vacuum full=removes the deleted or updated records and reorders the table data. Lock on table. Table will shrink. To use nightly.
+table bloat (excessive dead tuples)=fragmented table
+index cardinality=low cardinality = a lot of dublicate values in column (Attention: optimizer will ignore indexes with low cardinality and use seq scan)
+index cardinality=high cardinality = none of little dublicate values in column (ex id)
+cardinality=the uniqueness of all values in a column
