@@ -1,0 +1,6 @@
+=================
+recommended:
+log_min_duration_statement =  1000 (1,000 means one second, as this value is in milliseconds) 
+default 
+#log_min_duration_statement = -1
+================
