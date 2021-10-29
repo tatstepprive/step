@@ -127,3 +127,83 @@ static table (the values of table never changed) 100%
 table updated less ofter 95%
 frequently updated table 70-90%
 ============================================================
+--Create load on database using pgbench tool
+--simulate load with 8 concurrent clients doing 25000 transactions in pgbench database
+pgbench -S -c 8 -t 25000 <db_name>
+select * from pg_stat_statements;
+query column: text of executed query
+stddev_time column: query has stable or not execution time (reason: data is not in cache)
+shared_blks_hit column: data come from cache
+shared_blks_read column: data come from disk
+temp_blks_read column: if not zero add work_mem, maintenance_work_mem
+temp_blks_written column: if not zero add work_mem, maintenance_work_mem
+blk_read_time column: io operations, not zero with heavy load
+blk_write_time column: io operation, not zero with heavy load
+===============
+--Top 10 time-consuming queries
+SELECT round((100 * total_time / sum(total_time)                       
+           OVER ())::numeric, 2) percent,                        
+           round(total_time::numeric, 2) AS total,                  
+           calls,                                                   
+           round(mean_time::numeric, 2) AS mean,                    
+           substring(query, 1, 200)                                  
+ FROM  pg_stat_statements                                               
+           ORDER BY total_time DESC                                               
+           LIMIT 10
+=================
+parameter track_activity_query_size=1024 bytes 
+long queries are cutoff , increase value to 32k (32786 bytes) postgresql.conf for hibernate applications
+pg_stat_activity = query running now
+pg_stat_statements = query in the past
+==================
+inspecting table statistics
+pg_stat_all_tables (pg_stat_sys_tables, pg_stat_user_tables)
+==================
+Monitor how well vacuum is working? See n_live_tup and n_dead_tup columns
+SELECT schemaname, relname,seq_scan, idx_scan,
+       cast(idx_scan AS numeric) / (idx_scan + seq_scan)
+       AS idx_scan_pct 
+FROM pg_stat_user_tables 
+       WHERE (idx_scan + seq_scan) > 0 ORDER BY idx_scan_pct;
+--see column seq_scan and idx_scan
+
+SELECT relname, seq_tup_read, idx_tup_fetch,
+       cast(idx_tup_fetch AS numeric) / (idx_tup_fetch + seq_tup_read) 
+       AS idx_tup_pct 
+FROM pg_stat_user_tables 
+       WHERE (idx_tup_fetch + seq_tup_read) > 0 ORDER BY idx_tup_pct;
+--see how many tuples fetched
+--if you find large tables in seq scan, then you find missing indexes
+--so detect missing indexes, look at the top:
+SELECT schemaname, relname, seq_scan, seq_tup_read, 
+       seq_tup_read / seq_scan AS avg, idx_scan 
+FROM   pg_stat_user_tables 
+WHERE  seq_scan > 0 
+ORDER BY seq_tup_read DESC  
+LIMIT  25; 
+========================
+--Find tables for maintenance operation
+-- append only table when ins_pct !=0, upd_pts=0, del_ptc=0
+-- upd_ptc high, ins_ptc and del_ptc low -> reindex command needed
+-- del_ptc high -> cluster command needed
+SELECT relname,
+       cast(n_tup_ins AS numeric) / (n_tup_ins + n_tup_upd + n_tup_del) AS ins_pct,
+       cast(n_tup_upd AS numeric) / (n_tup_ins + n_tup_upd + n_tup_del) AS upd_pct,
+       cast(n_tup_del AS numeric) / (n_tup_ins + n_tup_upd + n_tup_del) AS del_pct 
+FROM pg_stat_user_tables 
+       ORDER BY relname;
+========================
+--Find hot updates ptc (high=good) hot update=copy of row stays in same page, good for performance HOT=Heap Only Tuple=tuple that not referenced outside the table block, all is in the same block
+SELECT relname,n_tup_upd, n_tup_hot_upd,
+       cast(n_tup_hot_upd AS numeric) / n_tup_upd AS hot_pct 
+FROM pg_stat_user_tables 
+       WHERE n_tup_upd>0 ORDER BY hot_pct;
+========================
+--Find useless indexes
+SELECT indexrelname,
+       cast(idx_tup_read AS numeric) / idx_scan AS avg_tuples,
+       idx_scan,idx_tup_read 
+FROM pg_stat_user_indexes 
+       WHERE idx_scan > 0;
+========================
+
