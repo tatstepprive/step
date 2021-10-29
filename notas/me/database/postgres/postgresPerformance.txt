@@ -78,3 +78,52 @@ explain analyze select * from test_indexing where id=2;
 index cardinality=low cardinality = a lot of dublicate values in column (ex gender)
 index cardinality=high cardinality = none of little dublicate values in column (ex id)
 
+==================================
+Index recommendations:
+When using parent-child relation (foreign keys), then create index on foreign keys column in child table.
+--create parent table
+create table orders (order_nr serial primary key, order_date date);
+--create child table
+create table items (
+item_nr serial not null,
+order_nr integer,
+product_name varchar, 
+descr varchar,
+created_ts timestamp,
+constraint fk_items foreign key (order)
+references orders (order_nr)
+match simple on update cascade on delete cascade);
+--populate table with 1 mln (6zeros) rows, for each order 4 child rows
+with order_rws as (insert into orders (order_nr, order_date)
+select generate_series (1, 1000000) t, now() 
+returning order_nr)
+insert into items (item_nr, order_nr, product_name, descr, created_ts)
+select generate_series(1,4) item_nr, order_nr, 'product'
+repeat ('the description of product', 10), now()
+from order_rws; 
+\timing
+select * from orders ord join items itm on ord.order_nr=itm.order_nr
+where order_nr=12;
+Time: 2531.233 ms (00:02.533)
+create index idx_ord on items (order_nr);
+select * from orders ord join items itm on ord.order_nr=itm.order_nr
+where order_nr=12;
+Time: 0.751
+--Beter time execution with index on fk column, improved join performance!
+--Show indexes
+\di+
+--Create partial index on rows with low cardinality (gender, nationality), so frequent values are > 25%
+create index idx_name on test_indexing (name)
+where name not in ('bob', 'alice');
+
+-------------------
+--Low correlation (<1) means that data is shuffled and the query on this column will be slower:
+select tablename, attname, correlation from pg_stats where tablename in ('abc', 'def') order by 1, 2;
+--Fix correlation (only for one index possible) with cluster command. Table will be locked.
+cluster <table_name> using <index_name>;
+-------------------
+Fill factor suggestions (look at updates, not inserts!)
+static table (the values of table never changed) 100%
+table updated less ofter 95%
+frequently updated table 70-90%
+============================================================
