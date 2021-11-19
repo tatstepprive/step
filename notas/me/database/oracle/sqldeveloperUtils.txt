@@ -1,6 +1,10 @@
 # Sqldeveloper change date format on client (this change is equal to 'alter session' for every new session)
 menu Tools, Preferences, Database, NLS, field Date Format
 #======================================
+#Sqldeveloper change byte to char format on client (this change is equal to ALTER SESSION SET NLS_LENGTH_SEMANTICS = 'CHAR' for every new session)
+menu Tools, Preferences, Database, NLS, Length: CHAR
+or check "Skip NLS Settings".
+#======================================
 # Sqldeveloper manage tablespaces
 select connection, R-click, Manage Database
 Exp: column pct_used=percent used

@@ -43,3 +43,5 @@ end;
 /
 
 
+--show logon triggers
+select * from dba_triggers where triggering_event like '%LOGON%';

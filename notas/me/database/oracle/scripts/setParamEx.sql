@@ -22,3 +22,9 @@ where isses_modifiable='true';
 --v$spparameter view which contains info from spfile only
 select * from v$spparameter;
 
+--show byte or char, use char on session level and use byte on database level
+select parameter, value , 'session' as my_level from nls_session_parameters where parameter = 'NLS_LENGTH_SEMANTICS'
+union all
+select parameter, value , 'database' as my_level from nls_database_parameters where parameter = 'NLS_LENGTH_SEMANTICS'
+union all
+select parameter, value , 'instance' as my_level from nls_instance_parameters where parameter = 'NLS_LENGTH_SEMANTICS';
