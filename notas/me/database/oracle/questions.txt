@@ -41,7 +41,7 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 20 Can i rename index SYS_ILxxx (it's lob index)?
 21 Can i rename index SYS_NCxxx?
 22 How to check if spfile of pfile is used?
-22 RESP: show parameter spfile; (if query returns no rows then pfile is used; if query returns any value with a filename with its path then spfile is used by current running instance.
+22 RESP: show parameter spfile; (if value <> empty->spfile used, if query returns no rows then pfile is used; if query returns any value with a filename with its path then spfile is used by current running instance.
 23 Diff between index rebuild, index move, index shrink?
 24 Diff local and remote listener? 
 24 RESP: A local listener is a listener on the same host as the database instance. A remote listener is a listener on a different (remote) host from the database instance. Remote listeners are used in a RAC configuration.
