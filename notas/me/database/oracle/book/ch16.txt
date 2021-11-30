@@ -1,0 +1,45 @@
+authentication=who connects?
+authorization=allowed? (connect, other actions)
+auditing=track what users are doing/done
+user=user account=account=schema (in Oracle)
+user=who connects 
+schema=set of objects owned by user
+privileges=allowed actions
+role=set of privileges (role_name!=user_name, role_name=user_name not allowed)
+profile=password policy and resources for user
+Account attributes:
+ * username (start with char, a-z,0-9,$,_ or use ""; length=30)
+ * authentication method
+ * default tablespace
+ * tablespace quota
+ * temporary tablespace
+ * profile
+ * account status (open,locked (done by DBA),locked(timed) (failed logins),expired,expired(grace)) 
+  
+select * from dba_users;
+select * from dba_users where username='Bla' --use single quotes even user is created with double quotes
+create user "Table" identified by Pa123; --pass no quotes needed
+
+alter database default tablespace tbs1; --contains users objects
+
+select * from database_properties;
+select * from dba_ts_quotas' --(max_bytes=-1 means unlimited)
+--lock/unlock account
+alter user u1 account lock;
+alter user u1 account unlock;
+
+select * from dba_role_privs;
+Administration role:
+  * SYSDBA (startup/shutdown, all privs)
+  * SYSOPER (startup/shutdown)
+  * SYSASM  (ASM only)
+  * SYSBACKUP (startup/shutdown, create any object)
+  * SYSDG (startup/shutdown, dg)
+  * SYSKM (security and encryption)
+
+select * from v$pwfile_users; -- who sysdba and sysoper granted
+
+APEX=Oracle Application Express (has user ANONYMOUS), oracle has no anonymous login
+
+
+

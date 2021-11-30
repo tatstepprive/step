@@ -53,3 +53,5 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 30 When using logical export, the external table will be exported too? How it will be usable, if it's only metadata and imported db no file is available on os? Or external table will be skipped during export? Or not skipped and unusable after import?
 31 How to see oracle last execution time of trigger, procedure, funtion?
 32 How to see oracle last access time on table, view etc?
+33 Temp tablespace can be set per user? Or change will be for all users? Alter user u1 temporary tablespace temp1;
+
