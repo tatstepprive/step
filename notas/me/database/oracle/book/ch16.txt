@@ -41,5 +41,92 @@ select * from v$pwfile_users; -- who sysdba and sysoper granted
 
 APEX=Oracle Application Express (has user ANONYMOUS), oracle has no anonymous login
 
+----------------------
+No pass login:
+select value from v$parameter where name ='os_authent_prefix';
+create user ops$u1 identified externally;
+grant create session to ops$u1;
+sqlplus /
+----------------------
+system privileges=affects data dictionary (>200 privs) (...ANY..)
+object privileges=affects data (select,insert,update,delete,execute pl/sql)
 
+select * from dba_sys_privs;
 
+grantee=who gets/got
+grantor=who gives/gave
+
+Tip: any privilege not include sys schema (protected data dictionary)
+
+create table: * select, insert, update, delete row in own schema, 
+              * create and drop own tables
+              * create, alter, drop indexes on own tables
+select: select tables, views, sequences, synonyms
+insert/update/delete/alter: tables, views, sequences
+execute: procedures, functions packages, synonyms
+
+GRANT [priv|ALL] ON schema.object TO u1 [with grant option];
+
+Tip: revoke of object privs will automatically cascade granted to other
+     revoke of sys privs not cascade granted to others
+
+select * from dba_tab_privs;
+select * from dba_sys_privs;
+
+Tip: role= not schema object, not owned.
+create role r1;
+create role r1 identified using proc_name;
+
+Predefined roles: 
+  * connect (create session)
+  * resource (create objects and plsql)
+  * dba (all, except startup/shutdown)
+  * select_catalog_role (data dictionary, no user data)
+  * scheduler_admin
+  * public (all users)
+
+select * from dba_roles; --public excluded see cdsec.sql and catalog.sql
+
+Enable role=set role default;
+alter user u1 default role none; --disable all roles
+alter user u1 default role all;  --enable all roles
+set role r1; --enable one role during session
+-----------------------
+p526
+dba_used_privs;
+dba_unused_privs;
+dbms_privilege_capture
+-----------------------
+select * from dba_profiles;
+--create functions to check pass complexity
+$ORACLE_HOME/rdbms/admin/utlpwdmg.sql
+--drop profile
+drop profile p1 cascade;
+Tip: profile default will be used when drop p1 cascade.
+Tip: used role can be dropped
+----------------------
+Calcule day to minutes: 10/1440 = means 10 minutes
+----------------------
+Auditing
+Audit Vault (licenced)
+Audit types:
+ * Standard audit (param AUDIT_TRAIL (values: DB, default null; view SYS.AUD$)
+     * SYS.AUD$
+ * FGA (fine grained audit) (row and column level, dbms_fga.[add|drop|disable|enable]_policy)
+     * SYS.FGA_LOG$, DBA_FGA_AUDIT_TRAIL
+ * Value based audit (using triggers)
+ * Unified Audit (replaces standard audit, needs library)
+     * audit_unified_enabled_policies, unified_audit_trail;
+select * from v$option;
+select value from v$option where parameter='Unified Auditing';
+--default false
+
+AUDSYS schema: GEN0 process to write to AUDSYS schema
+package dbms_audit_mgmt
+
+OS audit trail: parameter AUDIT_FILE_DEST ($ORACLE_HOME/admin/<sid>/adump)
+What in os audit trail:
+ * startup/shutdown
+ * connect attemps
+ * alter system
+ * alter database
