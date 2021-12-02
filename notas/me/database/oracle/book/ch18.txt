@@ -1,0 +1,117 @@
+AWR=Automatic Workload Repository 
+    (set of tables owned by SYS in SYSAUX tablespace, can NOT be relocated)
+paramater statistics_level
+  BASIC (disable all statistics, no AWR snapshots taken, disable all advisor, autotasks will NOT run)
+  TYPICAL (default, autotask will run)
+  ALL (all statistics, many details, less perfomance)
+
+Todo: investigate on enterprise
+
+AWR snapshot=flushing statistics from SGA to disk every 60 min (hour) by MMON
+             stores in AWR repo for 8 days and overwritten
+AWR baseline=AWR snapshot marked to keep indefinitely
+MMON=Manageability Monitor background process (direct access to SGA, raises alerts on thresholds)
+DBMS_STATS=current info about statistics
+AWR=historical info about statistics
+
+select * from v$sysaux_occupants where occupant_name='SM/AWR';
+select snap_interval, retention, from dba_hist_wr_control;
+--AWR set retention to 30 days, snapshot to every 30 minutes 
+--24*60=1440 min/day; 43200/1440=30 days; 11520/1440=8 days (default)  
+execute dbms_workload_repository.modify_snapshot_settings(retention=>43200, interval=>30); 
+--how many snapshots
+select min(begin_interval_time), max(begin_interval_time), count(snap_id)
+from dba_hist_snapshot;
+
+ADDM=Automatic Database Diagnostic Monitor
+     (runs auto when AWR snapshot is taken
+     generates report comparing 2 snapshots: last and preceding)
+--run manually ADDM in sqlplus (@? is $ORACLE_HOME)
+@?/rdbms/admin/addmrpt.sql
+-------------------------------------
+Advisors:
+1 Memory Advisors (no Advisor for Large Pool) (7)
+  * SGA v$sga_target_advice
+  * PGA v$pga_target_advice
+  * Shared Pool v$shared_pool_advice
+  * Java Pool   v$java_pool_advice
+  * Streams Pool v$streams_pool_advice
+  * memory_target v$db_memory_target_advice
+  * db cache      v$db_cache_advice
+Memory automated via parameter memory_target
+
+2 SQL Advisor (2)
+ * SQL Access Advisor (workload, segment, index, partioning recommendations)
+ * SQL Tuning Advisor (single statements recommendations)
+dbms_advisor
+dbms_sqltune
+--rows generates by SQL Tuning Advisor
+select * from dba_sql_profiles;
+
+3 Undo Advisor (1)
+v$undostat
+
+4 MTTR Advisor (1)=Mean Time To Revover (after disorderly shutdown: power cut, server reboot, shutdown abort)
+v$instance_recovery
+
+5 DRA=Data Recovery Advisor (after file deleted, blocks corrupted)
+dbms_sqldiag
+
+6 Segment Advisor (autotask; segments do NOT auto shrink after DELETE or UPDATE statements)
+dbms_advisor
+
+7 SQL Repair Advisor (after internal oracle error ORA-600, force different execution plan)
+
+-----------------------------------------------
+Alert
+Stateful alert=on condition that persist and can be fixed (tbs space usage, number of session hangs, sql avg time execution)
+Stateless alert=on event, happens and gone (snapshot too old, transaction deadlock)
+
+select * from dba_outstanding_alert; --stateful alerts
+select * from dba_alert_history;     --old stateful and all stateless alerts 
+
+Tip: 10 min wait before alert is in these views.
+
+v$metricname;
+--Configure alert on redo log generation as warning when >=1M, error >=2M during 5 minutes
+BEGIN
+    DBMS_SERVER_ALERT.SET_THRESHOLD(
+        metrics_id => DBMS_SERVER_ALERT.REDO_GENERATION_SEC,
+        warning_operator => DBMS_SERVER_ALERT.OPERATOR_GE,
+        warning_value => '1048576',
+        critical_operator => DBMS_SERVER_ALERT.OPERATOR_GE,
+        critical_value => '2097152',
+        observation_period => 1,
+        consecutive_occurrences => 5,
+        instance_name => 'ZMYDB',
+        object_type => DBMS_SERVER_ALERT.OBJECT_TYPE_SYSTEM,
+        object_name => null
+     );
+END;
+/
+--Configure alert on tablespace, warning when 75% full, error when 95% full during 3 minutes
+BEGIN
+    DBMS_SERVER_ALERT.SET_THRESHOLD(
+        metrics_id => DBMS_SERVER_ALERT.TABLESPACE_PCT_FULL,
+        warning_operator => DBMS_SERVER_ALERT.OPERATOR_GE,
+        warning_value => '85',
+        critical_operator => DBMS_SERVER_ALERT.OPERATOR_GE,
+        critical_value => '95',
+        observation_period => 1,
+        consecutive_occurrences => 3,
+        instance_name => 'ORCL',
+        object_type => DBMS_SERVER_ALERT.OBJECT_TYPE_TABLESPACE,
+        object_name => 'USERS'
+     );
+END;
+/
+--Show thresholds
+select * from dba_thresholds where object_name='USERS';
+-------------------------------
+Autotask (3):
+ * optimizer statistics;
+ * SQL Tuning Advisor (dba_sql_profiles)
+ * Segment Advisor
+--show enabled autotasks
+select * from dba_autotask_client;
+dbms_auto_task_admin package

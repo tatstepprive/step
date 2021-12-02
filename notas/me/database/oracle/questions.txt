@@ -56,3 +56,7 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 33 Temp tablespace can be set per user? Or change will be for all users? Alter user u1 temporary tablespace temp1;
 34 ALL is for all privileges, can we use ALL for all objects in schema? Grant all on all to u1?
 35 What to do if SYS user locked? Use SYSTEM to unlock SYS?
+36 Alert system with email, howto?
+37 Show all configured alerts?
+38 Show all configured thresholds? 
+38 RESP: select * from dba_thresholds;
