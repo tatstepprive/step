@@ -115,3 +115,8 @@ Autotask (3):
 --show enabled autotasks
 select * from dba_autotask_client;
 dbms_auto_task_admin package
+
+Autotask window to run (less db activity):
+Mon-Fri = 22:00 till 02:00 (4 hours  window)
+Sat-Sun = 06:00 till xx:xx (20 hours window)
+
