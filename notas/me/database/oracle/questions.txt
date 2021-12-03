@@ -60,3 +60,4 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 37 Show all configured alerts?
 38 Show all configured thresholds? 
 38 RESP: select * from dba_thresholds;
+39 Diff between transaction processing and query processing?
