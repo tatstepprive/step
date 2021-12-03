@@ -1,0 +1,101 @@
+CBO=oracle Cost Based Optimizer
+cost based optimization=developing execution plan based on statistics
+tuning=reduce responce time for end users
+metric= >=2 statistics correlated together and with time
+
+wait event=reason for session hangs
+wait event types:
+ * db file scattered read (full table scan and reading all blocks in buffer cache)
+ * free buffer wait (server process searches for free buffers in cache to place blocks)
+ * buffer busy wait (another session is working on block made it temp inaccessible)
+
+v$statname
+v$sysstat
+v$mystat
+v$event_name
+v$system_event
+v$session_event
+v$sgastat
+--------------------
+AMM=Automatic Memory Management
+
+shared SQL area=in SGA shared pool
+private SQL area=in PGA
+
+Stages of memory allocation:
+ * optimal (statement execution purly in memory)
+ * one-pass (memory + extra pass over the data on disk)
+ * multipass (bad, memory + multi pass over the data on disk)
+
+10GB >10GB memory optimal
+     =40MB one-pass
+     <40MB multipass
+----------------------------
+Auto PGA memory management params:
+work_area_size_policy --set to AUTO
+pga_aggregate_target  --total PGA >10MB, 20% of SGA, soft-limit so can higher
+pga_aggregate_limit   -- hard-limit, >2GB or 3MBxPROCESSES
+----------------------------
+ASMM=Automatic Shared Memory management
+Auto SGA memory management params:
+sga_target --soft-limit
+sga_max_size --hard-limit
+log_buffer   --static (needs restart), no automanagement
+
+Keep default or set to zero manual sga management params:
+db_cache_size
+shared_pool_size
+java_pool_size
+streams_pool_size
+large_pool_size
+----------------------------
+Enable AMM (automatic memory management) (dont set pga and sga, it will be done for you and it will be not reducable minimum size) params:
+memory_target
+max_memory_target --static, set 20% higher memory_target
+
+To monitor:
+v$memory_dynamic_component --current memory
+v$memory_resize_ops --history of resize operations
+
+MMAN=memory manager background process (f: resize memory structures)
+MMON=monitor activities and advice MMAN
+
+Tip: with auto memory session will hang and resume when available memory
+-- show actual size of SGA (compare with sga_target)
+select sum(bytes) from v$sgastat;
+-- show actual size of PGA (compare with pga_aggregate_target)
+select sum(value) from v$sesstat natural join v$statname where name='session pga memory';
+----------------------------
+Transaction processing != query processing
+transaction processing = require big db buffer cache
+query processing = require big PGA allocation
+---------------------------
+List advisors and views 
+PGA		v$pga_target_advice	dba_hist_pga_target_advice
+SGA		v$sga_target_advice	dba_hist_sga_target_advice
+Memory		v$memory_target_advice	dba_hist_memory_target_advice
+DB cache 	v$db_cache_advice 	dba_hist_db_cache_advice
+Shared pool	v$shared_pool_advice	dba_hist_shared_pool_advice
+java pool	v$java_pool_advice	dba_hist_java_pool_advice
+streams pool	v$streams_pool_advice	dba_hist_streams_pool_advice
+--------------------------
+Optimizer
+chained row = row cut across 2 or more blocks
+clustering factor =  how natural order follows the order of the keys
+stale=of out date
+objects statistics=number of rows, occupied blocks, max and min values in column, depth of indexes etc
+cardinality estimates
+SQL plan directives and adaptive execution plan
+directive=instruction to optimizer to gather extra info (saved in AWR, tied to tables not statements)
+dynamic sampling
+crossover point
+-- manually gather statistics
+execute dbms_stats.gather_table_stats('schema_name', 'table_name', estimate_percent=>100); --for small tables
+execute dbms_stats.gather_table_stats('schema_name', 'table_name', estimate_percent=>dbms_stats.auto_sample_size); --for big tables
+
+dbms_stats package:
+gather_database_stats --analyse entire db
+gather_schema_stats   --all objects in schema
+gather_table_stats    --one table
+gather_index_stats    --one index 
+----------------------------
