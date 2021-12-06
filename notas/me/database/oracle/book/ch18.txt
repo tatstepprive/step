@@ -67,7 +67,7 @@ Alert
 Stateful alert=on condition that persist and can be fixed (tbs space usage, number of session hangs, sql avg time execution)
 Stateless alert=on event, happens and gone (snapshot too old, transaction deadlock)
 
-select * from dba_outstanding_alert; --stateful alerts
+select * from dba_outstanding_alerts; --stateful alerts
 select * from dba_alert_history;     --old stateful and all stateless alerts 
 
 Tip: 10 min wait before alert is in these views.

@@ -1,0 +1,129 @@
+Resource Manager (RM) 
+Tip= RM plan works only on stressed system, it's easy to configure but it's difficult to test
+
+round-robin time slicing=OS algorithm to assign resouces alternately
+
+Resource Manager=configured default, needed on highly stressed systems to garantee a certain level of service to certain groups
+
+Session--1:1-- Consumer Group --n:m-- User 
+Plan --1:n-- directive
+
+Consumer Group (default 8) + you can add more
+ * SYS_GROUP --for user SYS and SYSTEM
+ * DEFAULT_CONSUMER_GROUP -- default user group
+ * OTHER_GROUPS -- all users are members of this group
+ * DEMONSTRATION_GROUPs (6)
+      * BATCH_GROUP
+      * DSS_CRITICAL_GROUP
+      * DSS_GROUP
+      * ETL_GROUP
+      * INTERACTIVE_GROUP
+      * LOW_GROUP
+ * ORA$AUTOTASK -- for autotasks
+ * ORA$APPQOS_x -- x=0-7 ; 8 groups for clustered systems when Quality of Service is enabled
+
+--show all groups (18 rows=4+6+8)
+select * from dba_rsrc_consumer_groups;
+--show user initial group
+select USERNAME, INITIAL_RSRC_CONSUMER_GROUP from dba_users;
+
+--------------------
+Plan
+There is many plans, but only one is active at given time
+
+--show all plans ( zero rows shown (why))
+select * from dba_rsrc_plans;
+--show current plan (5 rows name=INTERNAL_PLAN, ORA$INTERNAL_CDB_PLAN)
+select * from v$rsrc_plan;
+
+Plan (>9):
+INTERNAL_PLAN                        --normal use, disables Resource Manager
+DEFAULT_PLAN                         -- 90% for SYS_GROUP, 9% for OTHER_GROUPS, 1% for ORA$AUTOTASK 
+DEFAULT_MAINTENANCE_PLAN             -- for maintenance tasks and 25% for OTHER_GROUPS
+INTERNAL_QUIESCE                     -- freeze all session (hangs them) exept SYS_GROUP 
+MIXED_WORKLOAD_PLAN                  -- for demonstration groups: BATCH_GROUP 
+ORA$AUTOTASK_PLAN                    -- only for autotask system
+etc
+
+-- enable plan set parameter RESOURCE_MANAGER_PLAN (default is set to null)
+select * from v$parameter where name ='resource_manager_plan';
+alter system set parameter RESOURCE_MANAGER_PLAN='xxx';
+-- show plan directives (zero rows)
+select * from dba_rsrc_plan_directives;
+
+Tip: parameter RESOURCE_LIMIT (old) is not related to Resouce Manager 
+
+Packages to manage Resource manager (desc package_name to see details):
+dbms_resource_manager
+dbms_resource_manager_privs
+
+-- add user to consumer group with grant option false, so user can not add other users to group
+BEGIN
+  DBMS_RESOURCE_MANAGER_PRIVS.GRANT_SWITCH_CONSUMER_GROUP (
+   GRANTEE_NAME   => 'U1',
+   CONSUMER_GROUP => 'G1',
+   GRANT_OPTION   =>  FALSE);
+END;
+/
+
+-- nominate default group if user has multiple groups 
+exec dbms_resource_manager.set_initial_consumer_group('U1','G1');
+-- switch group as member of multiple groups to use group G1
+exec dbms_resource_manager.switch_consumer_group_for_user('U1','G1');
+-- switch group for one session
+exec dbms_resource_manager.switch_consumer_group_for_sess(session_id=>123, session_serial=>345, consumer_group=>'G1');
+
+Tip: 2 ways in block BEGIN ... END; and with exec or execute
+Tip: when respect order use parameters without name=> like ('A','B'), but better to use (name1=>'A', name2='B') when API is changed nothing will be broken
+
+pending area=memory area in SGA to keep objects under configuration and validate plan before storing in data dictionary (expl: error when cpu >100, validation failed, nothing saved)
+
+Rules: cpu should be between 1 and 100
+       every plan should contain OTHER_GROUPS group
+
+
+--Create plan
+begin
+sys.dbms_resource_manager.clear_pending_area();
+sys.dbms_resource_manager.create_pending_area();
+sys.dbms_resource_manager.create_consumer_group(CONSUMER_GROUP=>'P1',
+COMMENT=>'blabla');
+sys.dbms_resource_manager.set_consumer_group_mapping(attribute => DBMS_RESOURCE_MANAGER.ORACLE_USER,
+value => 'U1',consumer_group =>'G1');
+
+-- Create resource plan:
+sys.dbms_resource_manager.create_plan(PLAN=> 'P1',COMMENT=>'bla');
+
+--Need to create plan_directive
+--Limiting parallelism to max 4, I/O Limit to 10000Mb and CPU_time to 3600 sec
+sys.dbms_resource_manager.create_plan_directive(
+PLAN=> 'P1',
+GROUP_OR_SUBPLAN='SYS_GROUP',
+MNGM_P1=>50);
+
+--Its compulsory to specify directive for OTHER_GROUPS else this will fail
+dbms_resource_manager.create_plan_directive(PLAN=> 'P1',GROUP_OR_SUBPLAN=>'OTHER_GROUPS',CPU_P1=>50);
+sys.dbms_resource_manager.validate_pending_area;
+sys.dbms_resource_manager.submit_pending_area;
+end;
+/
+
+--Grant RO_USER to switch group
+exec dbms_resource_manager_privs.grant_switch_consumer_group('U1','G1',false);
+--Set initial group for U1 to G1
+exec dbms_resource_manager.set_initial_consumer_group('U1','G1');
+
+--Delete plan
+ALTER SYSTEM SET RESOURCE_MANAGER_PLAN ='';
+begin
+sys.dbms_resource_manager.clear_pending_area();
+sys.dbms_resource_manager.create_pending_area();
+sys.dbms_resource_manager.delete_plan_cascade ('P1');
+sys.dbms_resource_manager.submit_pending_area();
+end;
+/
+
+
+--show directives
+select * from dba_rsrc_plan_directives;
+
