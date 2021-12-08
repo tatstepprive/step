@@ -94,3 +94,6 @@ showmount -a
 sudo fdisk -l
 sudo badblocks -sv /dev/blabla
 #================================
+#stop puppet agent
+service puppet stop; chkconfig puppet off
+#===============================
