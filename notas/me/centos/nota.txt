@@ -101,3 +101,14 @@ service puppet stop; chkconfig puppet off
 #-p 3 = priority err, -x =  extra message information, -b= since last boot
 journalctl -p 3 -xb
 #==============================
+#get all errors
+#-u puppet = service, --since "1 days ago" = today and yesterday
+journalctl -u puppet --since "1 days ago"
+#==============================
+#get all errors
+#-p 3 = priority err, --since "1 days ago" = today and yesterday
+journalctl -p 3 --since "1 days ago"
+#==============================
+# Show system errors in the last 17 hours
+journalctl -p 3 --since "17 hour ago"
+#==============================
