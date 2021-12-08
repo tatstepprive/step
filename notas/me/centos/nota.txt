@@ -97,3 +97,7 @@ sudo badblocks -sv /dev/blabla
 #stop puppet agent
 service puppet stop; chkconfig puppet off
 #===============================
+#get all errors
+#-p 3 = priority err, -x =  extra message information, -b= since last boot
+journalctl -p 3 -xb
+#==============================
