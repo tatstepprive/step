@@ -101,7 +101,8 @@ service puppet stop; chkconfig puppet off
 #-p 3 = priority err, -x =  extra message information, -b= since last boot
 journalctl -p 3 -xb
 #==============================
-#get all errors
+#get all errors There is no journalctl in CentOS 6
+#system logs /var/log/messages
 #-u puppet = service, --since "1 days ago" = today and yesterday
 journalctl -u puppet --since "1 days ago"
 #==============================
