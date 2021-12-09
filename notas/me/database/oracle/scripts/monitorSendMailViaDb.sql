@@ -383,3 +383,62 @@ end;
   where autoextensible='NO';
 
 --==============================================================================
+--Monitor open cursors
+CREATE OR REPLACE PROCEDURE SYS.MON_OPEN_CUR_PROC
+AS
+v_perc number:=300;
+cursor syno is
+  select p.value as def_max, (p.value-a.value) as diff, a.value, s.username, s.machine, s.sid, s.serial#
+  from v$sesstat a, v$statname b, v$session s, v$parameter p
+  where a.statistic# = b.statistic#
+  and s.sid=a.sid
+  and b.name = 'opened cursors current'
+  and s.username is not null
+  and p.name= 'open_cursors'
+  and (p.value-a.value) < v_perc
+  order by a.value desc;
+v_target_count number:=0;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='DEF_MAX'||chr(9)||'DIFF'||chr(9)||'VALUE'||chr(9)||'USERNAME'||chr(9)||'MACHINE'||chr(9)||'SID'||chr(9)||'SERIAL#';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   my_subj:='ALERT open cursors high usage '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: high value for open cursors ';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno
+   loop
+   v_target_count:=v_target_count+1;
+   msg_str:=msg_str||chr(10)||chr(13)||syno_rec.def_max||chr(9)||syno_rec.diff||chr(9)||syno_rec.value||chr(9)||syno_rec.username||chr(9)||syno_rec.machine||chr(9)||syno_rec.sid||chr(9)||syno_rec.serial#;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('There are high value for open cursors found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No high value for open cursors found');
+   end if;
+end;
+/
+--monitor every 5 minutes
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_open_cur',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_OPEN_CUR_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=minutely; interval=5',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+
+-----------------------------------------

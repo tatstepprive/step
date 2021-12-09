@@ -1,0 +1,4 @@
+-- show user last login
+select username, last_login from sys.dba_users;
+-- show login triggers
+select * from dba_triggers where TRIGGERING_EVENT like '%LOG%';
