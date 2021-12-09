@@ -442,3 +442,48 @@ end;
 /
 
 -----------------------------------------
+--Monitor open cursors on fly
+CREATE TABLE sys.max_cursor_monitor
+(
+MAX_DEF  VARCHAR2(10),
+DIFF NUMBER,
+VALUE NUMBER,
+USERNAME VARCHAR2(30),
+USERHOST VARCHAR2(75),
+SID NUMBER,
+SERIAL NUMBER,
+TIMESTAMP DATE
+) tablespace sysaux;
+
+CREATE OR REPLACE PROCEDURE SYS.MON_OPEN_CUR_INTER_PROC
+IS
+BEGIN
+  insert into sys.max_cursor_monitor
+  (max_def, diff, value, username, userhost, sid, serial, timestamp)
+  select p.value as def_max, (p.value-a.value) as diff, a.value, s.username, s.machine, s.sid, s.serial#, (select sysdate from dual) as time
+  from v$sesstat a, v$statname b, v$session s, v$parameter p
+  where a.statistic# = b.statistic#
+  and s.sid=a.sid
+  and b.name = 'opened cursors current'
+  and s.username is not null
+  and p.name= 'open_cursors'
+  order by a.value desc
+  fetch first 1 rows only;
+END;
+/
+
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_open_cur_inter',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_OPEN_CUR_INTER_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=minutely; interval=1',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+select * from sys.max_cursor_monitor order by value desc;
+
+--------------------------
+
