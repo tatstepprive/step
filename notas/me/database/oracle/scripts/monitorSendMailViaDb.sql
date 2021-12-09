@@ -386,7 +386,8 @@ end;
 --Monitor open cursors
 CREATE OR REPLACE PROCEDURE SYS.MON_OPEN_CUR_PROC
 AS
-v_perc number:=300;
+v_perc number:=10;
+v_max number:=0;
 cursor syno is
   select p.value as def_max, (p.value-a.value) as diff, a.value, s.username, s.machine, s.sid, s.serial#
   from v$sesstat a, v$statname b, v$session s, v$parameter p
@@ -395,7 +396,7 @@ cursor syno is
   and b.name = 'opened cursors current'
   and s.username is not null
   and p.name= 'open_cursors'
-  and (p.value-a.value) < v_perc
+  and (p.value-a.value) < (p.value/v_perc)
   order by a.value desc;
 v_target_count number:=0;
 msg_str varchar2(6000);
@@ -408,8 +409,12 @@ begin
    from v$database;
    select host_name into my_host
    from v$instance;
+   select host_name into my_host
+   from v$instance;
+   select p.value into v_max
+   from v$parameter p where p.name= 'open_cursors';
    my_subj:='ALERT open cursors high usage '||my_db||chr(32)||my_host;
-   msg_str:='WARNING: high value for open cursors ';
+   msg_str:='WARNING: high value for open cursors, available less than '||v_max/v_perc;
    msg_str:=msg_str||chr(10)||chr(13)||my_columns;
    for syno_rec in syno
    loop
