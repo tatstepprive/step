@@ -113,3 +113,10 @@ journalctl -p 3 --since "1 days ago"
 # Show system errors in the last 17 hours
 journalctl -p 3 --since "17 hour ago"
 #==============================
+# Show system log for user root
+journalctl _UID=0 --since "17 hour ago"
+# Show system log for user 
+id mysql
+##output: uid=108(mysql) gid=116(mysql) groups=116(mysql)
+journalctl _UID=108
+#=============================
