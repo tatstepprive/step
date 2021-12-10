@@ -34,6 +34,8 @@ curl -H "Accept: text/plain" https://icanhazdadjoke.com/
 #=============================
 #create md5 hash, option -n to not include newline produced by echo
 echo -n 'blablaandbla' | md5sum
+#create integrity hash for compressed postgres dump
+md5sum export_T2020122214u09m43s.dump
 #============================
 #search in pdf file with grep
 pdfgrep -in max_conn file.pdf
