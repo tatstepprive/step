@@ -279,3 +279,6 @@ pg_ctl -D /usr/local/pgsql/data initdb
  * fast (default) (disallow new connections, aborts current transactions and exits gracefully)
  * immediate (quits/aborts, needs recovery on next startup)
 =======================
+#create integrity hash for compressed postgres dump
+md5sum export_T2020122214u09m43s.dump
+=======================
