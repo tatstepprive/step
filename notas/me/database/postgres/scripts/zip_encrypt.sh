@@ -1,5 +1,7 @@
 #!/bin/bash
-
+#see ~/.gnupg/gpg.conf for default encryption
+#add if needed:
+#cipher-algo AES256
 MY_FILE=$MY_FILE
 MY_ZiP_FILE=$MY_ZIP_FILE
 MY_PASS=$MY_PASS
