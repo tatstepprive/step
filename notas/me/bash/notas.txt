@@ -122,3 +122,17 @@ ps -ft pts/1: get process id for the pseudo terminal
 Kill the process: kill 28580
 Alternatively use pkill -t pts/1
 #=======================================
+#encrypt zip
+echo "test"| gpg --batch --no-tty --yes --passphrase-fd 0 --force-mdc --symmetric bla.tar.gz
+
+#decrypt zip
+echo "test" | gpg --batch --no-tty --yes --quiet --force-mdc --no-mdc-warning --ignore-mdc-error --passphrase-fd 0 --multifile --decrypt  bla.tar.gz.gpg
+#======================================
+#encryp zip 
+zip --encrypt myzip.zip test2.txt
+#input pass
+#input verify pass
+#decryp zip
+unzip myzip.zip
+#pass
+#=====================================
