@@ -136,3 +136,10 @@ zip --encrypt myzip.zip test2.txt
 unzip myzip.zip
 #pass
 #=====================================
+#show file timestamp or statistics
+stat filename.txt
+#change timestamp of existing file
+touch -d 20120101 old_zip_encrypt.sh
+#change timestamp of existing file
+touch -a -m -t 201512180130.09 fileName.txt
+#=====================================
