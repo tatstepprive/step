@@ -61,3 +61,5 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 38 Show all configured thresholds? 
 38 RESP: select * from dba_thresholds;
 39 Diff between transaction processing and query processing?
+40 How to rename redo log memeber (file) (see v$logfile)?
+40 RESP: steps: shutdown; mv /diska/logs/log1a.rdo /diskc/logs/log1c.rdo; STARTUP MOUNT; ALTER DATABASE RENAME FILE '/diska/logs/log1a.rdo' TO '/diskc/logs/log1c.rdo';ALTER DATABASE OPEN; 
