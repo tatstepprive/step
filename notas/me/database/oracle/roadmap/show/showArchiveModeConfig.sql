@@ -13,4 +13,6 @@ select * from v$archive_dest;
 -- %t = thread number (see v$instance thread# column)
 -- %r = incarnation number
 -- %s = log switch sequence
+-- default value= %t_%s_%r.dbf
+-- value = arch_%d_%t_%r_%s.log
 select * from v$parameter where name like 'log_archive_format';
