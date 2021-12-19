@@ -7,3 +7,10 @@ select archiver from v$instance;
 
 --show archive logs destination
 select * from v$archive_dest;
+
+--show log archive name format
+-- %d = unique db id
+-- %t = thread number (see v$instance thread# column)
+-- %r = incarnation number
+-- %s = log switch sequence
+select * from v$parameter where name like 'log_archive_format';
