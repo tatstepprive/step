@@ -64,5 +64,6 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 40 How to rename redo log memeber (file) (see v$logfile)?
 40 RESP: steps: shutdown; mv /diska/logs/log1a.rdo /diskc/logs/log1c.rdo; STARTUP MOUNT; ALTER DATABASE RENAME FILE '/diska/logs/log1a.rdo' TO '/diskc/logs/log1c.rdo';ALTER DATABASE OPEN; 
 41 Members of redo group used in parallel? Or there are there just for last survival, so security matter?
+41 RESP: not in parallel, one at the time, but when 1 memeber is corrupted trying to use another in the same group.
 42 Where archive log files names are configured?
 42 RESP: select * from v$parameter where name like 'log_archive_format';

@@ -1,0 +1,3 @@
+--Flashback version query – OPERATION is UNKNOW
+--Fix
+ ALTER DATABASE ADD SUPPLEMENTAL LOG DATA ;
