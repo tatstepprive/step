@@ -1,0 +1,25 @@
+Flashback techniques:
+* Flashback datababse (ne, like incompete recovery, data loss, resetlogs, down time)
+* Flashback query (e, query in the past)
+* Flashback transaction (e, contstruct transaction to revert change, no data loss)
+* Flashback table (e, table without FK , or both tables, enable row movement)
+* Flashback drop (e, restores table with indexes, constraints (except FK), triggers, permissions using recyclebin)
+* Flashback Data Archive (ne, to keep for years, FBDA flashback data archive bg process)
+e=enabled by default/ ne=not enabled by default
+
+digital shredding=destroying data
+
+Pseudo columns for flashback:
+versions_startscn = scn when row created by insert/update
+versions_endscn = scn when row expired by delete/update
+versions_starttime = timestamp when row created by insert/update
+versions_endtime = timestamp when row expired by delete/update
+versions_xid=transaction unique id
+versions_operation= I (insert), U(update), D(delete)
+
+select * 
+from emp
+versions between [scn minvalue and maxvalue | timestamp(systimestamp -1/24) and systimestamp; --last hour]
+where empno=100;
+
+v$flashback_database_stat;

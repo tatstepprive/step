@@ -67,3 +67,5 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 41 RESP: not in parallel, one at the time, but when 1 memeber is corrupted trying to use another in the same group.
 42 Where archive log files names are configured?
 42 RESP: select * from v$parameter where name like 'log_archive_format';
+43 How to flashback one schema?
+44 Show all deprecated parameters in use without restart?
