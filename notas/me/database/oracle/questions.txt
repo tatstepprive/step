@@ -69,3 +69,5 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 42 RESP: select * from v$parameter where name like 'log_archive_format';
 43 How to flashback one schema?
 44 Show all deprecated parameters in use without restart?
+45 ORA-01000: maximum open cursors exceeded is not in trace log. Why? 
+45 RESP: You shoud execute to trace it: --To enable ALTER SYSTEM SET EVENTS '1000 trace name errorstack level 3'; --To disable: alter system set events '1000 trace name context off';
