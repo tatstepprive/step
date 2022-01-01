@@ -272,3 +272,47 @@ Fix: Navigate http://<jenkins_host>:8080/configure and edit 'Jenkins Location' b
 System Admin e-mail address: jenkins-admin@no-reply.com 
 Result: mail is send, but if you use gmail then mail will be not changed from 'jenkins-admin@no-reply.com' when you receive message but will be your gmail id
 #========================================================
+#Jenkins and self-signed certificate
+export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_271/
+export JENKINS_HOME=/var/lib/jenkins/
+ls $JENKINS_HOME/.keystore
+rm -fr $JENKINS_HOME/.keystore
+mkdir $JENKINS_HOME/.keystore
+chown -R jenkins: $JENKINS_HOME/.keystore
+sudo nano /etc/ssl/openssl.cnf
+[ subject_alt_name ]
+subjectAltName = DNS:home.vm.com, DNS:jenkins.home.vm.com, DNS:localhost
+
+cd  $JENKINS_HOME/.keystore
+ls -ltra
+sudo openssl req -x509 -nodes -newkey rsa:2048 -config /etc/ssl/openssl.cnf -extensions subject_alt_name -keyout private.key -out self_signed.pem -subj '/C=NG/ST=Lagos/L=Victoria_Island/O=Your_Organization/OU=Your_department/CN=www.jenkins.home.vm.com/emailAddress=me@jenkins.home.vm.com' -days 365
+ls
+cat private.key 
+cat self_signed.pem 
+sudo openssl x509 -in self_signed.pem -text -noout
+sudo openssl pkcs12 -export -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -export -in self_signed.pem -inkey private.key -name myalias -out jkeystore.p12
+sudo keytool -importkeystore -destkeystore jkeystore.jks -deststoretype PKCS12 -srcstoretype PKCS12 -srckeystore jkeystore.p12
+sudo keytool -list -v -keystore jkeystore.jks
+ls
+sudo keytool -export -keystore jkeystore.jks -alias myalias -file self-signed.crt
+ls -ltra
+ls $JAVA_HOME/jre/lib/security
+sudo keytool -importcert -file self-signed.crt -alias myalias -keystore $JAVA_HOME/jre/lib/security/cacerts
+sudo keytool -importcert -file self-signed.crt -alias jenkins.home.vm.com -keystore $JAVA_HOME/jre/lib/security/cacerts
+chown -R jenkins: $JENKINS_HOME/.keystore
+ls -ltra
+sudo service jenkins stop
+sudo nano /etc/default/jenkins
+JAVA_ARGS="-Xmx2048m -Djava.awt.headless=true -Djavax.net.ssl.trustStore=/usr/lib/jvm/jdk1.8.0_271/jre/lib/security/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+#JAVA_ARGS="-Djava.awt.headless=true "
+...
+#HTTP_PORT=8080
+HTTP_PORT=-1
+...
+JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT --httpsPort=8443 --httpsKeyStore=/var/lib/jenkins/.keystore/jkeystore.jks --httpsKeyStorePassword=changeit"
+#JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT"
+
+sudo service jenkins start
+ps -ef| grep -i jenkins
+#in webbrowser https://ip_or_host:8443/ but it will show insecure in red even if https is used because self-signed certificate. Via advanced, accept.
+#--------------------------------------------
