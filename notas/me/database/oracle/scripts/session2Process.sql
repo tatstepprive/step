@@ -8,3 +8,7 @@ from v$session where username='HR';
 --ps -ef see STIME
 --ps -eo user,%mem,%cpu,start see start
 --px aux
+SELECT	s.username,s.module,s.osuser,p.program,s.logon_time,s.terminal, p.spid
+FROM v$session s, v$process p
+WHERE s.paddr = p.addr
+AND s.sid IN (39);
