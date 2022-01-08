@@ -29,3 +29,7 @@ SQL> connect user/pass@<hostname>:<port>/<service_name>
 sqlplus user/pass@<hostname>:<port>/<service_name>
 -- connect via sqlplus on client (method 3 with tnsnames.ora entry)
 sqlplus user/pass@<tnsnames_entry>
+--show errors for all users
+select * from dba_errors;
+--show errors for user
+select * from user_errors;
