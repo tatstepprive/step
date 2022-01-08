@@ -17,7 +17,30 @@ Connection properties name=value millisec/sec/min
 Connection pool in use
  10 Hibernate uses C3PO (c3po.jar) connection pooling software
 
+------------------------
 Closing connection in the code vs closing connection in the pool
+connection pooled vs non-pooled :
+ In non-pooled, getConnection() established a brand new connection to the
+database, and close() actually closes the connection and the session
+is gone from v$session
+ In connection pooled environment, the app
+server overrides the getConnection() and close() methods to get a
+connection from the pool and return that connection back to the pool.
+The close() leaves that connection open, and now available for some
+other process to call getConnection().
+
+The problem is the close() in non-pooled environment meant that Oracle
+cleaned up all the open resources instead of the programmer, in
+particular, the ref_cursors that programmer decided to open. So, the
+java developer who has been ignorantly coding by getting a ref_cursor,
+doing stuff with that resultset and then closing that connection never
+has to learn what he should know, which is a ref_cursor is a resource.
+So, this code gets moved into an application server environment, that
+close() call now puts that connection back on the pool and then later
+on, the database errors out with ORA-01000 maximum open cursor
+exceeded.
+----------------------
+
 Pool and inactive connection, open cursors state
 
 Timeouts in use
