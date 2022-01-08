@@ -491,5 +491,6 @@ end;
 select * from sys.max_cursor_monitor order by value desc;
 
 select * from v$open_cursor where user_name='HR' and sid=88;
+select * from v$open_cursor where user_name='HR' and sid=88 and cursor_type like 'OPEN%' ;
 --------------------------
 
