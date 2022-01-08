@@ -1,4 +1,6 @@
 pgbarman.org 
+https://docs.pgbarman.org/release/2.13/
+
 written in phyton, opensource
 
 rsync/ssh - archive move
@@ -98,3 +100,53 @@ On postgres server:
 cd /var/lib/pgsql/12
 ls and see data directory
 systemctl start postgresql-12
+-------------------------------------------
+rsync/ssh - archive move with barman
+on postgres:
+nano postgresql.conf
+archive_mode=on
+archive_command='barman-wal_archive barmanip pg %p'
+systemctl restart postgresql-12
+on barman:
+cd /etc/barman.d
+mv pg.conf pg.conf.bk
+cp ssh-server.conf-template pg.conf
+edig pg.conf:
+[pg]
+;Human readable description
+ssh_command=ssh postgres@postgresip
+conninfo = host=postgresip
+backup_mode=rsync
+reuse_backup=link
+archiver=on
+on postgres: 
+create ssh key to make connection with barman from postgres
+ssh barman@barmanip
+barman check pg
+barman backup pg --wait
+On postgres:
+nano postgresql.conf
+archive_command='rsync -a %p barman@barmanip:/var/lib/barman/pg/incoming/%f'
+systemctl restart postgresql-12
+On barman:
+mkdir -p /tmp/files
+barman backup pg --wait
+barman list-backup pg
+barman show-backup pg 5464645654
+On postgres:
+su - postgres
+cd /files/data
+ls 
+see all postgres files
+cd /var/lib/pgsql/12/data
+systemctl stop postgresql-12
+cd /var/lib/pgsql/12
+rm -fr data
+On barman server:
+barman recover --remote-ssh-command "ssh postgres@pgip" pg 556465454 /var/lib/pgsql/12/data
+On postgres server:
+cd /var/lib/pgsql/12
+ls and see data directory
+systemctl start postgresql-12
+
+--------------------------------
