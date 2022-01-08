@@ -1,0 +1,25 @@
+Client connection properties for next clients:
+ 1 sqldeveloper
+ 2 toad
+ 3 dbeaver
+ 4 intellij
+ 5 eclipce
+ 6 weblogic
+ 7 tomcat
+ 8 dbmaintain
+ 9 scriptura
+ 10 hibernate
+ 11 java
+ 12 others
+
+Connection properties name=value millisec/sec/min
+
+Connection pool in use
+ 10 Hibernate uses C3PO (c3po.jar) connection pooling software
+
+Closing connection in the code vs closing connection in the pool
+Pool and inactive connection, open cursors state
+
+Timeouts in use
+ 10 Hibernate (in code setTimeout(60) // in sec = 60 sec=1 min
+           
