@@ -12,3 +12,6 @@ SELECT	s.username,s.module,s.osuser,p.program,s.logon_time,s.terminal, p.spid
 FROM v$session s, v$process p
 WHERE s.paddr = p.addr
 AND s.sid IN (39);
+--V$SESSION.LAST_CALL_ET:
+--represents the time (in sec) since the database call started (if status='ACTIVE') 
+--or time since the database call ended (if status='INACTIVE'), handy to measure how long is not doing work
