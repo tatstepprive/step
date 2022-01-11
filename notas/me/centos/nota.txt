@@ -134,3 +134,13 @@ systemctl status rsyslog
 systemctl restart systemd-journald
 systemctl status systemd-journald
 #===============================
+# partition /boot is full, remove old kernels centos 8
+# show all info with kernel
+sudo uname -a
+# show current kernel
+sudo uname -sr
+# show all kernels
+sudo rpm -q kernel
+#remove old kernels
+sudo dnf remove --oldinstallonly --setopt installonly_limit=2 kernel
+#==============================
