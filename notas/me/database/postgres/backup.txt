@@ -1,0 +1,6 @@
+#Using gzip in compress/uncompress backup
+#compress
+pg_dump -Fp -h myhost -U user mydatabase| gzip > bla.sql.gz
+pg_dump -Fc -h myhost -U user mydatabase| gzip > bla.sql.gz
+#uncompress/decompress
+gzip -d bla.sql.gz
