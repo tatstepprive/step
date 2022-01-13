@@ -133,6 +133,8 @@ systemctl restart rsyslog
 systemctl status rsyslog
 systemctl restart systemd-journald
 systemctl status systemd-journald
+#mask warning
+systemctl status systemd-journald| sed 's/Warning: Journal has been rotated since unit was started/INFO[masked]: Journal has been rotated since unit was started/g'
 #===============================
 # partition /boot is full, remove old kernels centos 8
 # show all info with kernel
