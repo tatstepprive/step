@@ -46,3 +46,30 @@ Pool and inactive connection, open cursors state
 Timeouts in use
  10 Hibernate (in code setTimeout(60) // in sec = 60 sec=1 min
            
+================================================
+When creating an Oracle database, you need to load the oracle jdbc driver. 
+Sometimes you need to know which version of the Oracle jdbc driver is? 1. The Oracle JDBC driver version 8.1.7 released with Oracle 8i
+classes111.zip is suitable for JDK 1.1.x
+classes12.zip is suitable for JDK 1.2.x
+This version only has zip files and no jar files
+2. The Oracle JDBC driver 9.2.0 version
+classes111.jar released with Oracle 9i is suitable for JDK 1.1.x
+classes12.jar is suitable for JDK 1.2 and JDK 1.3
+ojdbc14.jar is suitable for JDK 1.4
+3．The Oracle JDBC driver 10.2 version
+classes12.jar released with Oracle 10.2 is suitable for JDK 1.2 and JDK 1.3.
+ojdbc14.jar is suitable for JDK 1.4 and 5.0
+4．Oracle JDBC driver 11.1 version released with Oracle 11.1
+ojdbc5.jar: suitable for jdk5
+ojdbc6.jar: suitable for jdk6
+5. Oracle JDBC driver 12.1 version released with Oracle 12.1
+Ojdbc7.jar: suitable for jdk7 and jdk8
+ojdbc6.jar: suitable for jdk6
+6. Oracle JDBC driver 12.2 version released with Oracle 12.2
+Ojdbc8.jar: applicable to jdk8
+7. Oracle JDBC driver 18.3 version
+Ojdbc8.jar released with Oracle 18.3 : suitable for jdk8
+8. Oracle JDBC driver version 19.3 released with Oracle 19.3
+Ojdbc10.jar: applicable to jdk10
+Ojdbc8.jar: applicable to jdk8 
+=============================================
