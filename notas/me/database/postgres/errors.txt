@@ -1,0 +1,14 @@
+40001-error-in-postgresql
+If two transactions like the one you describe above run concurrently, the following will happen:
+
+Transaction 1 locks a row with SELECT ... FOR UPDATE.
+
+Transaction 2 tries to lock the same row and is blocked.
+
+Transaction 1 modifies the value and commits.
+
+Transaction 2 is unblocked, and before it locks the row, it has to recheck if the row version it is about to lock is still the most current version. Because of the modification by Transaction 1, that is no longer the case, and a serialization error is thrown.
+
+There is no way to avoid that problem if several transactions with isolation level REPEATABLE READ or higher are trying to modify the same rows. Be ready to retry often!
+
+It seems like the transaction actually locks more rows than it modifies. That exacerbates the problem. Only lock those rows that you need to change!
