@@ -49,6 +49,7 @@ Upstream node=node that standby connects to for receiving streaming replication 
 ------------------------------
 Repmgr installation (on PRIMARY and STANDBY):
 yum list modules repmgr*
+yum list installed | grep -i repmgr
 yum -y install repmgr12.x86_64
 -- (version 5.2) will be installed
 
