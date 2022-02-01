@@ -52,7 +52,9 @@ yum list modules repmgr*
 yum list installed | grep -i repmgr
 yum -y install repmgr12.x86_64
 -- (version 5.2) will be installed
-
+#for postgresql 11
+yum -y install repmgr11.x86_64
+-- (version 5.3.0) will be installed
 ------------------------------
 On db1 PRIMARY/MASTER
 1 Create user repmgr
