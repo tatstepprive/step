@@ -108,17 +108,22 @@ host repmgr repmgr <slave_ip>/32 md5
   follow_command='/usr/pgsql-12/bin/repmgr standby follow -f /etc/repmgr/12/repmgr.conf'
 7 On db1 PRIMARY/MASTER
   repmgr -f repmgr.conf primary register
+  /usr/pgsql-12/bin/repmgr -f /etc/repmgr/12/repmgr.conf primary register
 8 Check db1 PRIMARY/MASTER act as primary
   repmgr -f repmgr.conf cluster show
+  /usr/pgsql-12/bin/repmgr -f /etc/repmgr/12/repmgr.conf cluster show
 9 On db2 STANDBY/SLAVE (first cloning)
   systemctl stop postgresql-12
   rm -r /var/lib/pgsql/12/data # remove or move if you need to keep old data
   repmgr -h <primary_ip> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone --dry-run
+  /usr/pgsql-12/bin/repmgr -h <primary_ip> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone --dry-run
   repmgr -h <primary_ip> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
+  /usr/pgsql-12/bin/repmgr -h <primary_ip> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
   systemctl start postgresql-12
   repmgr  -f /etc/repmgr/12/repmgr.conf standby register
+  /usr/pgsql-12/bin/repmgr  -f /etc/repmgr/12/repmgr.conf standby register
 10 check db2 replication cluster works
-  repmgr -f repmgr.conf cluster show
+  /usr/pgsql-12/bin/repmgr -f /etc/repmgr/12/repmgr.conf cluster show
 11 replication deamon start if needed
    repmgrd  -f /etc/repmgr/12/repmgr.conf
 12 Monitoring via query psql -x
