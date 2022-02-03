@@ -7,11 +7,40 @@ rsync/ssh - archive move
 streaming (utility pg_basebackup, pg_receivexlog, pg_receivewal)
 
 yum install barman.noarch barman-cli.noarch
-#On centos7---------
+#On centos7 barman server ---------
 yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 yum install epel-release
 yum install barman
 yum install barman-cli
+#On centos7 barman server install postgres db to be able restore locally and use psql to test connection
+yum install -y postgresql12-server
+yum install -y postgresql12-contrib
+#On postgres server install barman-cli to be able execute barman commands on postgres side if needed
+yum install epel-release
+yum install barman-cli
+#-------------------
+#on postgres server create barman user
+createuser -P -e  barman
+#output --CREATE ROLE barman PASSWORD 'mdxxx' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;
+#give privileges
+GRANT EXECUTE ON FUNCTION pg_start_backup(text, boolean, boolean) to barman;
+GRANT EXECUTE ON FUNCTION pg_stop_backup() to barman;
+GRANT EXECUTE ON FUNCTION pg_stop_backup(boolean, boolean) to barman;
+GRANT EXECUTE ON FUNCTION pg_switch_wal() to barman;
+GRANT EXECUTE ON FUNCTION pg_create_restore_point(text) to barman;
+GRANT pg_read_all_settings TO barman;
+GRANT pg_read_all_stats TO barman;
+#on postgres server create barman_streaming user
+createuser -P -e --replication streaming_barman
+#output -- CREATE ROLE streaming_barman PASSWORD 'mdxxx' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN REPLICATION;
+#add streaming_barman to pg_hba.conf
+host    replication      streaming_barman <barman_ip>/32          md5
+#Reload config when connecting via psql
+SELECT pg_reload_conf();
+#on barman server edit pgpass and test connection
+psql -c 'SELECT version()' -U barman -h pg postgres
+psql -c 'SELECT version()' -U streaming_barman -h pg postgres
+psql -U streaming_barman -h pg -c "IDENTIFY_SYSTEM" replication=1
 #-------------------
 cd /var/lib/barman
 touch .pgpass
@@ -47,7 +76,14 @@ max_replication_slots= 2
 nano pg_hba.conf
 host all all 	0.0.0.0/0 md5
 host replication streaming_barman barmanip/32 trust
-
+#Question: how to fix trust to md5, because pgpass is not working on barman server for streaming_barman and command
+#psql -U streaming_barman -h pg -c "IDENTIFY_SYSTEM" replication=1
+#it's asking for password even it's noticed in pgpass
+#other commands like 
+#psql -c 'SELECT version()' -U streaming_barman -h pg postgres
+#are working on barman server for streaming_barman without asking pass and using pgpass
+#Temp solution: set trust on postgres server in pg_hba.conf
+ 
 systemctl restart postgresql-12
 
 from barman server test connection
@@ -59,8 +95,11 @@ cat barman.log
 On postgres host:
 psql and select * from pg_replication_slots;
 
+#if error when executing barman check pg 
+#WAL archive: FAILED (please make sure WAL shipping is setup)
+#then execute barman switch-wal --archive pg
 On barman: 
-barman switch-wal --force --archive pg
+barman switch-wal --archive pg
 barman check pg
 
 On postgres:
