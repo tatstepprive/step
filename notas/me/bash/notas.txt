@@ -146,3 +146,9 @@ touch -a -m -t 201512180130.09 fileName.txt
 #Show memory usage with command, and cycle between KiB, MiB, GiB using capital "E" 
 top
 #====================================
+#Show top memory processes
+ps aux --sort -rss | head
+ps -eo pid,ppid,%mem,%cpu,cmd --sort=-%mem | head
+#Show top 20 memory processes
+ps aux --sort -rss | head -n 20
+#====================================
