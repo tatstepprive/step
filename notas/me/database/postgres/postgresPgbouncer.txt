@@ -87,9 +87,15 @@ https://www.pgbouncer.org/config.html
 #userlist is loaded dynamically, no restart pgbouncer needed
 #generate new file
 ./mkauth.py "/etc/pgbouncer/userlist.txt" "dbname='postgres' user='postgres' host='yourhost'"
+#if error
+#psycopg2.OperationalError: fe_sendauth: no password supplied
+#use this command:
+./mkauth.py "/etc/pgbouncer/pass.txt" "dbname='postgres' user='postgres' password='xxx' host='yourhost'"
+# the users and the pass will be created even if mode trust (auth_type = trust) is on bouncer config
+
 #if error, ananlyse ldd <psycopg_path>; nm -D /lib64/libpg.so.5 | grep PQconninfo; 
 #change if needed LD_LIBRARY_PATH
-
+#===============================================
 #PgBouncer Administration Console (connect to virtual database named pgbouncer)
 # postgres or other user should be in admin_users parameter in the pgbouncer.ini
 psql -U postgres -h <bouncer_host> pgbouncer
