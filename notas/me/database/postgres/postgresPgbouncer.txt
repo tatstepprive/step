@@ -60,6 +60,23 @@ max_db_connections = 0
 ...
 
 #==============================================
+#network changes
+systemctl start pgbouncer
+systemctl enable pgbouncer
+systemctl status pgbouncer
+yum install net-tools
+netstat -tulnp
+iptables -S | grep "5432"
+#output no etry
+iptables -S | grep "22"
+#entry for port 22
+sudo firewall-cmd --zone=public --add-port=5432/tcp --permanent
+sudo firewall-cmd --reload
+iptables -S | grep "5432"
+#entry for port 5432
+#from remote host
+telnet bouncerhost 5432
+#==============================================
 #Connection pool via pgbouncer
 https://github.com/pgbouncer/pgbouncer/blob/master/etc/pgbouncer.ini
 https://www.pgbouncer.org/config.html
