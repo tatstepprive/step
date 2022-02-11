@@ -47,19 +47,6 @@ SELECT usename AS role_name,
 FROM pg_catalog.pg_user
 ORDER BY role_name desc;
 =================================
-#Connection pool via pgbouncer
-https://github.com/pgbouncer/pgbouncer/blob/master/etc/pgbouncer.ini
-https://www.pgbouncer.org/config.html
-#Files:
-/var/log/pgbouncer/pgbouncer.log
-/etc/pgbouncer/pgbouncer.ini
-/etc/pgbouncer/userlist.txt
-#userlist is loaded dynamically, no restart pgbouncer needed
-#generate new file
-./mkauth.py "/etc/pgbouncer/userlist.txt" "dbname='postgres' user='postgres' host='yourhost'"
-#if error, ananlyse ldd <psycopg_path>; nm -D /lib64/libpg.so.5 | grep PQconninfo; 
-#change if needed LD_LIBRARY_PATH
-=================================
 Schema = namespace and contains db objects as tables, views, indexes, datatypes, functions, stored procedures and operators
 to access object = select <schema_name>.<object_name>
 Database 1---------n Schemas ---------- n Tables

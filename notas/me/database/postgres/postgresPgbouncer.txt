@@ -1,0 +1,24 @@
+#Connection pool via pgbouncer
+https://github.com/pgbouncer/pgbouncer/blob/master/etc/pgbouncer.ini
+https://www.pgbouncer.org/config.html
+#Files:
+/var/log/pgbouncer/pgbouncer.log
+/etc/pgbouncer/pgbouncer.ini
+/etc/pgbouncer/userlist.txt
+#userlist is loaded dynamically, no restart pgbouncer needed
+#generate new file
+./mkauth.py "/etc/pgbouncer/userlist.txt" "dbname='postgres' user='postgres' host='yourhost'"
+#if error, ananlyse ldd <psycopg_path>; nm -D /lib64/libpg.so.5 | grep PQconninfo; 
+#change if needed LD_LIBRARY_PATH
+
+#PgBouncer Administration Console (connect to virtual database named pgbouncer)
+# postgres or other user should be in admin_users parameter in the pgbouncer.ini
+psql -U postgres -h <bouncer_host> pgbouncer
+#To view the available PgBouncer Administration Console commands, run
+pgbouncer=# SHOW help;
+#Connection pool_mode
+ if you are using pool_mode = session. In this mode, connections only get back to the pool if the client disconnects.
+ In transaction mode, connections get back to the pool after the transaction finishes.
+ And in statement mode, connections get back to the pool after the statement finishes.
+cl_waiting column at 'show pools' indicates how many clients are waiting for a connection
+
