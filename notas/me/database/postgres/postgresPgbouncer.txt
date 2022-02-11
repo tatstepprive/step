@@ -1,3 +1,65 @@
+#install on centos
+yum install epel-release
+yum install pgbouncer
+pgbouncer --version
+#check user
+pgbouncer:x:999:996:PgBouncer Server:/:/sbin/nologin
+#check install
+ls /etc/pgbouncer/
+mkauth.py  pgbouncer.ini  userlist.txt
+-rw-------.  1 pgbouncer pgbouncer   56 Apr 22  2020 userlist.txt
+-rw-------.  1 pgbouncer pgbouncer 9342 Jul 22  2020 pgbouncer.ini
+-rwx------.  1 root      root       819 Jul 22  2020 mkauth.py
+
+#==============================================
+#Config changes
+...
+#from
+[databases]
+
+#to
+[databases]
+mine-prd= host=myhost.mydomain port=5432 dbname=mine-prd
+...
+#from
+listen_addr = 127.0.0.1
+listen_port = 6432
+#to
+listen_addr = *
+listen_port = 5432
+...
+#from
+auth_type = trust
+#to
+auth_type = md5
+...
+#from
+;pool_mode = session
+#to
+pool_mode = transaction
+...
+#from
+;ignore_startup_parameters = extra_float_digits
+#to
+ignore_startup_parameters = extra_float_digits
+...
+#from
+;max_client_conn = 100
+#to
+max_client_conn = 8000
+...
+#from
+;default_pool_size = 20
+#to
+default_pool_size = 20
+...
+#from
+;max_db_connections = 0
+#to
+max_db_connections = 0
+...
+
+#==============================================
 #Connection pool via pgbouncer
 https://github.com/pgbouncer/pgbouncer/blob/master/etc/pgbouncer.ini
 https://www.pgbouncer.org/config.html
