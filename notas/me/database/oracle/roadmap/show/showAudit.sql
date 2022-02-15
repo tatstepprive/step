@@ -15,3 +15,4 @@ select * from dba_objects where owner='AUDSYS';
 select * from dba_objects where owner='AUDSYS' and object_type='TABLE';
 select * from AUDSYS.AUD$UNIFIED;
 select * from AUDSYS."AUD$UNIFIED";
+select * from unified_audit_trail;
