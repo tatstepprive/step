@@ -100,3 +100,9 @@ select tablespace_name, status from dba_tablespaces where status <> 'ONLINE';
 ----------------------------------------------
 --Move datafile 
 ALTER DATABASE MOVE DATAFILE '/u01/app/oracle/oradata/cdb1/system01.dbf' TO '/tmp/system01.dbf';
+
+--Drop tablespace
+DROP TABLESPACE tbs3
+INCLUDING CONTENTS AND DATAFILES
+CASCADE CONSTRAINTS;
+------------------------------------------------
