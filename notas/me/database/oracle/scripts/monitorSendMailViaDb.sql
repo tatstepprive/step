@@ -493,4 +493,73 @@ select * from sys.max_cursor_monitor order by value desc;
 select * from v$open_cursor where user_name='HR' and sid=88;
 select * from v$open_cursor where user_name='HR' and sid=88 and cursor_type like 'OPEN%' ;
 --------------------------
+--Monitor unused tablespaces (empty and not default for any user)
+CREATE OR REPLACE PROCEDURE SYS.MON_UNUSED_TBS_PROC
+AS
+cursor syno is
+  select tablespace_name as TBS,
+     (select 'WARNING: not used and empty' from dual) as INFO
+  from dba_tablespaces
+  --not referenced tablespaces
+  where tablespace_name not in (
+    select default_tablespace from dba_users
+    union select temporary_tablespace from dba_users
+    union select 'UNDOTBS1' from dual)
+  --empty tablespaces
+  and tablespace_name not in (
+    select tablespace_name from dba_extents);
+v_target_count number;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='TBS'||chr(9)||'INFO';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   select count(*) into v_target_count
+  from dba_tablespaces
+  --not referenced tablespaces
+  where tablespace_name not in (
+    select default_tablespace from dba_users
+    union select temporary_tablespace from dba_users
+    union select 'UNDOTBS1' from dual)
+  --empty tablespaces
+  and tablespace_name not in (
+    select tablespace_name from dba_extents);
+   my_subj:='ALERT unused tbs '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: unused tbs';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno
+   loop
+   msg_str:=msg_str||chr(10)||chr(13)||syno_rec.tbs||chr(9)||syno_rec.info;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('There are unused tbs found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No unused tbs found');
+   end if;
+end;
+/
 
+--scheduler
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_unused_tbs',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_UNUSED_TBS_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=6,12,16;byminute=05',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+
+--------------------------
