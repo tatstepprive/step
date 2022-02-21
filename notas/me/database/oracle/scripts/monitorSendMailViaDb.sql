@@ -563,3 +563,68 @@ end;
 /
 
 --------------------------
+--move indexes from data tbs to index tbs
+CREATE OR REPLACE PROCEDURE SYS.MON_MOVE_INDX_PROC
+AS
+cursor syno is
+   select owner, index_name
+   from dba_indexes
+   where tablespace_name='MY_TBS_DATA'
+   and index_type='NORMAL';
+ddl_str varchar2(1000);
+v_target_count number;
+msg_str varchar2(32000);
+my_columns varchar2(200) :='---MOVING INDEXES FROM MY_TBS_DATA--- ';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   select count(*) into v_target_count
+   from dba_indexes
+   where tablespace_name='MY_TBS_DATA'
+   and index_type='NORMAL';
+   my_subj:='INFO: moving indexes '||my_db||chr(32)||my_host;
+   msg_str:='INFO: moving indexes';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno
+   loop
+     --no ONLINE rebuild used to avoid ORA-08108
+     ddl_str :='ALTER INDEX '||syno_rec.owner||'.'||syno_rec.index_name||' REBUILD TABLESPACE MY_TBS_INDEX ';
+     msg_str:=msg_str||chr(10)||ddl_str;
+     dbms_output.put_line(ddl_str||';');
+      begin
+         execute immediate ddl_str;
+      exception
+         when others then
+         dbms_output.put_line(SQLERRM);
+      end;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('There are indexes to move found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No indexes to move found');
+   end if;
+   end;
+/
+
+--execute daily at 1:15 AM
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_move_indx',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_MOVE_INDX_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=1;byminute=15',
+enabled=>true,
+auto_drop=>false);
+end;
+---------------------------
