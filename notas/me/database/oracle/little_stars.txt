@@ -1,0 +1,12 @@
+1 Transactions will always block DDL (if using in other session, in same session it will terminate DML with commit/rollback on errors)
+2 DDL are not user transactions, but implemented in DB as transactions with autocommit
+3 In oracle db you can insert in table that you can not see (select)
+4 In oracle db you can delete rows without see or update table. (p144)
+5 one transaction = one or more DML statemens followed by commit or rollback (can affect meny rows on many tables, and takes hours to execute)
+6 ACID=automicity, consistency, isolation, durability (ACI undo + redo, D redo)
+7 incomplete transaction=uncommitted transaction; complete transaction=commited transaction
+8 not possible to nest transactions in SQL, but possible in PL/SQL
+9 DML (select, insert, update, delete, merge) DDL (create, alter, drop, truncate) DCL (grant, revoke)
+10 TCS=transaction control statements (commit, rollback, savepoint)
+11 commit=LGWR flushes log buffer to disk and flags transaction complete, DBWn does nothing
+
