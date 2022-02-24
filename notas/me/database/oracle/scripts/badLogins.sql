@@ -29,3 +29,6 @@ END;
 ALTER SESSION SET nls_date_format='dd-mon-yyyy hh24:mi:ss';
 SELECT * FROM sys.logon_trigger ORDER BY TIMESTAMP DESC;
 
+--possible error on the client side in application when using the wrong passwd in config
+--Caused by: org.hibernate.HibernateException: 'hibernate.dialect' must be set when no Connection available
+--issue on 24/02/2022 see mail
