@@ -628,3 +628,80 @@ enabled=>true,
 auto_drop=>false);
 end;
 ---------------------------
+--monitor not documented/not known empty schema
+CREATE OR REPLACE PROCEDURE SYS.MON_EMPTY_SCHEMA_PROC
+AS
+cursor syno is
+   select username, account_status, default_tablespace, NVL(TO_CHAR(last_login,'MM/DD/YYYY hh24:mm:ss'),'N/A') as last_login
+   from dba_users
+   --empty schema
+   where username not in (select distinct owner from dba_objects)
+   -- exclude known users with empty schema
+   and username not in ('APEX_PUBLIC_USER',
+                        'DIP',
+                        'GSMCATUSER','GSMUSER',
+                        'SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR',
+                        'SYSBACKUP','SYSDG','SYSKM',
+                        'MDDATA','XS$NULL',
+                        'MONITOR_RO',
+                        'MY_RO')
+   --exclude internal users
+   and default_tablespace not in ('SYSTEM','SYSAUX')
+   order by username;
+v_target_count number;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='USER'||chr(9)||'STATUS'||chr(9)||'TBS'||chr(9)||'LAST_LOGIN';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   select count(*) into v_target_count
+   from dba_users
+   --empty schema
+   where username not in (select distinct owner from dba_objects)
+   -- exclude known users with empty schema
+      and username not in ('APEX_PUBLIC_USER',
+                        'DIP',
+                        'GSMCATUSER','GSMUSER',
+                        'SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR',
+                        'SYSBACKUP','SYSDG','SYSKM',
+                        'MDDATA','XS$NULL',
+                        'MONITOR_RO',
+                        'FAMILYBXL_RO')
+   --exclude internal users
+   and default_tablespace not in ('SYSTEM','SYSAUX')
+   order by username;
+   my_subj:='ALERT empty schema '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: empty schema ';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno
+   loop
+   msg_str:=msg_str||chr(10)||chr(13)||syno_rec.username||chr(9)||syno_rec.account_status||chr(9)||syno_rec.default_tablespace||chr(9)||syno_rec.last_login;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('There are empty schemas found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No empty schema found');
+   end if;
+end;
+/
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_empty_schema',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_EMPTY_SCHEMA_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=6;byminute=15',
+enabled=>true,
+auto_drop=>false);
+end;
+---------------------------
