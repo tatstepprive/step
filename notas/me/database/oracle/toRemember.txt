@@ -33,3 +33,6 @@ sqlplus user/pass@<tnsnames_entry>
 select * from dba_errors;
 --show errors for user
 select * from user_errors;
+--play with time format in session
+alter session set nls_date_format ='dd/mm/yyyy hh24:mm:ss';
+to_timestamp('21/02/2022 18:05:10','dd/mm/yyyy hh24:mm:ss');

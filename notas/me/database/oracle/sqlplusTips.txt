@@ -22,3 +22,6 @@ set serveroutput on;
 #repeat anonimous block by typing / in sqlplus
 sql>/
 #===========================
+#append implicit commit to every DML
+sql> set autocommit on;
+#===========================
