@@ -1,0 +1,12 @@
+#calculate undo
+
+#====================
+# x min ago
+#x means x min ago (24h*60min=1440min)
+systimestamp - x/1440 
+#====================
+# x hours ago
+# x means x hours ago 
+systimestamp - x/24  
+#====================
+
