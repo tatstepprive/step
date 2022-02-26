@@ -15,3 +15,4 @@
 15 systimestamp - x/1440 => x means x min ago (24h*60min=1440min)
 16 systimestamp - x/24   => x means x hours ago 
 17 simple 'select' dont require any lock; 'select ... for update' does.  
+18 in oracle db deadlocks are resolved automatically in 3 sec, other locks should be resolved manually 

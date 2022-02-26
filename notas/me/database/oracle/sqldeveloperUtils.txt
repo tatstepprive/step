@@ -63,3 +63,13 @@ F10 or 'Explain plan' to see usage of index when do select statement
 Menu Tools > Preferences > Database > Advanced > Tnsnames Directory: btn 'browse' go to install directory $ORACLE_HOME/network/admin, OK
 If tnsnames.ora location is set, then you can use Connection Type TNS , Network Alias in combobox from tnsnames.ora, when adding new connection.
 #=================================
+#Add memory to sqldeveloper on linux
+#the settings in sqldeveloper/ide/bin/ide.conf are overridden in user file
+/home/${USER_NAME}/.sqldeveloper/${SQL_DEVELOPER_VERSION}/product.conf
+ AddVMOption -Xms512m
+ AddVMOption -Xmx2048m
+#Add memory to sqldeveloper on windows
+C:\Users\${WINDOWS_USER_NAME}\AppData\Roaming\sqldeveloper\${SQL_DEVELOPER_VERSION}\product.conf
+#================================
+
+
