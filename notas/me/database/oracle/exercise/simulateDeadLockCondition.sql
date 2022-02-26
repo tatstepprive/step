@@ -1,7 +1,7 @@
 --simulate DEADLOCK lock condition (working with 2 sessions)
 --auto resolved in 3 seconds, no dba action needed except to contact developer team to inform
 --and hope the client code will be improved
-
+--short exec plan steps: rowA_s1--rowB_s2--rowB_s1--rowA_s2 (rowX_sx=rowX_sessionx X=A,B x=1,2)
 --===1 session===============================
 --show connection info
 select sys_context('USERENV','SESSIONID') from dual;
