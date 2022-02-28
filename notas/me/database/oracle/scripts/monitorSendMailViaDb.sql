@@ -705,3 +705,63 @@ enabled=>true,
 auto_drop=>false);
 end;
 ---------------------------
+--monitor locks 
+CREATE OR REPLACE PROCEDURE SYS.MON_LOCKED_LONG_TIME_PROC
+AS
+cursor syno is
+    select blocking_session,
+    sid as blocked_session,
+    serial# as blocked_serial,
+    seconds_in_wait as wait_time_sec,
+    round(seconds_in_wait/60) as wait_time_min
+    from v$session
+    where blocking_session is not null
+    and seconds_in_wait > 60
+    order by blocking_session;
+v_target_count number;
+msg_str varchar2(32000);
+my_columns varchar2(200) :='blocking_session | blocked_session | blocked_serial | wait_time_sec | wait_time_min ';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   select count(*) into v_target_count
+    from v$session
+    where blocking_session is not null
+    and seconds_in_wait > 60;
+   my_subj:='ALERT locked long time '||my_db||chr(32)||my_host;
+   msg_str:='ALERT locked long time ';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno
+   loop
+   msg_str:=msg_str||chr(10)||chr(13)||syno_rec.blocking_session||chr(9)||syno_rec.blocked_session||chr(9)||syno_rec.blocked_serial||chr(9)||syno_rec.wait_time_sec||chr(9)||syno_rec.wait_time_min;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('There are locks found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No locks found');
+   end if;
+end;
+/
+2:07
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_locked_long_time',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_LOCKED_LONG_TIME_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=minutely; interval=1',
+enabled=>true,
+auto_drop=>false);
+end;
+
+----------------------
