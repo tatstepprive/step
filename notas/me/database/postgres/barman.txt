@@ -114,6 +114,15 @@ barman replication-status pg
 barman show-server pg
 barman backup --reuse=link pg
 
+-----------------------------
+fix problems:
+barman backup pg --wait
+TO fix long (more than 30 min) hung on backup with last info as:
+Waiting for the WAL file 000000010000000A00000075 from server 'pg'
+
+Fix: Execute on PRIMARY (not on slave if there is a replication slave) in psql to generate wal logs to stream:
+select pg_switch_wal();
+-----------------------------
 Recovery:
 On postgres server:
 mkdir -p /files/data
