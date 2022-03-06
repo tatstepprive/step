@@ -123,3 +123,6 @@ Noncritical files:
  * datafiles from other tablespaces (not system, not undo)
 Tip: if ALL online log files are damaged/missing, db will terminate.
 #=======================================================
+old storage mechanism: dictionary managed extents and freelist managed segments
+current (12c) storage mechanism: local extent management and automatic segment space management
+#======================================================

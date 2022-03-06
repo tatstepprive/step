@@ -72,3 +72,6 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 44 Show all deprecated parameters in use without restart?
 45 ORA-01000: maximum open cursors exceeded is not in trace log. Why? 
 45 RESP: You shoud execute to trace it: --To enable ALTER SYSTEM SET EVENTS '1000 trace name errorstack level 3'; --To disable: alter system set events '1000 trace name context off';
+46 How to gather statistics in db?
+47 Which features are in use in db?
+47 RESP: see view v$option for Oracle Data Vault, Oracle Label Security or table dba_registry for OWD (oracle wharehous database for BI)
