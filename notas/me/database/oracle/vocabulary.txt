@@ -43,3 +43,5 @@ OLS=oracle label security f: filter user access to rows
 EM=Enterprise Manager Database Control=db management util in db 10g/11g. Not available in 12c. $ORACLE_HOME/bin/emctl is not available in release 19c (emctl start dbconsole)
 DE=Database Express= db management util in 12c
 patch=patchset=self contained installable image include OUI
+common privilege=granted to common users accross all containers
+local privilege=granted to local/common users in single pdb

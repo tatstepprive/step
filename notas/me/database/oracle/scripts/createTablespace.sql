@@ -31,4 +31,9 @@ create table molly.city(id number, name varchar2(100));
 --show tablespace where table is created
 select * from dba_tables where table_name='CITY';
 
+--create permanent tablespace
+create tablespace tbs1 datafile <path_if_no_OMF> size 100m autoextend on next 100m maxsize 500m;
+--create temp tablespace (diff: temporary and tempfile in syntax)
+create temporary tablespace tbs1 tempfile <path_if_no_OMF> size 100m autoextend on next 100m maxsize 500m;
+
 
