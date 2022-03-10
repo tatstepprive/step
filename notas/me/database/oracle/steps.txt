@@ -1,0 +1,7 @@
+#Steps when all copies of control file are lost in multitenant env
+1 start CDB in nomount mode
+2 restore controlfile from autobackup
+3 recover database
+4 open database with resetlogs
+5 open all pluggable containers
+#======================================
