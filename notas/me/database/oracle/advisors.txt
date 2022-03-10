@@ -1,0 +1,25 @@
+#List of advisors
+Advisors:
+1 Memory Advisors (no Advisor for Large Pool) (7)
+  * SGA v$sga_target_advice
+  * PGA v$pga_target_advice
+  * Shared Pool v$shared_pool_advice
+  * Java Pool   v$java_pool_advice
+  * Streams Pool v$streams_pool_advice
+  * memory_target v$db_memory_target_advice
+  * db cache      v$db_cache_advice
+
+2 SQL Advisor (2)
+ * SQL Access Advisor (workload, segment, index, partioning recommendations)
+ * SQL Tuning Advisor (single statements recommendations)
+
+3 Undo Advisor (1)
+
+4 MTTR Advisor (1)=Mean Time To Revover (after disorderly shutdown: power cut, server reboot, shutdown abort)
+
+5 DRA=Data Recovery Advisor (1) (after file deleted, blocks corrupted)
+
+6 Segment Advisor (1)(autotask; segments do NOT auto shrink after DELETE or UPDATE statements)
+
+7 SQL Repair Advisor (1) (after internal oracle error ORA-600, force different execution plan)
+#==================================

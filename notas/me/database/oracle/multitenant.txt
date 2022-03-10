@@ -1,0 +1,4 @@
+Memory params in pdbs: 
+sort_area_size
+sort_area_retained_size
+pga_aggregate_limit
