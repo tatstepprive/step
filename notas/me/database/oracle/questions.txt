@@ -75,3 +75,21 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 46 How to gather statistics in db?
 47 Which features are in use in db?
 47 RESP: see view v$option for Oracle Data Vault, Oracle Label Security or table dba_registry for OWD (oracle wharehous database for BI)
+48 If one spfile per instance where are the params for pdbs ara saved?
+49 To shrink table which column should be dropped LONG or CLOB?
+50 What is oracle Exadata?
+51 What is parallel server limit in source management?
+52 What autotask are available and when runned and their output?
+53 What is cursor_sharing?
+54 Example with subplans (non-CDB)?
+54 Example with multi level plans (non-CDB)?
+55 What is database replay?
+56 What is consolidation?
+57 How to export AWR snapshot?
+58 How to export SQL profile?
+59 How to export SQL tuning set?
+60 What is temporary tablespace group?
+61 Rman commands duplicate, switch, delete?
+62 What is diff between connect and set container as being in env in multitenant env?
+63 Where trail (unified or other) are written (view/table, os files)?
+64 DBAAS?
