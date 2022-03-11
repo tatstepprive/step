@@ -35,7 +35,7 @@ alter tablespace ts1 read write;
 alter tablespace ts1 offline;
 alter tablespace ts1 online;
 ------------------------------------------------
---RESIZE
+--RESIZE (add space)
 -- Resize tablespace methode1: resize file (now 100MB, set 200MB) (if tablespace ts1 consist from 1 file)
 -- show size before
 select dbms_metadata.get_ddl('TABLESPACE', 'TS1') from dual;
@@ -50,4 +50,11 @@ add datafile '/u01/app/oracle/oradata/ORCL/pdb1/ts1_02.dbf' size 10M;
 --check new file added
 select * from v$datafile;
 --------------------------------------------------
-
+--RESIZE (move objects)
+--move tables
+alter table owner.t1 move tablespace ts1;
+--move index online
+alter index owner.idx rebuild online tablespace ts1;
+--move index 
+alter index owner.idx rebuild tablespace ts1;
+--------------------------------------------------

@@ -93,3 +93,13 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 62 What is diff between connect and set container as being in env in multitenant env?
 63 Where trail (unified or other) are written (view/table, os files)?
 64 DBAAS?
+65 What is relation between table and segment? 
+65 RESP:  Table and segment relationship: 
+          T:S (1:1);
+          T:S (n:1) cluster: many tables in one segment
+          T:S (1:n) partitioned table: each partion=segment, table has many partions
+          T:S (1:0) deffered_segment_creation: table without segment:  table is empty and segment is not added because of parameter
+          T:S (0:1) nested table: table is column in other table (not table self) and column is saved as segment
+
+66 Why to use uniform size nK|M|G instead of autoallocate in extent management?
+66 RESP: uniform: smaller bitmap (bit/extent); autoallocate: bitmap is bigger (bit/extent) 64K (0-16 extents), 1M (17-n extents) 
