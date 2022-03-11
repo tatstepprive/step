@@ -1,0 +1,7 @@
+Dba tasks
+1 Space management
+ * all files autoextensible
+ * extents uniform size effecienty instead of autoallocate
+ * tablespace usage and resize with respect 85% used
+ * os disk size monitoring
+ 
