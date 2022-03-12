@@ -106,3 +106,8 @@ DROP TABLESPACE tbs3
 INCLUDING CONTENTS AND DATAFILES
 CASCADE CONSTRAINTS;
 ------------------------------------------------
+--Show tablespace growing with the time (viaw dba_hist_tbspc_space_usage)
+select rtime, name, tablespace_usedsize
+from v$tablespace v join dba_hist_tbspc_space_usage d on (v.ts#=d.tablepspace_id)
+order by name, rtime desc;
+-------------------------------------------------

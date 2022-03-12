@@ -35,3 +35,5 @@
 28 OS block 512 bytes on Windows (NTFS) and 1MB on Linux (ext3)
 29 Table can be spread in many tablespaces if it's partitioned table (TBS:S (1:n) normally tbs has many segments, and one segment is in one tbs)
 30 control file v$ views, data dictionary dba_ views
+31 tablespace usage with alerts (dba_thresholds view) is not monitored for temp and undo tablespace 
+32 tablespace growing is visible in dba_hist_tbspc_space_usage view
