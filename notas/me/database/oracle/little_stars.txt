@@ -29,7 +29,7 @@
     T:S (1:1); 
     T:S (n:1) cluster: many tables in one segment
     T:S (1:n) partitioned table: each partion=segment, table has many partions
-    T:S (1:0) deffered_segment_creation: table without segment:  table is empty and segment is not added because of parameter
+    T:S (1:0) deferred_segment_creation: table without segment:  table is empty and segment is not added because of parameter (deferred=later)
     T:S (0:1) nested table: table is column in other table (not table self) and column is saved as segment
 27 DB_BLOCK_SIZE is set at db creation and can never be changed (default 8KB, can vary 2KB to 16KB)
 28 OS block 512 bytes on Windows (NTFS) and 1MB on Linux (ext3)

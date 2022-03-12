@@ -29,11 +29,11 @@ Tip: other table=main table with pk, this table=dependent table with fk to pk
 Tip: you can temporary disable constraints without deleting it
 Tip: when you disable pk or unique constraints, the releated index will be dropped, when enable again index will be recreated automatically
 #Deferrable constraints
-Defferable constraint allow change constraint value in main table which is referred by fk in other table without many action like it was before (add new recored in main table with new value, change value in fk, remove old record in main table)
+Deferrable constraint allow change constraint value in main table which is referred by fk in other table without many action like it was before (add new recored in main table with new value, change value in fk, remove old record in main table)
 Everything is done in on step and applied on commit. Before oracle reacted before commit with error if you try to do operation explained above.
 deferrable initially deferred f: constraint check will be postponed after commit, if error transaction will be rollbacked
-defferable initially immediate f: acting like normal behaviour, constraint will be checked/fired before commit, for ex by doing insert, if error direct error message shown
-Tip: when creating constraint with option deferrable initially (default is not defferable), you can change behaviour by set constraint <constraint_name> immediate (only for current session);
+deferrable initially immediate f: acting like normal behaviour, constraint will be checked/fired before commit, for ex by doing insert, if error direct error message shown
+Tip: when creating constraint with option deferrable initially (default is not deferred), you can change behaviour by set constraint <constraint_name> immediate (only for current session);
 #========================================================
 #Table
 Alter table when:
