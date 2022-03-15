@@ -108,5 +108,6 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 69 How to find migrated rows?
 70 How to see that segment advisor is running and enabled? Default is enabled and running every night, but how to see it's not disabled?
 71 How to see all autotasks?
+RESP: select * from dba_autotask_job_history;
 72 How to see segment advisor advises?
 RESP 72: via query: select segment_name, segment_type, recommendations from table(dbms_space.asa_recommendations);
