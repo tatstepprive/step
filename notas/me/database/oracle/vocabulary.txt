@@ -42,7 +42,7 @@ DBUA=oracle database upgrade assistent (launch dbua = $ORACLE_HOME/bin/dbua
 OLS=oracle label security f: filter user access to rows
 EM=Enterprise Manager Database Control=db management util in db 10g/11g. Not available in 12c. $ORACLE_HOME/bin/emctl is not available in release 19c (emctl start dbconsole)
 DE=Database Express= db management util in 12c
-OEM=Oracle Database Express 12C=db management util in 12c (navigate to https://dbhost:emport/em (default emport=5500))
+OEM=Oracle Database Express 12C=db management util in 12c (navigate to https://dbhost:emport/em (default emport=5500)) Works in IE, not chrome/firefox: asking flash plugin) Fixed in 19c
 patch=patchset=self contained installable image include OUI
 common privilege=granted to common users accross all containers
 local privilege=granted to local/common users in single pdb
