@@ -305,3 +305,6 @@ Recovery catalog plus points:
  * no limit in time to retain data
  * ability to create a new db from backup 
 ------------------------------
+--show rman log, rman status
+select * from v$rman_status;
+------------------------------
