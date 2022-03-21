@@ -1,0 +1,5 @@
+Client can connect:
+1a Easy connect method: user@"dbhost:dbport/dbname"
+1b Easy connect method with default port 1521: user@"dbhost/dbname"
+2 Local naming method: $ORACLE_HOME/network/admin/tnsnames.ora
+3 Directory naming: using LDAP
