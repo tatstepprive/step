@@ -36,3 +36,7 @@ select * from user_errors;
 --play with time format in session
 alter session set nls_date_format ='dd/mm/yyyy hh24:mm:ss';
 to_timestamp('21/02/2022 18:05:10','dd/mm/yyyy hh24:mm:ss');
+--show connection details (user)
+show user;
+--show connection details (database) with no special permission needed like for: select name from v$database
+select * from global_name;
