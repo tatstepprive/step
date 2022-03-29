@@ -846,3 +846,66 @@ enabled=>true,
 auto_drop=>false);
 end;
 ----------------------------------------------------
+--Monitor too many privileges given
+CREATE OR REPLACE PROCEDURE SYS.MON_2MANY_PRIVS_PROC
+AS
+cursor curr is
+   select grantee, privilege
+   from dba_sys_privs
+   where privilege like '% ANY %'
+   and grantee in (select username from dba_users where oracle_maintained='N')
+   and grantee not in ('MONITOR_RO')
+   and privilege not in ('SELECT ANY DICTIONARY')
+   order by 1,2;
+v_target_count number:=0;
+msg_str varchar2(6000);
+my_columns varchar2(200) :='GRANTEE'||chr(9)||'PRIVILEGE';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db
+   from v$database;
+   select host_name into my_host
+   from v$instance;
+   my_subj:='ALERT too many privileges '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: too many privileges ';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for curr_rec in curr
+   loop
+   v_target_count:=v_target_count+1;
+   msg_str:=msg_str||chr(10)||chr(13)||curr_rec.grantee||chr(9)||curr_rec.privilege;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('Too many privileges for user found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No too many privileges for user found');
+   end if;
+end;
+/
+BEGIN
+    -- Call
+    SYS.MON_2MANY_PRIVS_PROC;
+    -- Transaction Control
+    COMMIT;
+END;
+/
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_2many_privs',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_2MANY_PRIVS_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=9;byminute=15',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+
+
+---------------------------------------------------------------------------------
