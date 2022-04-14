@@ -1,0 +1,6 @@
+#show all applied patches
+cd $ORACLE_HOME/OPatch; ./opatch lspatches
+#=========================================
+#show all fixed bugs with patches
+cd $ORACLE_HOME/OPatch; ./opatch lsinventory
+#=========================================
