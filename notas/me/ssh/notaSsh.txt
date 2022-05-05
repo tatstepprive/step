@@ -38,3 +38,21 @@ git config core.sshCommand "ssh -i ~/.ssh/id_rsa_scriptura"
 [core]
 ...
 sshCommand = ssh -i ~/.ssh/id_rsa_scriptura
+======================
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_my_user -C "dbro-key" -N ''
+cat <<EOT >> ~/.greetings.txt
+-----BEGIN OPENSSH PRIVATE KEY-----
+9RF65MthahdT9XywG+ki7UdJ+JKCU3dLrfsZ1V/48BFhGOC+6s6Mr3aXPGNRumxJDzyBSy
+...
+IjXhjVKsyZmpyfAAAACGRicm8ta2V5AQI=
+-----END OPENSSH PRIVATE KEY-----
+EOT
+
+chmod  600 ~/.greetings.txt
+(
+rm -fr /tmp/monitoring
+GIT_SSH_COMMAND='ssh -i  ~/.greetings.txt -o IdentitiesOnly=yes' git clone git@host:user/project.git /tmp/monitoring
+cd /tmp/monitoring/
+ls -ltra
+)
+==============================================================
