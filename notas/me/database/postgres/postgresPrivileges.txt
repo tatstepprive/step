@@ -1,0 +1,145 @@
+=================================
+# show all users roles
+SELECT usename AS role_name,
+  CASE 
+     WHEN usesuper AND usecreatedb THEN 
+	   CAST('superuser, create database' AS pg_catalog.text)
+     WHEN usesuper THEN 
+	    CAST('superuser' AS pg_catalog.text)
+     WHEN usecreatedb THEN 
+	    CAST('create database' AS pg_catalog.text)
+     ELSE 
+	    CAST('' AS pg_catalog.text)
+  END role_attributes
+FROM pg_catalog.pg_user
+ORDER BY role_name desc;
+=================================
+Schema = namespace and contains db objects as tables, views, indexes, datatypes, functions, stored procedures and operators
+to access object = select <schema_name>.<object_name>
+Database 1---------n Schemas ---------- n Tables
+Schema ------1 Database
+Default: there is 2 db available postgres and template1
+Public is default schema in every new database
+Schema path= LIST of schemas to look for a table
+psql : show search_path
+
+User=ROLE_NAME
+User (role) can access own or granted usage schema
+GRANT USAGE ON SCHEMA <schema_name> to <role_name>
+Default: user can use and create object in public schema
+
+ROLE=USER
+GROUP ROLE= role can contain other roles
+pg_<role_name> = starting with pg are the roles reserved by system
+select rolename from pg_roles; --show all roles
+psql: \du   --show roles except pg_ roles
+
+psql line and user:
+<dbname>=> //usual user
+<dbname>=# //super user
+
+-- is comment in sql
+sql is ignoring case expept between ""
+
+==========================================
+Database: separate db for each project or user
+createdb <db_name> 
+db_name=starts with a letter and contain 63 bytes (default db_name=user_name)
+/usr/local/pgsql/bin/createdb
+dropdb <db_name>
+psql <db_name>
+psql //and nothing as db_name where username(role)=db_name
+Par default: username=dbname=1 schema with name public
+On project you can use too:
+1 user <app-name>user_<env=dev,acc,prd> exp: blauser_dev
+1 db <app-name>-<env=dev,acc,prd> exp: bla-dev
+A lot of schema <other-user-name>-service, public
+===========================
+psql \du = show users (roles)
+psql \h  = help
+psql \q  = quit
+psql \?  = help
+psql \d  = show tables
+psqi \i  = reads file , connect as psql -s mydb and then \i myfile.sql
+psql \dx = show extentions on current connected db
+psql \c dbname = connect db or switch current connected db to other db
+===========================
+SQL
+create table <table-name> (...); 
+drop table <table-name>;
+insert into table <table-name> (...) values (...); 
+insert more data faster using COPY command on backend (server side):
+COPY <table_name> from /path/to/file.txt
+Transaction=all or notning operation
+BEGIN;
+sql code
+COMMIT;
+===========================
+https://www.postgresql.org/docs/12/ddl-priv.html#PRIVILEGE-ABBREVS-TABLE
+
+SELECT		r (“read”)	LARGE OBJECT, SEQUENCE, TABLE (and table-like objects), table column
+INSERT		a (“append”)	TABLE, table column
+UPDATE		w (“write”)	LARGE OBJECT, SEQUENCE, TABLE, table column
+DELETE		d	TABLE
+TRUNCATE	D	TABLE
+REFERENCES	x	TABLE, table column
+TRIGGER		t	TABLE
+CREATE		C	DATABASE, SCHEMA, TABLESPACE
+CONNECT		c	DATABASE
+TEMPORARY	T	DATABASE
+EXECUTE		X	FUNCTION, PROCEDURE
+USAGE		U	DOMAIN, FOREIGN DATA WRAPPER, FOREIGN SERVER, LANGUAGE, SCHEMA, SEQUENCE, TYPE
+
+
+Object Type	All Privileges	Default PUBLIC Privileges	psql Command
+DATABASE		CTc	Tc				\l
+DOMAIN			U	U				\dD+
+FUNCTION or PROCEDURE	X	X				\df+
+FOREIGN DATA WRAPPER	U	none				\dew+
+FOREIGN SERVER		U	none				\des+
+LANGUAGE		U	U				\dL+
+LARGE OBJECT		rw	none	 
+SCHEMA			UC	none				\dn+
+SEQUENCE		rwU	none				\dp
+TABLE (and table-like objects)	arwdDxt	none			\dp
+Table column		arwx	none				\dp
+TABLESPACE		C	none				\db+
+TYPE			U	U				\dT+
+
+
+====================================
+CREATE DATABASE "my-db"
+    WITH 
+    OWNER = my_user;
+-------------------------------------
+How to read: <user_who_recieved_privelege>=<which_privilege_as_sinle_letter>/<user_who_gave_privilege>
+examples:
+=Tc/my_user (public revieved temporary and connect privileges from my_user)
+my_user2=Tc/my_user (my_user2 revieved temporary and connect privileges from my_user)
+-------------------------------------
+Default public privilages (nothing before '=' sign means public):
+=Tc/my_user
+in sql:
+GRANT TEMPORARY, CONNECT ON DATABASE "my-db" TO PUBLIC; 
+Tc=>TEMPORARY, CONNECT
+=T/my_user
+T=>TEMPORARY
+in sql:
+GRANT TEMPORARY ON DATABASE "my-db" TO PUBLIC;
+----------------------------------------
+All my_user privilages:
+GRANT TEMPORARY ON DATABASE "my-db" TO PUBLIC; 
+my_user=CTc/my_user
+CTc=>C=create database,schema,tablespace; T=temporary; c=connect;
+GRANT ALL ON DATABASE "my-db" TO my_user; --or if its owner
+my_user2=c/my_user
+GRANT CONNECT ON DATABASE "my-db" TO my_user2;
+
+=============================
+#connection details (show current user, server etc)
+\conninfo
+in sql:
+select session_user, current_user;
+#switch user
+set role <other_user>;
+=============================

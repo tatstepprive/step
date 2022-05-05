@@ -32,47 +32,6 @@ sql:
 -ilike
 -group by
 =================================
-# show all users roles
-SELECT usename AS role_name,
-  CASE 
-     WHEN usesuper AND usecreatedb THEN 
-	   CAST('superuser, create database' AS pg_catalog.text)
-     WHEN usesuper THEN 
-	    CAST('superuser' AS pg_catalog.text)
-     WHEN usecreatedb THEN 
-	    CAST('create database' AS pg_catalog.text)
-     ELSE 
-	    CAST('' AS pg_catalog.text)
-  END role_attributes
-FROM pg_catalog.pg_user
-ORDER BY role_name desc;
-=================================
-Schema = namespace and contains db objects as tables, views, indexes, datatypes, functions, stored procedures and operators
-to access object = select <schema_name>.<object_name>
-Database 1---------n Schemas ---------- n Tables
-Schema ------1 Database
-Default: there is 2 db available postgres and template1
-Public is default schema in every new database
-Schema path= LIST of schemas to look for a table
-psql : show search_path
-
-User=ROLE_NAME
-User (role) can access own or granted usage schema
-GRANT USAGE ON SCHEMA <schema_name> to <role_name>
-Default: user can use and create object in public schema
-
-ROLE=USER
-GROUP ROLE= role can contain other roles
-pg_<role_name> = starting with pg are the roles reserved by system
-select rolename from pg_roles; --show all roles
-psql: \du   --show roles except pg_ roles
-
-psql line and user:
-<dbname>=> //usual user
-<dbname>=# //super user
-
--- is comment in sql
-sql is ignoring case expept between ""
 
 pgsql vs psql?
 pgsql 
@@ -126,44 +85,6 @@ BEGIN;
 sql code
 COMMIT;
 ===========================
-https://www.postgresql.org/docs/12/ddl-priv.html#PRIVILEGE-ABBREVS-TABLE
-
-SELECT		r (“read”)	LARGE OBJECT, SEQUENCE, TABLE (and table-like objects), table column
-INSERT		a (“append”)	TABLE, table column
-UPDATE		w (“write”)	LARGE OBJECT, SEQUENCE, TABLE, table column
-DELETE		d	TABLE
-TRUNCATE	D	TABLE
-REFERENCES	x	TABLE, table column
-TRIGGER		t	TABLE
-CREATE		C	DATABASE, SCHEMA, TABLESPACE
-CONNECT		c	DATABASE
-TEMPORARY	T	DATABASE
-EXECUTE		X	FUNCTION, PROCEDURE
-USAGE		U	DOMAIN, FOREIGN DATA WRAPPER, FOREIGN SERVER, LANGUAGE, SCHEMA, SEQUENCE, TYPE
-
-
-Object Type	All Privileges	Default PUBLIC Privileges	psql Command
-DATABASE		CTc	Tc				\l
-DOMAIN			U	U				\dD+
-FUNCTION or PROCEDURE	X	X				\df+
-FOREIGN DATA WRAPPER	U	none				\dew+
-FOREIGN SERVER		U	none				\des+
-LANGUAGE		U	U				\dL+
-LARGE OBJECT		rw	none	 
-SCHEMA			UC	none				\dn+
-SEQUENCE		rwU	none				\dp
-TABLE (and table-like objects)	arwdDxt	none			\dp
-Table column		arwx	none				\dp
-TABLESPACE		C	none				\db+
-TYPE			U	U				\dT+
-
-=============================
-#connection details (show current user, server etc)
-\conninfo
-select session_user, current_user;
-#switch user
-set role <other_user>;
-=============================
 #configure log name as postgresql-date.log instead of postgresql-weekday.log (exp: postgresql-Fri.log)
 nano /var/lib/pgsql/12/data/postgresql.conf
 #change to
