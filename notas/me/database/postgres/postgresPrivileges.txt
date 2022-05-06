@@ -110,21 +110,32 @@ TYPE			U	U				\dT+
 ====================================
 CREATE DATABASE "my-db"
     WITH 
-    OWNER = my_user;
+    OWNER = my_owner;
 -------------------------------------
 How to read: <user_who_recieved_privelege>=<which_privilege_as_sinle_letter>/<user_who_gave_privilege>
 examples:
-=Tc/my_user (public revieved temporary and connect privileges from my_user)
-my_user2=Tc/my_user (my_user2 revieved temporary and connect privileges from my_user)
+=Tc/my_owner (public revieved temporary and connect privileges from my_owner)
+my_user2=Tc/my_owner (my_user2 revieved temporary and connect privileges from my_owner)
+-------------------------------------
+if after creation database nothing is done, then everyone can connect and when executing \l+ the column for privileges will be empty
+to protect database, execute sql:
+REVOKE CONNECT ON DATABASE "my-db" from public;
+Then sql code for database in pgAdmin changed automatically to:
+GRANT ALL ON DATABASE "my-db" TO my_owner;
+GRANT TEMPORARY ON DATABASE "my-db" TO PUBLIC;
+For info: superuser and db owner can connect always, but for multiuser db with multi schemas or read-only user, we need to give the connect right:
+GRANT CONNECT ON DATABASE "my-db" TO my_user2;
+GRANT CONNECT ON DATABASE "my-db" TO my_ro_user;
+Tip: avoid privileges with empty after db creation or with =Tc/my_owner , so connect given to public, it should be =T/my_owner
 -------------------------------------
 Default public privilages (nothing before '=' sign means public):
-=Tc/my_user
-in sql:
+=Tc/my_owner
+in sql (in pgAdmin):
 GRANT TEMPORARY, CONNECT ON DATABASE "my-db" TO PUBLIC; 
 Tc=>TEMPORARY, CONNECT
 =T/my_user
 T=>TEMPORARY
-in sql:
+in sql (in pgAdmin):
 GRANT TEMPORARY ON DATABASE "my-db" TO PUBLIC;
 ----------------------------------------
 All my_user privilages:
