@@ -152,3 +152,18 @@ ps -eo pid,ppid,%mem,%cpu,cmd --sort=-%mem | head
 #Show top 20 memory processes
 ps aux --sort -rss | head -n 20
 #====================================
+#compress file: 
+#gzip will create a file filename.gz and delete the original file.
+gzip filename
+#verbose output: shows percentage reduction
+gzip -v filename
+#compress file -1 --fast or -9 --best
+gzip -9 filename
+#compress dir
+gzip -r dirname
+#uncompress/decompress file 
+gzip -d filename.gz
+gzip -d filename1.gz filename2.gz filename3.gz
+#list compressed file content
+gzip -l filname
+#====================================
