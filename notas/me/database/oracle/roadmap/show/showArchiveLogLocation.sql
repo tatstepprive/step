@@ -6,6 +6,8 @@ show parameter RECOVERY_FILE_DEST;
 
 --The archive destination can be set with parameter log_archive_dest_n where n=number
 show parameter log_archive_dest;
+--the same
+show parameter dest_1;
 
 --show archive dest
 select * from v$archive_dest;
