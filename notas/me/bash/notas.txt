@@ -167,3 +167,7 @@ gzip -d filename1.gz filename2.gz filename3.gz
 #list compressed file content
 gzip -l filname
 #====================================
+#sync the content between 2 servers. To execute on my_host1
+rsync -azP my_user@my_host2:/var/lib/jenkins/jobs/ /var/lib/jenkins/jobs
+#====================================
+
