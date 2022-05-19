@@ -128,3 +128,149 @@ alter system set log_archive_config='dg_config=(<prm>,<stb>)';
 #MANUAL CONFIGURATION (to understand basis)
 #MANUAL CONFIGURATION ON STB
 ###########################################
+#1.PRM
+create pfile='/tmp/init<stbsid>.ora from spfile;
+scp /tmp/init<stbsid>.ora oracle@stb:/tmp
+ssh oracle@stbhost
+#2.STB nano /tmp/init<stbsid>
+#change FAL_SERVER to prmsid
+#change log_archive_dest_2='service=<prmsid> ... db_unique_name='<prm_sid>'
+#add db_unique_name=<stb_sid>
+#save
+#3.STB create all data dirs used in /tmp/init<sidstb>.ora
+mkdir A B C
+create spfile from pfile='/tmp/init<sidstb>.ora'
+ls $ORACLE_HOME/dbs
+startup nomount;
+exit; --exit or rman will not work
+#4.PRM
+rman target sys@prmsid #dont use rman target /
+password:
+RMAN> duplicate target database for standby from active database NOFILENAMECHECK;
+#5.STB start MRP to continously apply redo logs (disconnect means run in background)
+sql> alter database recover managed standby database disconnect;
+#6.PRM verify
+sql> set lines 999;
+sql> select * from v$dataguard_status order by timestamp;
+sql> select dest_id, status, destination, error from v$archive_dest where dest_id<=2;
+#7.PRM fix ORA-16058 by restart dest2
+sql>alter system set log_archive_dest_state_2='DEFER';
+sql>alter system set log_archive_dest_state_2='ENABLE';
+sql>clear screen
+#8.STB show MRP running
+sql>select process, status, sequence# from v$managed_standby;
+#9.PRM show GAP
+sql>select sequence#, first_time, next_time, applied, archived from v$archived_log where name=<stbsid> order by first_time;
+sql>select status, gap_status from v$archive_dest_status where dest_id=2;
+#10.STB show MRP0 process
+sql>select process, status, sequence# from v$managed_standby 
+--see MPR0 process
+#11.PRM show current/next log sequence
+sql>archive log list;
+#12.PRM switch log/generate log sequence
+sql>alter system switch logfile;
+#13.STB
+sql>select process, status, sequence# from v$managed_standby;
+sql>select sequence#, applied, first_time, next_time, name, filename from v$archived_log order by sequence#;
+#14.STB disable MRP and enable flashback, enable MRP
+sql>alter database recover managed standby database cancel;
+sql>alter database flashback on;
+sql>alter database recover managed standby database disconnect;
+#15.PRM configure archiver deletion policy
+rman target /
+rman> configure archivelog deletion policy to applied on all standby;
+###############################################################################
+#CREATE FAILOVER SERVICE
+###############################################################################
+select database_role from v$database;
+--create procedure
+create or replace procedure test_rw_service
+is
+v_role varchar(30);
+begin
+select database_role into v_role from v$instance;
+if v_role='PRIMARY' then
+dbms_service.start_service('test_rw');
+else 
+dbms_service.stop_service('test_rw');
+end if;
+end;
+/
+--create service
+exec dbms_service.create_service(service_name=>'test_rw',aq_ha_notifications=>TRUE, failover_methode=>'BASIC',failover_type=>'SELECT', failover_retries=>30, failover_delay=>5);
+--create triggers
+create or replace trigger db_startup
+after startup on database
+begin
+test_rw_service;
+end;
+/
+
+create or replace trigger test_db_rolechange
+after db_role_change on database
+begin
+test_rw_service;
+end;
+/
+
+--tnsnames entry
+test =
+  (DESCRIPTION =
+   (ADDRESS_LIST=
+    (ADDRESS = (PROTOCOL = TCP)(HOST = prmhost)(PORT = 1521))
+    (ADDRESS = (PROTOCOL = TCP)(HOST = stbhost)(PORT = 1521))
+   )
+    (CONNECT_DATA =
+        (SERVICE_NAME = test_rw)
+        (FAILOVER_MODE=
+          (TYPE=SELECT)(METHOD=BASIC)(RETRIES=30)(DELAY=5
+        )
+    )
+  )
+###############################################################################
+#MANUAL SWITCHOVER
+###############################################################################
+select name, open_mode, db_unique_name, database_role from v$database;
+#1.PRM check GAP before switch over
+select status, gap_status from v$archive_dest_status where dest_id=2;
+#2.STP
+select name, value, datum_time from v$dataguard_stats;
+#3.PRM convert PRM to STB
+select switchover_status from v$database
+--see TO STANDBY or SESSIONS ACTIVE
+alter database commit to switchover to physical standby with session shutdown;
+shutdown immediate;
+startup mount;
+#4.STB
+select switchover_status from v$database
+--see TO PRIMARY
+alter database commit to switchover to primary with session shutdown;
+alter database open;
+#5.STB or PRM
+alter database recover managed standby database disconnect;
+###############################################################################
+#MANUAL FAILOVER
+###############################################################################
+--Let oracle clients wait is better than disconnect them
+--You should test switch over 1/month
+#1.PRM crash due reboot
+#2.STB stop MRP
+alter database recover managed standby database cancel;
+alter database recover managed standby database finish;
+#3.STB convert and open
+select switchover_status from v$database;
+--see TO PRIMARY
+alter database commit to switchover to primary with session shutdown;
+alter database open;
+###############################################################################
+#CLEAN shutdown PRM, STB
+###############################################################################
+#1.STB stop MRP
+alter database recover managed standby database cancel;
+shut immediate;
+#2.PRM 
+shut immediate;
+###############################################################################
+#REINSTATE OLD PRM
+###############################################################################
+
