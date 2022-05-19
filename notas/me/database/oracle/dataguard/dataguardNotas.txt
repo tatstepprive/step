@@ -1,0 +1,75 @@
+Voc:
+PRM=prm=primary
+STB=stb=standby
+DG=dg=dataguard
+LNS=log network service
+RFB=remote fetch service
+LSS=LNS+RKB=log ship service
+MRP=managed recovery process
+LAS=log apply service
+ORLF=online redo log files
+SRLF=SRL=standby redo log files
+==============================
+Standby (stb) types:
+1 Physical stb
+2 Snapshot stb
+3 Active DG
+4 Logical stb
+==============================
+MANUAL CONFIGURATION (to understand basis)
+#PRM in sqlplus enable archive log
+archive log list;
+--change to archive mode
+shut immediate;
+startup mount;
+alter database archivelog;
+alter database open;
+archive log list;
+#-----------------------------
+#PRM in sqlplus 
+select name, open_mode from v$database;
+--open_mode=READ WRITE
+#----------------------------
+#PRM force logging (redo logs should be always generated even with NOLOGGING flag on transaction)
+select name, force_logging from v$database;
+--force_logging=NO
+alter database force logging;
+select name, force_logging from v$database;
+--force_logging=YES
+#------------------------------
+#PRM to manage files (when add/drop datafile on PRM then the datafile should be added/dropped on STB)
+show parameter standby_file_management;
+alter system set standby_file_management='AUTO';
+#-----------------------------
+#PRM create standby log files srlf (stanby redo log files) (they needed when PRM become STB by manual switch if needed)
+select group#, member from v$logfile;
+--default 1,2,3 group, should be 1,2,3,4,5 => 5 redo groups
+--add 6 standby redo=nr redo+1
+select group#, thread#, sequence#, archived, status from v$standby_log;
+--status=UNASSIGNED (on PRM)
+#------------------------------
+#PRM create pwd file for STB 
+--methode 1 scp 
+$ORACLE_HOME/dbs/orapw<sid> oracle@stb_host:$ORACLE_HOME/dbs
+--methode 2
+sqlalter system set remote_login_passwordfile=exclusive scope=spfile;
+on os: cd $ORACLE_HOME/dbs
+???
+scp orapw<sid_stb> oracle@stb_host:$ORACLE_HOME/dbs
+show parameter remote_login_passwordfile
+--value=EXCLUSIVE
+#----------------------------------------------
+#PRM check db unique name
+show parameter db_unique_name;
+--by default sid=db_unique_name but you can set that it differs like sid=PRM db_unique_name=PRM_PRMHOST
+#---------------------------------------------
+#PRM enable flashback
+alter system set db_recovery_file_dest_size=45G;
+--or more ex: 190G
+alter system set db_recovery_file_dest='/ora/app/oracle/fast_recovery_area':
+show parameter recovery;
+alter system flashback on;
+--if flashback is OFF (NO) then only clonning from STB will recover PRM after crash
+--if flashback is ON you can choose clonning or recovery using flashback (faster)
+#-----------------------------------------------
+#PRM configure network
