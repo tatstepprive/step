@@ -273,4 +273,103 @@ shut immediate;
 ###############################################################################
 #REINSTATE OLD PRM
 ###############################################################################
-
+--Using flashback method
+#1.STB search SCN
+select standby_became_primary_scn from v$database;
+select to_char(standby_became_primary_scn) from v$database;
+#2.PRM (old) start listener, db in mount and do flashback
+lsnrctl start listener
+sqlplus / as sysdba;
+startup mount;
+flashback database to scn <nr>;
+alter database convert to physical standby;
+shut immediate;
+exit;
+sqlplus / as sysdba;
+startup mount
+--start MRP
+alter database recover managed standby database disconnect;
+--check sync
+select process, status, sequence# from v$managed_standby;
+--MRP0 wait_for_log <nr>
+#3.STB(new PRM)
+archive log list;
+--convert PRM to STB
+select switchover_status form v$database;
+--see TO STANDBY
+--convert
+alter database commit to switchover to physical standby with session shutdown;
+--mount
+startup mount;
+#4.PRM(old)
+select switchover_status from v$database;
+--see TO PRIMAEY
+alter database commit ot switchover to primary with session shutdown;
+--open
+alter database open;
+--start MRP
+alter database recover managed standby database disconnect;
+--check transfer
+select process, status, sequence# from v$managed_standby;
+#5.STB
+archive log list;
+alter system switch logfile;
+###############################################################################
+#CONVERT PHYSICAL STB to SNAPSHOT STB
+###############################################################################
+#1.STB
+select name, open_mode, database_role from v$database;
+--see mounted, PHYSICAL_STANDBY
+--stop MPR process
+alter database revover managed standby database cancel;
+alter database convert to snapshot standby;
+alter database open;
+--test snapshot STB
+create table ss_test(sno number);
+insert into ss_test values(10);
+select name, open_mode, database_role from v$database;
+--see database_role=SNAPSHOT STANDBY
+select name, guarantee_flashback_database from v$restore_point;
+###############################################################################
+#CONVERT SNAPSHOT STB to PHYSICAL STB
+###############################################################################
+#1.STB
+shut immediate;
+exit;
+sqlplus / as sysdba;
+startup mount;
+alter database convert to physical standby;
+shut immediate;
+exit;
+sqlplus / as sysdba;
+startup mount;
+--start MRP
+alter database recover managed standby database disconnect;
+select process, status, sequence# from v$managed_standby
+###############################################################################
+#CONVERT PHYSICAL STB to LOGICAL STB
+###############################################################################
+#1.STB
+select name, open_mode from v$database;
+--mounted
+--MRP down
+alter database recover managed standby database cancel;
+alter database open;
+--MRP up
+alter database recover managed standby database disconnect;
+select name, open_mode from v$database;
+--READ ONLY WITH APPLY
+--only select queries are possible
+###############################################################################
+#CONVERT ACTIVE DATAGUARD to PHYSICAL STB
+###############################################################################
+#1.STB
+--MRP down
+alter database recover managed standby database cancel;
+shut immediate;
+exit
+sqlplus / as sysdba;
+startup mount;
+--MRP up
+alter database recover managed standby database disconnect;
+##############################################################################
