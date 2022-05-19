@@ -1,0 +1,4 @@
+Dataguard broker is automatic tool that automate and monitor all steps for dataguard
+dgmgrl=dataguard tool f: simple management PRM and STB
+DG broker=dataguard broker
+
