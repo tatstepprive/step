@@ -1,4 +1,135 @@
 Dataguard broker is automatic tool that automate and monitor all steps for dataguard
 dgmgrl=dataguard tool f: simple management PRM and STB
 DG broker=dataguard broker
+FSFO=fast start fail over
+#1.PRM adapt listener.ora for entry stbsid_DGMGRL
+#2.STB stop MRP
+alter database recover managed standby database cancel;
+#3.PRM and STB reset log_archive_dest_2 (dg broker will manage, adapt this parameter)
+alter system set log_archive_dest_2='' scope=both sid='*';
+#4.PRM and STB enable broker
+show parameter dg_broker_start;
+--false
+alter system set dg_broker_start=true;
+#5.PRM use utility dgmgrl (it will be replicated to STB)
+dgmgrl sys/pass@prmsid as sysdba
+dgmgrl> show configuration;
+--add configuration/register primary
+dgmgrl>create configuration <anyname_prm> as primary database is <prmsid> connect identifier is <prm_tnsnames_entry>;
+dgmgrl>show configuration;
+--add standby
+dgmgrl>add database <stbsid> as connect identifier is <stb_tnsnames_entry>;
+dgmgrl>show configuration;
+dgmgrl>enable configuration;
+dgmgrl>show configuration;
+dgmgrl>show database <prmsid>;
+dgmgrl>show database <stbsid>;
+--stop MRP
+dgmgrl>edit database <stbsid> set state=APPLY_OFF;
+--start MRP
+dgmgrl>edit database <stdsid> set state=APPLY_ON;
+--show all options of util
+dgmgrl>help
+--Errors to ignore: ORA-16853 , ORA-16855, ORA-16857 : ignore network latency
+--How to test: open 3 windows: ssh to PRM, ssh to STB, sqlplus from client
+#==================================================================
+Tip: default location of archive logs
+sql>archive log list;
+--see Archive destination USE_RECOVERY_FILE_DEST
+sql>show parameter recovery_file_dest;
+--value=path
+--or it can be set via log_archive_dest_n parameter
+#==================================================================
+#DG BROKER switch over
+#==================================================================
+#1.PRM
+dgmgrl sys@<prmsid> as sysdba
+dgmgrl> show configuration;
+dgmgrl> switchover to <stbsid>;
+dgmgrl> show configuration;
+#2.PRM
+dgmgrl sys@<stbsid> as sysdba
+dgmgrl>show configuration;
+dgmgrl>switchover to <prmsid>;
+dgmgrl>show configuration;
+#==================================================================
+#DG BROKER fail over
+#==================================================================
+#1.PRM reboot server
+#2.STB 
+dgmgrl sys@<stbsid> as sysdba
+password:
+dgmgrl>show configuration; --HANGS, because PRM is down, never execute this command to avoid hangs
+dgmgrl sys@<stbsid> as sysdba
+password:
+dgmgrl>failover to <stbsid>;
+#3.PRM rebuild (start host, start listener)
+lsnrctl start listener
+#4.STB (functionning now as prm) connect PRM
+dgmgrl sys@<prmsid> as sysdba
+dgmgrl>reinstate database <prmsid>;
+dgmgrl>show configuration;
+dgmgrl>switchover to <prmsid>
+dgmgrl>show configuration;
+######################################################################
+#Check applying logs
+######################################################################
+#1.PRM
+archive log list;
+--see log sequence
+#2.STB check MRP
+select process, status, sequence# from v$managed_standby;
+--see MRP0 Archiving_log seqnumber
+#3.PRM 
+alter system switch logfile;
+#4.STB
+select process, status, sequence# from v$managed_standby;
+--see MRP0 Archiving_log seqnumber should be higher, then applying logs is OK
+###################################################################
+#Enable FSFO dg broker
+####################################################################
+Benefit:
+1 if enabled -> auto failover (default is disabled) (auto makes STB active and in use)
+2 auto reistate (auto makes PRM back active and in use)
+Howto: extra process called observer
+Disadvantages:
+observer takes resources and makes db less performant. A lot of cpu usage
+Tip: not recommended to use in production 
+#1.PRM check StaticConnectionIdentifier (for 11g, not for 12c)
+dgmgrl sys/sys@<prmsid>
+dgmgrl>show database <prmsid> StaticConnectIdentifier;
+dgmgrl>show database <stbsid> StaticConnectIdentifier;
+--if blank, then edit local listener
+sql>alter system set local_listener='(ADDRESS=(PROTOCOL=TCP)(HOST=<prm>)(PORT=1532))(CONNECT_DATA=(SERVICE_NAME=<sid>_DGMGRL)(INSTANCE_NAME=<sid>)(SERVER=DEDICATED)))
+--see status FSFO
+dgmgrl sys/sys@<prmsid>
+dgmgrl>show configuration;
+--see FSFO: DISABLED
+#2.PRM Define FSFO (fast start failover) target
+dgmgrl sys/sys@<prmsid>
+dgmgrl> show fast_start failover;
+dgmgrl> edit database <prmsid> set property FastStartFailoverTarget='<stbsid>';
+dgmgrl> edit database <stbsid> set property FastStartFailoverTarget='<prmsid>';
+dgmgrl> show database datbase verbose <stbsid>;
+dgmgrl> show database datbase verbose <prmsid>;
+#3.PRM Define FSFO threshold (time in sec to init failover when PRM is down (default 30 sec)
+dgmgrl> edit configuration set property FastStartFailoverThreshold=30;
+dgmgrl>show fast_start failiver;
+dgmgrl>show configuration verbose;
+#4.PRM Define FSFO Lag limit (accepted with client the time of lost transactions during the failover) (default 30 sec)
+--only in MaxPerformanceMode because in MaxProtection/MaxAvailibility there is no data loss !
+dgmgrl>edit configuration set property FastStartFailoverLagLimit=30;
+#5.PRM Enable FSFO
+dgmgrl>enable fast_start failover;
+dgmgrl>show configuration;
+--Never do it this way, observer should run in background 
+--you never get prompt back and without stopping observer
+--it's good for debug purposes to see output directly and see what is observer is doing
+dgmgrl>start observer;
+#6.PRM stop server 
+#7. see client reactions and auto switch over
+#8.PRM start server, start listener
+dgmgrl sys/sys@<prmsid>
+dgmgrl>switchover to <prmsid>;
+#########################################################################
 
