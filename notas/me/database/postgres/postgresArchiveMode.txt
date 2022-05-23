@@ -41,3 +41,26 @@ select pg_start_backup('<dbname>');
 select pg_stop_backup();
 #2 archive files created, total 3 files
 #==================================
+wal=xlog (old name for wal)=transaction log
+WAL default 16MB
+pg_xlog (version <=9.6 till version 9.6) => pg_wal (version >=10, starting from v10 and higher)
+wal_buffers=wal segments (files)
+pg_wal cleans himself up, it's not archive, but live wal files.
+archive_command
+pg_archivecleanup used to cleanup wal archive
+archive dir is /opt/wal growing. How to cleanup?
+wal_keep_segments=10 is OK 100 is too much, some set it to 64
+archive_mode=on
+archive_command='/bin/true'
+select pg_reload_conf();
+and dir pg_wal was cleanuped after some checkpoints
+doc:
+archive_cleanup_command = 'pg_archivecleanup archivelocation %r'
+archive_cleanup_command = 'pg_archivecleanup -d /mnt/standby/archive %r 2>>cleanup.log'
+
+pg_archivecleanup [option...] archivelocation oldestkeptwalfile
+For example, the following example will remove all files older than WAL file name 000000010000003700000010:
+pg_archivecleanup -d archive 000000010000003700000010.00000020.backup
+-d Print lots of debug logging output on stderr.
+-n Print the names of the files that would have been removed on stdout (performs a dry run)
+#========================================
