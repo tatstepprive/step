@@ -11,6 +11,7 @@ alter system set log_archive_dest_2='' scope=both sid='*';
 show parameter dg_broker_start;
 --false
 alter system set dg_broker_start=true;
+--see the started process for broker, called dmon: ps -ef| grep -i ora_dmon
 #5.PRM use utility dgmgrl (it will be replicated to STB)
 dgmgrl sys/pass@prmsid as sysdba
 dgmgrl> show configuration;
