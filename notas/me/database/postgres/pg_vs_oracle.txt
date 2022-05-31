@@ -1,0 +1,41 @@
+ORACLE: 
+A transaction ends when...a user runs a DDL statement such as CREATE, DROP, RENAME, or ALTER. If the current transaction contains any DML statements, Oracle first commits the transaction, and 
+then runs and commits the DDL statement as a new, single statement transaction." and "an implicit request occurs after normal termination of an application or completion of a data definition language 
+(DDL) operation.
+DDL commands are commited automatically. No need to commit CREATE USER/TABLE/x, DROP USER/TABLE/x, RENAME, ALTER !
+
+POSTGRES:
+features of PostgreSQL is its ability to perform transactional DDL via its Write-Ahead Log design. This design supports backing out even large changes to DDL, such as table creation. You can't recover 
+from an add/drop on a database or tablespace, but all other catalog operations are reversible.
+NEED to commit DDL commands: CREATE USER/TABLE/x, DROP USER/TABLE/x, RENAME, ALTER !
+
+How to test 
+TEST1:
+(open 2 sessions and in the first execute table creation, in second session table will be not available: 
+in plsql autocommit is on par default:
+--show autocommit
+\echo :AUTOCOMMIT
+--set off 
+\set AUTOCOMMIT off
+create table dwh.abc (mynr integer);
+--reset autocommit
+\set AUTOCOMMIT on
+ 
+TEST2 (create table can be rollbacked):
+$ psql mydb
+mydb=# DROP TABLE IF EXISTS foo;
+NOTICE: table "foo" does not exist
+DROP TABLE
+mydb=# BEGIN;
+BEGIN
+mydb=# CREATE TABLE foo (bar int);
+CREATE TABLE
+mydb=# INSERT INTO foo VALUES (1);
+INSERT 0 1
+mydb=# ROLLBACK;
+ROLLBACK
+mydb=# SELECT * FROM foo;
+ERROR: relation "foo" does not exist 
+------------------------------------------------------------------------------------
+
+
