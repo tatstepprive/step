@@ -24,3 +24,10 @@ f:  provides the maximum amount of memory to be used by maintenance operations l
 effective_cache_size 
 Fix: 50% of the machine’s total RAM
 ================
+Time issue between client (psql/pgAdmin/dbeaver/DataGrip) and db
+--connect with client
+SELECT now() AT TIME ZONE 'UTC';
+SHOW TimeZone;
+--the timezone should be 'Europe/Brussels'
+SELECT now() AT TIME ZONE current_setting('timezone');
+==================

@@ -4,3 +4,57 @@ pg_dump -Fp -h myhost -U user mydatabase| gzip > bla.sql.gz
 pg_dump -Fc -h myhost -U user mydatabase| gzip > bla.sql.gz
 #uncompress/decompress
 gzip -d bla.sql.gz
+#---------------------------------------------------------
+#Analyze pg_dump logging when executed from remote host
+#ssh to database server and tail log
+ssh postgres@dbhost 
+cd /var/log/postgres 
+tail -f postgresql-yyyy-mm-dd.csv| grep -v repmgr| grep -v replicationHost1 | grep -v replicationHost2 | grep -v replicationHost3 | grep -v replicationHost4
+#on remote host execute export using pgdump
+PGPASSWORD=xxx -Fp -h dbhost -U postgres "db-prd"| gzip > db-prd.sql.gz 
+ls -lh *gz
+--output 333M db-prd.sql.gz
+--nothing in the logs!
+#How to fix?
+#method1 via os process COPY
+--NOK, if database very small and process takes less than 1 sec, monitoring does not capture process
+top -c | grep -i copy
+--nothing 
+top -c | grep -i db-prd
+--nothing about copy, but connect, disconnect are visible
+#methode2 via event trigger
+only supported events are ddl_command_start, ddl_command_end, table_rewrite and sql_drop.
+The ddl_command_start event occurs just before the execution of a CREATE, ALTER, DROP, SECURITY LABEL, COMMENT, GRANT or REVOKE command.
+The ddl_command_end event occurs just after the execution of this same set of commands. 
+https://www.postgresql.org/docs/current/event-trigger-matrix.html
+???
+#via logging dump commands (COPY xxx TO)
+--OK if it takes a lot of time (duration limit exceeded)
+yyyy-mm-dd 07:34:08 /var/log/postgres/postgresql-yyyy-mm-dd.csv:yyyy-mm-dd 01:06:10.658 CEST,"postgres","db-prd",3852,"[local]",6296678a.f0c,4,"COPY",2022-05-31 21:07:54 
+CEST,58/5329115,0,LOG,00000,"duration: 14294602.156 ms  statement: COPY public.my_table (id, col1, col2, col3, col4) TO stdout;",,,,,,,,,"pg_dump"
+--NOK if there are little tables, fast to export
+#via logging log_statement (on production we use ddl, so copy statement not included
+Valid values are none (off), ddl, mod, and all (all statements). 
+ddl logs all data definition statements, such as CREATE, ALTER, and DROP statements. 
+mod logs all ddl statements, plus data-modifying statements such as INSERT, UPDATE, DELETE, TRUNCATE, and COPY FROM.
+The default is none
+mod vs all=> 'mod' doesn't log utility commands, such as CHECKPOINT and VACUUM.
+To try switch to 'mod' or it will produce big gigas files?
+#use statistics tables
+Each backend running COPY will report its progress in the pg_stat_progress_copy view. See Section 28.4.6 for details. The view does not exists in version 12 or 13, only in version 14
+--see pg_stat_statements
+select * from pg_stat_statements;
+select * from pg_stat_statements where query ilike '%copy%';
+--4 row not related on pg_dump
+#row-level security?
+--doc
+If row-level security is enabled for the table, the relevant SELECT policies will apply to COPY table TO statements. Currently, COPY FROM is not supported for tables with row-level security. Use 
+equivalent INSERT statements instead.
+
+are granted one of the roles pg_read_server_files, pg_write_server_files, or pg_execute_server_program, since it allows reading or writing any file or running a program that the server has privileges to 
+access.
+Do not confuse COPY with the psql instruction \copy. \copy invokes COPY FROM STDIN or COPY TO STDOUT, and then fetches/stores the data in a file accessible to the psql client. Thus, file accessibility 
+and access rights depend on the client rather than the server when \copy is used.
+COPY stops operation at the first error.
+#---------------------------------------------------------
+
