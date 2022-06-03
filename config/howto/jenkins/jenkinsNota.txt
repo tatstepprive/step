@@ -316,3 +316,18 @@ sudo service jenkins start
 ps -ef| grep -i jenkins
 #in webbrowser https://ip_or_host:8443/ but it will show insecure in red even if https is used because self-signed certificate. Via advanced, accept.
 #--------------------------------------------
+#Jenkins set own images
+set jenkins image in 'change description'
+on host find jenkins process and webroot directory
+ps -ef | grep jenkins
+#output  --webroot=/var/cache/jenkins/war
+cd /var/cache/jenkins/war/images
+#use image jenkins.svg
+<img src="/images/jenkins.svg" alt="Jenkins" width="40" height="50"> <span style="color:green"> <b>  INFO: JENKINS UPDATED from xx LTS to xxx LTS date: dd/mm/yyyy<b> </span> <br>
+For own images, upload/set in directory /var/cache/jenkins/war/images/own.png
+Change description in:
+<img src="/images/own.png" alt="OWN logo" width="40" height="50"> 
+restart jenkins (reload is not helping)
+sudo service jenkins stop
+sudo service jenkins start
+#-------------------------------------------
