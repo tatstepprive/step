@@ -57,7 +57,7 @@ To monitor:
 v$memory_dynamic_component --current memory
 v$memory_resize_ops --history of resize operations
 
-MMAN=memory manager background process (f: resize memory structures)
+MMAN=memory manager background process (f: resize memory structures) (ps -ef| grep mman)
 MMON=monitor activities and advice MMAN
 
 Tip: with auto memory session will hang and resume when available memory
