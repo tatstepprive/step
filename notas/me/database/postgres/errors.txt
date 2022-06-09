@@ -12,3 +12,16 @@ Transaction 2 is unblocked, and before it locks the row, it has to recheck if th
 There is no way to avoid that problem if several transactions with isolation level REPEATABLE READ or higher are trying to modify the same rows. Be ready to retry often!
 
 It seems like the transaction actually locks more rows than it modifies. That exacerbates the problem. Only lock those rows that you need to change!
+-------------------------
+#replication
+WARNING: following issues were detected
+ - node "<host_node_b>" (ID: 2) is not attached to its upstream node "<host_node_primary>" (ID: 1)
+ - node "<host_node_c>" (ID: 2) is not attached to its upstream node "<host_node_primary>" (ID: 1)
+ - node "<host_node_d>" (ID: 2) is not attached to its upstream node "<host_node_primary>" (ID: 1)
+#Solution
+ssh to node
+ sudo systemctl stop postgresql-12
+/usr/pgsql-12/bin/repmgr -f /etc/repmgr/12/repmgr.conf cluster show
+/usr/pgsql-12/bin/repmgr -h <host_node_primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone --dry-run
+/usr/pgsql-12/bin/repmgr -h <host_node_primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
+-------------------------
