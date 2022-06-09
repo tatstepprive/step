@@ -23,3 +23,40 @@ Advisors:
 
 7 SQL Repair Advisor (1) (after internal oracle error ORA-600, force different execution plan)
 #==================================
+Memory advisors:
+--advisors enabled?
+select * from v$parameter where name = 'statistics_level';
+--should be TYPICAL or ALL (STATISTICS_LEVEL = { ALL | TYPICAL | BASIC } default value=TYPICAL
+--to enable advisors
+
+--show memory advisor (PGA and SGA when auto memory)
+select memory_size, memory_size_factor, estd_db_time
+from v$memory_target_advice;
+
+select * from v$parameter where name like '%memory%';
+--memory_target=26843545600 display_value=25G
+--memory_max_target=32749125632 display_value=31232M
+
+--PGA
+select pga_target_for_estimate, pga_target_factor, estd_extra_bytes_rw
+from v$pga_target_advice;
+
+select * from v$parameter where name like '%pga%';
+--pga_aggregate_limit=22145925120 21120M 21GB
+--pga_aggregate_target=0
+
+--SGA
+select sga_size, sga_size_factor, estd_db_time 
+from v$sga_target_advice;
+
+select * from v$parameter where name like '%sga%';
+--sga_target=0
+--sga_max_size=21139292160 display_value=20160M 20G
+
+select * from dba_hist_pga_target_advice;
+--empty
+select * from dba_hist_sga_target_advice;
+--emtpy
+select * from dba_hist_memory_target_advice;
+--empty
+-------------------------------------------------------
