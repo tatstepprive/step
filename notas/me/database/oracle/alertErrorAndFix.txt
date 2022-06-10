@@ -1,0 +1,78 @@
+Alert: Thread 1 cannot allocate new log, sequence
+Fix: Increase size online redo logs. Overall Oracle performance can be dramatically improved by increasing the log sizes so that logs switch at the recommended interval of 15 to 30 minutes
+2 time per hour = each 30 min; 4 times per hour = each 15 min; 6 times per hour = each 10 min 
+The size 1G or 2G of online redo logs is normal on busy database.
+Steps: resize online redo log files from 500m to 1g
+select group#,members,status,bytes/1024/1024 as mb from v$log;
+--should have 2 members per group and more than 3 groups (5 groups is OK)
+--check path to the online redo logfile
+select group#,member from v$logfile;
+--add extra groups that should be removed after
+alter database add logfile group 6
+     ('/u01/app/oracle/oradata/ORCL/redo/redo06.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo06.log')
+     size 1g;
+alter database add logfile group 7
+     ('/u01/app/oracle/oradata/ORCL/redo/redo07.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo07.log')
+     size 1g;
+alter database add logfile group 8
+     ('/u01/app/oracle/oradata/ORCL/redo/redo08.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo08.log')
+     size 1g;
+--find status INACTIVE and drop
+select group#,members,status,bytes/1024/1024 as mb from v$log;
+alter database drop logfile group 1;
+alter database drop logfile group 2;
+alter database drop logfile group 3;
+--switch logfile multiple times
+alter system switch logfile;
+--make INACTIVE
+alter system checkpoint;
+--drop INACTIVE
+select group#,members,status,bytes/1024/1024 as mb from v$log;
+alter database drop logfile group 4;
+alter database drop logfile group 5;
+-- on OS remove files of dropped groups
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo01.log /u01/app/oracle/oradata/ORCL/redo2/redo01.log
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo02.log /u01/app/oracle/oradata/ORCL/redo2/redo02.log
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo03.log /u01/app/oracle/oradata/ORCL/redo2/redo03.log
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo04.log /u01/app/oracle/oradata/ORCL/redo2/redo04.log
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo05.log /u01/app/oracle/oradata/ORCL/redo2/redo05.log
+--readd the removed groups
+alter database add logfile group 1
+     ('/u01/app/oracle/oradata/ORCL/redo/redo01.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo01.log')
+     size 1g;
+alter database add logfile group 2
+     ('/u01/app/oracle/oradata/ORCL/redo/redo02.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo02.log')
+     size 1g;
+alter database add logfile group 3
+     ('/u01/app/oracle/oradata/ORCL/redo/redo03.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo03.log')
+     size 1g;
+alter database add logfile group 4
+     ('/u01/app/oracle/oradata/ORCL/redo/redo04.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo04.log')
+     size 1g;
+alter database add logfile group 5
+     ('/u01/app/oracle/oradata/ORCL/redo/redo05.log',
+      '/u01/app/oracle/oradata/ORCL/redo2/redo05.log')
+     size 1g;
+--remove extra groups when they will be INACTIVE
+select group#,members,status,bytes/1024/1024 as mb from v$log;
+alter database drop logfile group 6;
+alter database drop logfile group 7;
+alter database drop logfile group 8;
+-- on OS remove files of dropped extra groups
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo06.log /u01/app/oracle/oradata/ORCL/redo2/redo06.log
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo07.log /u01/app/oracle/oradata/ORCL/redo2/redo07.log
+rm -v /u01/app/oracle/oradata/ORCL/redo/redo08.log /u01/app/oracle/oradata/ORCL/redo2/redo08.log
+--check
+select group#,members,status,bytes/1024/1024 as mb from v$log;
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
