@@ -45,7 +45,7 @@ alter database datafile '/u01/app/oracle/oradata/ORCL/pdb1/xxx/xxx.dbf' resize  
 select dbms_metadata.get_ddl('TABLESPACE', 'TS1') from dual;
 -- Resize tablespace methode2: add extra file to tablespace ts1 -> tablespace size is sum of all files in this tablespace
 -- alter tablespace ts1 add datafile 'path' size nK|M|G;
-alter tablespace ts1 
+alter tablespace ts1
 add datafile '/u01/app/oracle/oradata/ORCL/pdb1/ts1_02.dbf' size 10M;
 --check new file added
 select * from v$datafile;
@@ -53,6 +53,11 @@ select * from v$datafile;
 --RESIZE (move objects)
 --move tables
 alter table owner.t1 move tablespace ts1;
+--move table with segment change
+alter table owner.t1 enable row movement;
+alter table owner.t1 move
+tablespace my_data_50M
+storage ( initial 50M next 50M);
 --move index online
 alter index owner.idx rebuild online tablespace ts1;
 --move index 
