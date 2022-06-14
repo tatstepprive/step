@@ -1,0 +1,36 @@
+--Move data using export import
+--Existance and privileges on directories
+select * from dba_directories;
+--Tip: directories are owned by SYS, user can not drop them but can create if granted 'create any directory' priv
+grant creaty any directory to u1;
+--create directory
+create directory my_dir as '/home/oracle/dumps';
+--as SYS
+drop directory my_dir;
+--grants
+grant read on directory my_dir to public;
+grant write on directory my_dir to u1;
+--export exp1 full
+expdb system/pass@sid1 full=y parallel=2 dumpfile=datadir1:full1_%U.dmp,datadir2:full2_%U.dmp filesize=2g compression=all
+--import exp1 full
+impdp system/pass@sid2 full=y directory=my_dir parallel=2 dumpfile=full1_%U.dmp,full2_%U.dmp
+--export exp2 some schemas
+expdp system/pass@sid1 schemas=hr,oe directory=my_dir dumpfile=hr_oe.dmp 
+--import exp2 some schemas
+impdb system/pass@sid2 directory=my_dir dumpfile=hr_oe.dmp schema=hr remap_schema=hr:dev
+--exp exp3 transportable tbs
+--host1
+execute dbms_tts.transport_set_check('TS1');
+alter tablespace TS1 read only;
+expdp system/pass@sid1 transport_tablespaces=ts1 dumpfile=ts1.dmp directory=my_dir
+scp ts1.dmp ts1.dbf oracle@host2:/u02/oradata/ts1.dbf
+empdp system/pass@sid2 dumpfile=ts1.dmp directory=my_dir transport_datafiles=/u01/oradata/ts1.dbf
+alter tablespace ts1 read write; 
+
+--Attention: by adding a new tbs or datafile, the exp/imp job should be adapted
+--Mesure time to copy big files on the same server
+--Mesure tiem using rsync 
+--Test content with rsync 
+--Dont use dataguard environment for import because many dataguard log files generated during import when db is open in snapshot
+--Todo separate tbs per schema, remap tbs
+
