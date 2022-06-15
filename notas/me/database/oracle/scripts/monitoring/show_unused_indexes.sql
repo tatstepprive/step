@@ -12,3 +12,25 @@ WHERE ip.status <> 'USABLE'
 ORDER BY i.table_name, i.index_name, ip.partition_name;
 -- rebuild partitioned indexes
 ALTER INDEX nd_name REBUILD PARTITION partition_name;
+-- rebuild all unused indexes
+BEGIN
+	FOR x IN
+	(
+		SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD ONLINE PARALLEL' comm
+		FROM    dba_indexes
+		WHERE   status = 'UNUSABLE'
+		UNION ALL
+		SELECT 'ALTER INDEX '||index_owner||'.'||index_name||' REBUILD PARTITION '||partition_name||' ONLINE PARALLEL'
+		FROM    dba_ind_PARTITIONS
+		WHERE   status = 'UNUSABLE'
+		UNION ALL
+		SELECT 'ALTER INDEX '||index_owner||'.'||index_name||' REBUILD SUBPARTITION '||subpartition_name||' ONLINE PARALLEL'
+		FROM    dba_ind_SUBPARTITIONS
+		WHERE   status = 'UNUSABLE'
+	)
+	LOOP
+		dbms_output.put_line(x.comm);
+		EXECUTE immediate x.comm;
+	END LOOP;
+END;
+/
