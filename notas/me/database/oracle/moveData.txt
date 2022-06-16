@@ -18,13 +18,32 @@ impdp system/pass@sid2 full=y directory=my_dir parallel=2 dumpfile=full1_%U.dmp,
 expdp system/pass@sid1 schemas=hr,oe directory=my_dir dumpfile=hr_oe.dmp 
 --import exp2 some schemas
 impdb system/pass@sid2 directory=my_dir dumpfile=hr_oe.dmp schema=hr remap_schema=hr:dev
---exp exp3 transportable tbs
+--exp exp3 metadata 
+EXPFILE=`date +"%Y%m%d"`sid1_meta_multi_exp.dmp
+TMP_LOGFILE=/dumps/sid1/`date +"%Y%m%d"`sid1_meta_multi_exp_tmp.log
+DUMP_LOGFILE=`date +"%Y%m%d"`sid1_meta_multi_exp.log
+expdp SYSTEM/pass@Bsid1 DIRECTORY=my_dir DUMPFILE=$EXPFILE LOGFILE=$DUMP_LOGFILE LOGTIME=LOGFILE METRICS=YES TABLES=u1.big_table_logs CONTENT=METADATA_ONLY FLASHBACK_TIME=SYSTIMESTAMP 1>$TMP_LOGFILE 
+2>&1
+--imp exp3 metadata
+cat /tmp/parfile-imp-meta
+--output
+EXCLUDE=GRANT
+DIRECTORY=my_dir
+DUMPFILE=20220608sid1_meta_multi_exp.dmp
+LOGFILE=import_u1_u2_META_EXP20220608.log
+LOGTIME=LOGFILE
+REMAP_SCHEMA=u1:u2
+TABLES=u1.big_table_logs
+CONTENT=METADATA_ONLY
+--end-output
+impdp u2/pass@sid2 PARFILE=/tmp/parfile-imp-meta
+--exp exp4 transportable tbs
 --host1
 execute dbms_tts.transport_set_check('TS1');
 alter tablespace TS1 read only;
 expdp system/pass@sid1 transport_tablespaces=ts1 dumpfile=ts1.dmp directory=my_dir
 scp ts1.dmp ts1.dbf oracle@host2:/u02/oradata/ts1.dbf
-empdp system/pass@sid2 dumpfile=ts1.dmp directory=my_dir transport_datafiles=/u01/oradata/ts1.dbf
+impdp system/pass@sid2 dumpfile=ts1.dmp directory=my_dir transport_datafiles=/u01/oradata/ts1.dbf
 alter tablespace ts1 read write; 
 
 --Attention: by adding a new tbs or datafile, the exp/imp job should be adapted
