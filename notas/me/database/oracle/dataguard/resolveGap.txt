@@ -1,0 +1,28 @@
+--on physical standby
+sqlplus / as sysdba
+sql>select * from v$archive_gap;
+
+   THREAD# LOW_SEQUENCE# HIGH_SEQUENCE#     CON_ID
+---------- ------------- -------------- ----------
+         1         37200          37286          1
+
+--stop MRP
+alter database recover managed standby database cancel;
+--copy files from primary to stanby. Execute on primary and find files location on primary
+sql>select name from v$archived_log where thread#=1 and dest_id=1 and sequence# between 37200 and 37286;
+--register logs copied to temp directory from primary
+--to collect commandos execute
+--for i in $(ls /home/oracle/temp_arch |sort ); do echo "alter database register logfile '/home/oracle/temp_arch/"$i"';" ; done >bla.txt
+--cat bla.txt | grep 37201
+--register logs copied to temp directory from primary
+alter database register logfile '/home/oracle/temp_arch/o1_mf_1_37200_kbvnjxo8_.arc'
+alter database register logfile '/home/oracle/temp_arch/o1_mf_1_37201_kbvnjxkl_.arc'
+
+--check
+sql>@dg_status.sql
+--check
+sql>>select * from v$archive_gap;
+
+no rows selected
+
+
