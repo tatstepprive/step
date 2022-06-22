@@ -1,5 +1,7 @@
 --on physical standby
 sqlplus / as sysdba
+--show database role (Physical standby or Snapshot standby)
+select name,open_mode ,database_role from v$database;
 sql>select * from v$archive_gap;
 
    THREAD# LOW_SEQUENCE# HIGH_SEQUENCE#     CON_ID
@@ -18,11 +20,14 @@ sql>select name from v$archived_log where thread#=1 and dest_id=1 and sequence# 
 alter database register logfile '/home/oracle/temp_arch/o1_mf_1_37200_kbvnjxo8_.arc'
 alter database register logfile '/home/oracle/temp_arch/o1_mf_1_37201_kbvnjxkl_.arc'
 
---check
-sql>@dg_status.sql
---check
-sql>>select * from v$archive_gap;
-
+--start MRP 
+alter database recover managed standby database disconnect;
+--check MRP
+select process, thread#, sequence#, status from v$managed_standby where process='MRP0';
+--check 
+sql>@dg_status.sql 
+--check 
+sql>select * from v$archive_gap;
 no rows selected
 
 

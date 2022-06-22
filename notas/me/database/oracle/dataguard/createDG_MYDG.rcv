@@ -1,0 +1,28 @@
+connect target sys/pass@prm
+connect auxiliary sys/pass@prm_cp
+
+spool log to '/opt/oracle/stage/createDG_PRM_CP.log';
+
+run {
+allocate channel C1 type disk;
+allocate auxiliary channel DUP type disk;
+DUPLICATE TARGET DATABASE
+FOR STANDBY
+FROM ACTIVE DATABASE
+DORECOVER
+SPFILE
+SET memory_max_target='8G'
+SET memory_target='6G'
+SET DB_UNIQUE_NAME='PRM_CP'
+SET  CONTROL_FILES = '/ora01/PRM_CP/redo/control01.ctl', '/ora01/PRM_CP/systemp/control02.ctl', '/ora01/PRM_CP/undo/control03.ctl'
+SET DB_FILE_NAME_CONVERT='/ora01/PRM/data/','/ora01/PRM_CP/data/','/ora01/PRM/systemp','/ora01/PRM_CP/systemp','/ora01/PRM/undo','/ora01/PRM_CP/undo'
+SET LOG_FILE_NAME_CONVERT='/ora01/PRM/redo','/ora01/PRM_CP/redo','/ora01/PRM/redo2','/ora01/PRM_CP/redo2'
+SET SERVICE_NAMES='PRM_CP'
+SET LOCAL_LISTENER='LISTENER_PRM_CP'
+SET STANDBY_FILE_MANAGEMENT='AUTO'
+SET FAL_SERVER='PRM'
+SET FAL_CLIENT='PRM_CP'
+SET AUDIT_FILE_DEST='/opt/oracle/app/admin/PRM_CP/adump'
+NOFILENAMECHECK;
+}
+
