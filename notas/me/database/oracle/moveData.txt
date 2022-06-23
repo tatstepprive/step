@@ -53,3 +53,18 @@ alter tablespace ts1 read write;
 --Dont use dataguard environment for import because many dataguard log files generated during import when db is open in snapshot
 --Todo separate tbs per schema, remap tbs
 
+----------------------------------
+SELECT * FROM dba_datapump_jobs;
+select * from owner_name.job_name;
+----------------------------------
+--stop imp/exp job
+SET serveroutput on
+SET lines 100
+DECLARE
+job1 NUMBER;
+BEGIN
+job1 := DBMS_DATAPUMP.ATTACH('SYS_EXPORT_SCHEMA_01','MYOWNER');
+DBMS_DATAPUMP.STOP_JOB (job1);
+END;
+/
+---------------------------------
