@@ -46,7 +46,7 @@ select dbms_metadata.get_ddl('TABLESPACE', 'TS1') from dual;
 -- Resize tablespace methode2: add extra file to tablespace ts1 -> tablespace size is sum of all files in this tablespace
 -- alter tablespace ts1 add datafile 'path' size nK|M|G;
 alter tablespace ts1
-add datafile '/u01/app/oracle/oradata/ORCL/pdb1/ts1_02.dbf' size 10M;
+add datafile '/u01/app/oracle/oradata/ORCL/pdb1/ts1_02.dbf' size 10M AUTOEXTEND ON NEXT 1M MAXSIZE 31G;
 --check new file added
 select * from v$datafile;
 --------------------------------------------------

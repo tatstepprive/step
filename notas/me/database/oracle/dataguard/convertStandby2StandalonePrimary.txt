@@ -1,0 +1,30 @@
+--after replication database, you can convert it to primary
+SQL> select database_role from v$database;
+
+DATABASE_ROLE
+
+------------------------------------------------
+
+PHYSICAL STANDBY
+
+SQL> alter database activate standby database;
+Database altered.
+
+SQL> SHUTDOWN IMMEDIATE;
+SQL>startup nomount;
+SQL>alter database mount;
+SQL> select database_role from v$database;
+
+DATABASE_ROLE
+
+------------------------------------------------
+
+PRIMARY
+
+SQL>select switchover_status from v$database;
+
+SWITCHOVER_STATUS
+--------------------
+NOT ALLOWED
+
+SQL>alter database open;
