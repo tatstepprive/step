@@ -1,0 +1,8 @@
+#!/bin/ksh
+
+${ORACLE_HOME}/bin/sqlplus -S -L "/ as sysdba"<<SQL1
+  set echo on
+  set head off
+  set trimout on
+  select ltrim(rtrim(DATABASE_ROLE)) from v$database;
+SQL1
