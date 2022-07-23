@@ -64,3 +64,18 @@ pg_archivecleanup -d archive 000000010000003700000010.00000020.backup
 -d Print lots of debug logging output on stderr.
 -n Print the names of the files that would have been removed on stdout (performs a dry run)
 #========================================
+#archive errors
+ps -ef| grep -i arch
+--output
+postgres: archiver   failed on 00000003000000C700000094
+#analyze
+ls -ltra /opt/wal/00000003000000C700000094
+--the file will be incomplete in /opt/wal archive directory
+ls -ltra /var/lib/pgsql/12/data/pg_wal/00000003000000C700000094
+--the comlete version of the wal file in pg_wal directory
+#solution (no restart needed): remove incomlete file in archive directory and archiver will retry automatically and continue with archiving
+rm -fr /opt/wal/00000003000000C700000094
+ps -ef| grep -i arch
+--output: no failure anymore
+postgres: archiver   archiving 00000003000000C900000026
+#=======================================

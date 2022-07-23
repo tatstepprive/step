@@ -25,3 +25,22 @@ ssh to node
 /usr/pgsql-12/bin/repmgr -h <host_node_primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone --dry-run
 /usr/pgsql-12/bin/repmgr -h <host_node_primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
 -------------------------
+#archive errors
+ps -ef| grep -i arch
+--output
+postgres: archiver   failed on 00000003000000C700000094
+#analyze
+ls -ltra /opt/wal/00000003000000C700000094
+--the file will be incomplete in /opt/wal archive directory
+ls -ltra /var/lib/pgsql/12/data/pg_wal/00000003000000C700000094
+--the comlete version of the wal file in pg_wal directory
+#solution (no restart needed): remove incomlete file in archive directory and archiver will retry automatically and continue with archiving
+rm -fr /opt/wal/00000003000000C700000094
+ps -ef| grep -i arch
+--output: no failure anymore
+postgres: archiver   archiving 00000003000000C900000026
+--------------------------
+#slow database, duration very high
+#posible solution: rebuild statistics
+ANALYZE VERBOSE;
+-------------------------
