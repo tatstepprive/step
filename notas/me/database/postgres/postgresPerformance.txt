@@ -58,7 +58,8 @@ vacuum_cost_delay
 create table test_indexing (id serial, name text);
 insert into test_indexing (name) select 'bob' from generate_series (1,2500000); --2mln500 rows
 insert into test_indexing (name) select 'alice' from generate_series (1,2500000);--2mln500 rows
--- 5 mln rows total
+-- 5 mln rows total with 2 distinct values for column name
+--create statistics for optimizer with analyze commando
 analyze;
 \timing
 select * from test_indexing where id=2;
@@ -77,7 +78,7 @@ explain analyze select * from test_indexing where id=2;
 \dt+
 index cardinality=low cardinality = a lot of dublicate values in column (ex gender)
 index cardinality=high cardinality = none of little dublicate values in column (ex id)
-
+you should better have the high cardinality when thinking about the setup index: index take space, slows imports/updates, index on low cardinality column (like name 'bob' and 'alice') will use seq table scan and skip index usage because it's cheaper for optimizer to not load index only load table
 ==================================
 Index recommendations:
 When using parent-child relation (foreign keys), then create index on foreign keys column in child table.
@@ -224,3 +225,4 @@ f:  provides the maximum amount of memory to be used by maintenance operations l
 effective_cache_size 
 Fix: 50% of the machine’s total RAM
 ==========================
+
