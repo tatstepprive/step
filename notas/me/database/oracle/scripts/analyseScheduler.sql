@@ -33,6 +33,10 @@ select * from v$rsrc_plan;
 --show defined windows
 select * from dba_scheduler_windows;
 --output 9 rows (MONDAY_WINDOW->SUNDAY_WINDOW; WEEKNIGHT_WINDOW, WEEKEND_WINDOW)
+--show recent job runs
+SELECT job_name,status,actual_start_date,run_duration
+FROM DBA_SCHEDULER_JOB_RUN_DETAILS
+ORDER BY ACTUAL_START_DATE DESC;
 ----------------------------------------------
 --Create job
 create table hr.times (my_date TIMESTAMP);
