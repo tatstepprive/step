@@ -40,3 +40,5 @@ to_timestamp('21/02/2022 18:05:10','dd/mm/yyyy hh24:mm:ss');
 show user;
 --show connection details (database) with no special permission needed like for: select name from v$database
 select * from global_name;
+--startup time of database
+select startup_time from v$instance;

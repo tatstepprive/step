@@ -87,3 +87,24 @@ select rowid, id, name from molly.city where id=1000000;
 --BBBBBB data block number
 --RRR row number
 --this is the info for find data in datafile
+------------------------------------------------------
+--Change next allocation size in lob
+ALTER TABLE owner.table_name modify LOB(lob_column_name) storage (next 100M);
+ALTER TABLE owner.table_name modify PARTITION partition_name storage (  NEXT 100M ) ;
+------------------------------------------------------
+--Storage in disk
+SELECT distinct file_id
+FROM dba_extents
+where owner='MY_OWNER'
+and segment_name like 'SYS_LOB0000108289C00006%'
+and tablespace_name='MY_TBS'
+order by 1;
+
+SELECT distinct e.file_id, d.file_name
+FROM dba_extents e , dba_data_files d
+where e.owner='MY_OWNER'
+and e.file_id=d.file_id
+and e.segment_name like 'SYS_LOB0000108289C00006%'
+and e.tablespace_name='MY_TBS'
+order by 2;
+-------------------------------------------------------

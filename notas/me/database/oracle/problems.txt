@@ -1,3 +1,7 @@
 --Flashback version query – OPERATION is UNKNOW
 --Fix
  ALTER DATABASE ADD SUPPLEMENTAL LOG DATA ;
+-----------------------------------------------------------
+--temp is offline
+--fix
+ALTER DATABASE TEMPFILE '/ora/TESTDB/data/temp01.dbf' ONLINE;
