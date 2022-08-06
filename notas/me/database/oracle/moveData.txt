@@ -68,3 +68,6 @@ DBMS_DATAPUMP.STOP_JOB (job1);
 END;
 /
 ---------------------------------
+--export as superuser
+expdp \"sys/xxx@ORCLP as sysdba\" FULL=Y DIRECTORY=MY_DIR LOGFILE=${LOGFILE} LOGTIME=LOGFILE DUMPFILE=${EXPFILE} COMPRESSION=ALL FLASHBACK_TIME=SYSTIMESTAMP
+---------------------------------

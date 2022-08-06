@@ -28,3 +28,6 @@ systemctl enable postgresql-12
 #connect via psql
 select '"'||usename||'"'||' '||'"'||passwd||'"' from pg_shadow;
 --===========================
+#reassign user when connecting to db
+REASSIGN OWNED BY old_user TO new_user;
+--===========================

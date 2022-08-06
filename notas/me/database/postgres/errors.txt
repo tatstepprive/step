@@ -44,3 +44,7 @@ postgres: archiver   archiving 00000003000000C900000026
 #posible solution: rebuild statistics
 ANALYZE VERBOSE;
 -------------------------
+Remaining connection slots are reserved for non-replication superuser connections
+#Solution
+--Edit the PostgreSQL configuration file /vastorage/postgres/data/postgresql.conf and increase the value for max_connections. The value for shared_buffers may also need to be increased
+------------------------
