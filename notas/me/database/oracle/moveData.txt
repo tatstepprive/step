@@ -71,3 +71,21 @@ END;
 --export as superuser
 expdp \"sys/xxx@ORCLP as sysdba\" FULL=Y DIRECTORY=MY_DIR LOGFILE=${LOGFILE} LOGTIME=LOGFILE DUMPFILE=${EXPFILE} COMPRESSION=ALL FLASHBACK_TIME=SYSTIMESTAMP
 ---------------------------------
+--move index online
+ALTER INDEX MY_OWNER.MY_INDX REBUILD TABLESPACE MY_TBS_INDEX STORAGE ( INITIAL     64K  NEXT        1M) ONLINE;
+--move many indexes on condition
+SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD TABLESPACE MY_TBS_INDEX STORAGE ( INITIAL 64K NEXT  1M) ONLINE ;' from dba_indexes where owner like 'MY_OWNER%' and 
+index_type='NORMAL' and initial_extent=65536 and next_extent=1048576;
+--------------------------------
+--move table online (only supported in oracle 12.2, we use 12.1)
+--In addition to moving the table, the online move automatically maintains the indexes
+ALTER TABLE t1 MOVE ONLINE TABLESPACE users;
+--move many tables
+SELECT 'ALTER TABLE '||OWNER||'.'||TABLE_NAME||' MOVE ONLINE TABLESPACE MY_TBS_DATA;' from dba_tables where owner like 'MY_OWNER%' and tablespace_name like 'MY_OLD_TBS%';
+--restrictions associated with online moves 
+--It can't be used on a partitioned index-organized table or index-organized tables that have a column defined as a LOB, VARRAY, Oracle-supplied type, or user-defined object type.
+--------------------------------
+--move lob
+alter table MY_OWNER.MY_TABLE move lob (my_lob_column) store as ( tablespace MY_TBS_DATA) ;
+--check table_name and lob column in dba_lobs
+-------------------------------
