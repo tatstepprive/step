@@ -1,3 +1,4 @@
+ODBS=open database connectivity (odbc functionality is sopported by an application, driver manager, driver and data source)
 DBMS=database management system
 RDBMS=relational database management system
 DDL=data definition language (create, drop etc)
