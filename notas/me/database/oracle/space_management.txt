@@ -1,0 +1,21 @@
+--see segment advisor to schrink space
+select * 
+from table(dbms_space.asa_recommendations)
+where recommendations like 'E%shrink%';
+-----------------
+--apply shrink space on index
+alter index MY_OWNER.MY_TABLE_IDX shrink space;
+-----------------
+--apply shrink space on table (enable row movement) step1
+alter table "MY_OWNER"."MY_TABLE" enable row movement; 
+--apply shrink space on table (restructure) step2
+alter table "MY_OWNER"."MY_TABLE" shrink space COMPACT cascade;
+--apply shrink space on table (adapt HWM) step3
+alter table "MY_OWNER"."MY_TABLE" shrink space cascade;
+-----------------
+--apply shrink on partition
+alter table "MY_OWNER"."MY_TABLE" enable row movement;
+alter table "MY_OWNER"."MY_TABLE" modify partition "MY_PARTITION" shrink space COMPACT;
+alter table "MY_OWNER"."MY_TABLE" modify partition "MY_PARTITION" shrink space cascade;
+-----------------
+

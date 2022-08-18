@@ -328,6 +328,8 @@ select OWNER,
   and CHAR_USED='B'
  and TABLE_NAME not in (select TABLE_NAME from all_part_tables apt where apt.owner=owner and apt.table_name=table_name) --exclude partitioned tables
   order by OWNER, TABLE_NAME;
+--Manually correct byte to char
+ALTER TABLE MY_SCHEMA.MY_TABLE MODIFY MY_COLUMN VARCHAR2(n CHAR);
 --========================================================================================
 --Monitor autoextensible
 CREATE OR REPLACE PROCEDURE SYS.MON_AUTOEXTEND_PROC
