@@ -18,4 +18,7 @@ alter table "MY_OWNER"."MY_TABLE" enable row movement;
 alter table "MY_OWNER"."MY_TABLE" modify partition "MY_PARTITION" shrink space COMPACT;
 alter table "MY_OWNER"."MY_TABLE" modify partition "MY_PARTITION" shrink space cascade;
 -----------------
-
+--pctfree to zero when no updates on table, only inserts like archive 
+tables (default is pctfree 10)
+ALTER TABLE MY_TABLE PCTFREE 0;
+-----------------

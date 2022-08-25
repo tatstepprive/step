@@ -76,6 +76,8 @@ ALTER INDEX MY_OWNER.MY_INDX REBUILD TABLESPACE MY_TBS_INDEX STORAGE ( INITIAL  
 --move many indexes on condition
 SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD TABLESPACE MY_TBS_INDEX STORAGE ( INITIAL 64K NEXT  1M) ONLINE ;' from dba_indexes where owner like 'MY_OWNER%' and 
 index_type='NORMAL' and initial_extent=65536 and next_extent=1048576;
+--move index partition online
+alter index MY_OWNER.MY_INDEX rebuild partition MY_PARTITION online tablespace MY_TBS_1M STORAGE( INITIAL 1M NEXT 1M) ;
 --------------------------------
 --move table online (only supported in oracle 12.2, we use 12.1)
 --In addition to moving the table, the online move automatically maintains the indexes
@@ -88,4 +90,11 @@ SELECT 'ALTER TABLE '||OWNER||'.'||TABLE_NAME||' MOVE ONLINE TABLESPACE MY_TBS_D
 --move lob
 alter table MY_OWNER.MY_TABLE move lob (my_lob_column) store as ( tablespace MY_TBS_DATA) ;
 --check table_name and lob column in dba_lobs
+--move lob, reduce extents for big tables! (move to tbs with EXTENT MANAGEMENT LOCAL UNIFORM SIZE 100M). 
+--dont move to tbs with EXTENT MANAGEMENT LOCAL AUTOALLOCATE cat give more segments that before move even with other 
+storage clausule 
+ALTER TABLE MY_OWNDER.MY_TABLE MOVE LOB(MY_LOB_COLUMN) STORE AS (TABLESPACE MY_TBS_100M STORAGE( INITIAL 100M NEXT 100M))  parallel 96;
 -------------------------------
+--move partition
+alter table MY_OWNER.MY_TABLE move partition MY_PARTITION tablespace MY_TBS;
+------------------------------
