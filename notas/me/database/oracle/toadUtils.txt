@@ -5,3 +5,7 @@ Toad, menu View, Toad Options, Startup, Atomatic updates : select 'Dont automati
 #Move index online to other tbs
 Toad, schema browser, select my_user, select Indexes, R-m Rebuild, select tablespace, check 'online' (consult tab SQL), button OK
 #=======================================
+#tnsnames.ora location in Toad
+Menu Session, New connection, button TNSNames editor, Menu Open a TNS Names file (Ctrl-o)
+c:/app/client/product/12.1.0/client_1/network/admin/tnsnames.ora
+#=======================================

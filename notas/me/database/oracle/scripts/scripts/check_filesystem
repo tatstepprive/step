@@ -1,10 +1,12 @@
 #!/bin/bash
 
-min_gb=200;
+min_gb=100;
 min_mb=1;
-min_perc=50;
-df -k | grep -v proc | grep -v Filesystem | grep -v mapper | grep -v tmpfs | grep -v sda1 | grep -v : | grep -v '^/dev/loop' | sed -f scripts/concat_space > /tmp/filesystem
-cat /tmp/filesystem | while read line
+min_perc=85;
+MTMPFILE="/tmp/filesystem"
+#df -k | grep -v proc | grep -v Filesystem | grep -v mapper | grep -v tmpfs | grep -v sda1 | grep -v : | grep -v '^/dev/loop' | sed -f scripts/concat_space > $MTMPFILE
+df -k | grep [0-9]% | sed -f scripts/concat_space > $MTMPFILE
+cat $MTMPFILE | while read line
 do
 #   echo "line=$line"
    size_perc=$(echo $line | grep -o [0-9]*%)
@@ -25,7 +27,8 @@ do
       then
       echo "WARNING: filesystem $filet filled at $size_perc available=$available_size ($available_size_gb GB|$available_size_mb MB)"
       else
-      echo "INFO: filesystem $filet filled at $size_perc but sufficient available=$available_size ($available_size_gb GB|$available_size_mb MB)"
+      echo "INFO: filesystem $filet filled at $size_perc but sufficient (min=$min_gb GB) available=$available_size ($available_size_gb GB|$available_size_mb MB)"
       fi
    fi
 done
+rm $MTMPFILE
