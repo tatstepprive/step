@@ -48,3 +48,20 @@ Remaining connection slots are reserved for non-replication superuser connection
 #Solution
 --Edit the PostgreSQL configuration file /vastorage/postgres/data/postgresql.conf and increase the value for max_connections. The value for shared_buffers may also need to be increased
 ------------------------
+#when executing replication from zero on slave/replica
+/usr/pgsql-12/bin/repmgr -h <primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
+#error Could not send replication command “TIMELINE_HISTORY”: ERROR: could not open file pg_wal/00xxxx.history
+pg_basebackup: error: could not send replication command "TIMELINE_HISTORY": ERROR: could not open file "pg_wal/00000005.history": No such file or directory
+#fix on primary
+#via psql take backup on primary
+select pg_start_backup('clone');
+select pg_stop_backup();
+#via OS on primary
+touch /var/lib/pgsql/12/data/pg_wal/00000005.history touch 
+touch /opt/wal/00000005.history
+#via psql on primary
+select pg_start_backup('clone2');
+select pg_stop_backup();
+#execute replication from zero on slave/replica
+/usr/pgsql-12/bin/repmgr -h <primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
+--------------------------------------
