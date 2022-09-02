@@ -1,0 +1,69 @@
+--in sqlplus and in broker (dgmgrl)
+-------------------------------------
+--Show database state
+--in broker
+DGMGRL> SHOW DATABASE VERBOSE 'mydb_s'; 
+--------------------------------------
+--START REDO apply
+--in sqlplus to start redo apply in foreground (only for debug, never do it cause terminal will not return):
+alter database recover managed standby database;
+--in sqlplus to start redo apply in background :
+alter database recover managed standby database disconnect;
+--in broker to start redo apply:
+edit database mydb_s set STATE=APPLY-ON;
+----------------------------------------
+--STOP REDO apply
+-- in sqlplus to stop redo apply
+alter database recover managed standby database cancel;
+-- in broker to stop redo apply
+edit database mydb_s set STATE=APPLY-OFF;
+------------------------------------------
+--START REDO apply with delay (rare used)
+--in sqlplus to start redo apply with delay:
+alter database recover managed standby database using archived logfile disconnect;
+--in broker to set redo apply delay:
+edit database mydb_s set DelayMins=10;
+-------------------------------------------
+--STOP REDO apply with delay (rare used)
+--in sqlplus to stop redo apply with delay:
+alter database recover managed standby database nodelay;
+--in broker to unset redo apply delay:
+edit database mydb_s set DelayMins=0;
+-------------------------------------------
+--CHANGE protection mode
+--in sqlplus
+alter database set standby to maximize performance;
+alter database set standby to maximize availability;
+alter database set standby to maximize protection;
+--in broker
+--MaxPerformance
+edit database mydb_s set property LogXptMode='ASYNC';
+edit configuration set protection mode as MaxPerformance;
+--MaxAvailability or MaxProtection
+edit database mydb_s set property LogXptMode='SYNC';
+edit configuration set protection mode as MaxAvailability|MaxProtection
+-----------------------------------------------
+--MONITOR
+--in sqlplus monitor last applied redo
+select * from v$recovery_progress;
+--in sqlplus monitor apply lag and transport lag
+select * from v$dataguard_stats;
+--in sqlplus monitor apply dataguard and errors
+select * from v$dataguard_status;
+--in sqlplus monitor gap on standby db (should not contain rows if all is OK)
+select * from v$archive_gap;
+--in sqlplus on primary
+select * from v$archived_log;
+--in sqlplus on primary most recent archive log
+select max(sequence#), thread#
+from v$archived_log
+where resetlogs_change#=(select max(resetlogs_change#) from v$archived_log)
+group by thread#;
+--in sqlplus most recent archive log transfered to standby
+select destination, status, archieved_thread#, archived_seq#
+from v$archive_dest_status
+where status <> 'DEFERRED' and status <> 'INACTIVE';
+--in broker
+show database mydb_s;
+show database verbose mydb_s;
+-----------------------------------------------
