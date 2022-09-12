@@ -45,3 +45,6 @@ select startup_time from v$instance;
 --show references to schema name in source code in db (triggers, procedure etc)
 select distinct owner, name, type FROM dba_source where text like '%MY_SCHEMA%';
 select distinct owner, name, type FROM dba_source where text like '%my_schema%';
+--show modifications on table (insert/update/delete)
+select * from DBA_TAB_MODIFICATIONS where table_owner not in ('SYS')
+order by timestamp desc;

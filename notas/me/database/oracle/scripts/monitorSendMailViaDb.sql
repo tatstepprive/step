@@ -911,3 +911,57 @@ end;
 
 
 ---------------------------------------------------------------------------------
+--monitor too many extents
+CREATE OR REPLACE PROCEDURE SYS.MON_2MANY_EXTENDS_PROC
+AS
+cursor syno is
+   select OWNER,SEGMENT_NAME,SEGMENT_TYPE,TABLESPACE_NAME,EXTENTS,BLOCKS
+   from DBA_SEGMENTS
+   where extents > 1000
+   order by EXTENTS desc;
+v_target_count number;
+msg_str varchar2(32000);
+my_columns varchar2(200) :='OWNER'||chr(9)||'NAME'||chr(9)||'TYPE'||chr(9)||'TBS'||chr(9)||'EXTENTS'||chr(9)||'BLOCKS';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db 
+   from v$database;
+   select host_name into my_host 
+   from v$instance;
+   select count(*) into v_target_count
+   from DBA_SEGMENTS 
+   where extents > 1000;
+   my_subj:='ALERT too many extents '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: too many extents ';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for syno_rec in syno 
+   loop
+   msg_str:=msg_str||chr(10)||chr(13)||syno_rec.owner||chr(9)||syno_rec.segment_name||chr(9)||syno_rec.segment_type||chr(9)||syno_rec.tablespace_name||chr(9)||syno_rec.extents||chr(9)||syno_rec.blocks;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('There are objects with too many extents found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No objects with too many extents found');
+   end if;
+end;
+/
+
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_2many_extents',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_2MANY_EXTENDS',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=8;byminute=15',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+-----------------------------------------------
