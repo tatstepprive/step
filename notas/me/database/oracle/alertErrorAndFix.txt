@@ -72,7 +72,38 @@ rm -v /u01/app/oracle/oradata/ORCL/redo/redo08.log /u01/app/oracle/oradata/ORCL/
 --check
 select group#,members,status,bytes/1024/1024 as mb from v$log;
 ------------------------------------------------------------------------------
+Error: SP2-0714: invalid combination of STARTUP options
+when: SQL> startup pfile
+fix: provide path to pfile
+SQL> startup pfile='/opt/oracle/app/database/dbs/initMYDB.ora';
+ORACLE instance started.
 ------------------------------------------------------------------------------
+Error: ORA-00845: MEMORY_TARGET not supported on this system
+Fix: see /dev/shm size on file system and set memory_target lower
 ------------------------------------------------------------------------------
+Issue: the  NLS_LENGTH_SEMANTICS is BYTE, correct with alter when not yet db data (tables) created and restart db
+Fix: alter system set NLS_LENGTH_SEMANTICS = CHAR scope = both;
+------------------------------------------------------------------------------
+Issue:
+ DROP TABLESPACE MY_TBS INCLUDING CONTENTS AND DATAFILES;
+DROP TABLESPACE MY_TBS INCLUDING CONTENTS AND DATAFILES
+*
+ERROR at line 1:
+ORA-00604: error occurred at recursive SQL level 1
+ORA-02429: cannot drop index used for enforcement of unique/primary key
 
+Fix: -- Disable the Constrains:
 
+SQL> select 'ALTER TABLE '||owner||'.'||table_name||' DISABLE CONSTRAINT '|| constraint_name||';'
+from dba_constraints
+where (index_owner,index_name) in (select owner,index_name from dba_indexes
+where tablespace_name='MY_TBS');
+
+SQL> select 'ALTER TABLE '||owner||'.'||table_name||' DISABLE CONSTRAINT '|| constraint_name||' cascade;'
+from dba_constraints
+where (index_owner,index_name) in (select owner,index_name from dba_indexes
+where tablespace_name='MY_TBS');
+
+SQL> DROP TABLESPACE MY_TBS INCLUDING CONTENTS AND DATAFILES;
+
+--------------------------------------------------------------------------------

@@ -912,7 +912,7 @@ end;
 
 ---------------------------------------------------------------------------------
 --monitor too many extents
-CREATE OR REPLACE PROCEDURE SYS.MON_2MANY_EXTENDS_PROC
+CREATE OR REPLACE PROCEDURE SYS.MON_2MANY_EXTENTS_PROC
 AS
 cursor syno is
    select OWNER,SEGMENT_NAME,SEGMENT_TYPE,TABLESPACE_NAME,EXTENTS,BLOCKS
@@ -957,7 +957,7 @@ begin
 dbms_scheduler.create_job(
 job_name=>'mon_2many_extents',
 job_type=>'stored_procedure',
-job_action=>'SYS.MON_2MANY_EXTENDS',
+job_action=>'SYS.MON_2MANY_EXTENTS_PROC',
 start_date=>sysdate,
 repeat_interval=>'freq=daily;byhour=8;byminute=15',
 enabled=>true,
