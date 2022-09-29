@@ -107,3 +107,13 @@ where tablespace_name='MY_TBS');
 SQL> DROP TABLESPACE MY_TBS INCLUDING CONTENTS AND DATAFILES;
 
 --------------------------------------------------------------------------------
+Error: ORA-00059: maximum number of DB_FILES exceeded
+SQL> show parameter db_files;
+--output 200 (its default)
+Fix: We should raise the number, say 500 to avoid ORA-00059 
+SQL> alter system set db_files=500 scope=spfile;
+SQL> shutdown immediate;
+SQL> startup;
+SQL> show parameter db_files;
+-- output 500
+---------------------------------------------------------------------------------

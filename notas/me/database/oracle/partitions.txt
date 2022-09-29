@@ -1,0 +1,159 @@
+--Supported from 12.2 (we use 12.1)
+--create table with no partitions
+CREATE TABLE MY_USER.t1 (
+  id           NUMBER,
+  description  VARCHAR2(50),
+  created_date DATE,
+  CONSTRAINT t1_pk PRIMARY KEY (id)
+);
+--add some data
+CREATE INDEX MY_USER.t1_created_date_idx ON IRIS_USER.t1(created_date);
+
+INSERT INTO MY_USER.t1
+SELECT level,
+       'Description for ' || level,
+       ADD_MONTHS(TO_DATE('01-JAN-2017', 'DD-MON-YYYY'), -TRUNC(DBMS_RANDOM.value(1,4)-1)*12)
+FROM   dual
+CONNECT BY level <= 10000;
+COMMIT;
+--check data
+SELECT created_date, COUNT(*)
+FROM   MY_USER.t1
+GROUP BY created_date
+ORDER BY 1;
+--output
+--created_date	count(*)
+--1/01/2015	3263
+--1/01/2016	3377
+--1/01/2017	3360
+
+--add partitions
+ALTER TABLE MY_USER.T1 MODIFY
+  PARTITION BY RANGE (created_date)  (
+    PARTITION t1_p_2015 VALUES LESS THAN (TO_DATE('01-JAN-2016','DD-MON-YYYY')),
+    PARTITION t1_p_2016 VALUES LESS THAN (TO_DATE('01-JAN-2017','DD-MON-YYYY')),
+    PARTITION t1_p_2017 VALUES LESS THAN (TO_DATE('01-JAN-2018','DD-MON-YYYY'))
+  ) online;
+
+--gather statistics
+EXEC DBMS_STATS.gather_table_stats('MY_USER', 'T1');
+
+--check partitioned data
+SELECT table_owner, table_name, partition_name, num_rows
+FROM   all_tab_partitions
+where table_owner='MY_USER'
+ORDER BY 1,2,3;
+--output
+--table_owner table_name partition_name num_rows
+--MY_USER	T1	T1_P_2015	3263
+--MY_USER	T1	T1_P_2016	3377
+--MY_USER	T1	T1_P_2017	3360
+
+--check indexes
+SELECT owner, index_name, partitioned, status
+FROM   all_indexes
+where  owner='MY_USER'
+ORDER BY 1;
+--output
+--owner		index_name		partitioned    status
+--MY_USER	T1_PK			NO		VALID
+--MY_USER	T1_CREATED_DATE_IDX	YES		N/A
+
+--check index usable
+SELECT index_name, partition_name, status
+FROM   all_ind_partitions
+where index_owner='MY_USER'
+ORDER BY 1,2;
+--output
+--index_name		partition_name	status
+--T1_CREATED_DATE_IDX	T1_P_2015	USABLE
+--T1_CREATED_DATE_IDX	T1_P_2016	USABLE
+--T1_CREATED_DATE_IDX	T1_P_2017	USABLE
+
+--add subpartitions
+ALTER TABLE MY_USER.t1 MODIFY
+  PARTITION BY RANGE (created_date) SUBPARTITION BY HASH (id)(
+    PARTITION t1_part_2015 VALUES LESS THAN (TO_DATE('01-JAN-2016','DD-MON-YYYY')) (
+      SUBPARTITION t1_sub_part_2015_1,
+      SUBPARTITION t1_sub_part_2015_2,
+      SUBPARTITION t1_sub_part_2015_3,
+      SUBPARTITION t1_sub_part_2015_4
+    ),
+    PARTITION t1_part_2016 VALUES LESS THAN (TO_DATE('01-JAN-2017','DD-MON-YYYY')) (
+      SUBPARTITION t1_sub_part_2016_1,
+      SUBPARTITION t1_sub_part_2016_2,
+      SUBPARTITION t1_sub_part_2016_3,
+      SUBPARTITION t1_sub_part_2016_4
+    ),
+    PARTITION t1_part_2017 VALUES LESS THAN (TO_DATE('01-JAN-2018','DD-MON-YYYY')) (
+      SUBPARTITION t1_sub_part_2017_1,
+      SUBPARTITION t1_sub_part_2017_2,
+      SUBPARTITION t1_sub_part_2017_3,
+      SUBPARTITION t1_sub_part_2017_4
+    )
+  ) ONLINE;
+
+--check subpartitions
+SELECT table_name, partition_name, subpartition_name, num_rows
+FROM   all_tab_subpartitions
+where table_owner='MY_USER'
+ORDER BY 1,2,3;
+--output 12 rows
+--table_name partition_name subpartition_name num_rows
+--T1	T1_PART_2015	T1_SUB_PART_2015_1
+--T1	T1_PART_2015	T1_SUB_PART_2015_2
+--T1	T1_PART_2015	T1_SUB_PART_2015_3
+--T1	T1_PART_2015	T1_SUB_PART_2015_4
+--T1	T1_PART_2016	T1_SUB_PART_2016_1
+--T1	T1_PART_2016	T1_SUB_PART_2016_2
+--T1	T1_PART_2016	T1_SUB_PART_2016_3
+--T1	T1_PART_2016	T1_SUB_PART_2016_4
+--T1	T1_PART_2017	T1_SUB_PART_2017_1
+--T1	T1_PART_2017	T1_SUB_PART_2017_2
+--T1	T1_PART_2017	T1_SUB_PART_2017_3
+--T1	T1_PART_2017	T1_SUB_PART_2017_4
+
+--attention, num_rows is empty, to fix execute:
+exec dbms_stats.gather_table_stats(ownname => 'MY_USER', tabname => 'T1', granularity => 'SUBPARTITION');
+
+--check subpartitions
+SELECT table_name, partition_name, subpartition_name, num_rows
+FROM   all_tab_subpartitions
+where table_owner='MY_USER'
+ORDER BY 1,2,3;
+--output 12 rows
+--table_name partition_name subpartition_name num_rows
+--T1	T1_PART_2015	T1_SUB_PART_2015_1	830
+--T1	T1_PART_2015	T1_SUB_PART_2015_2	830
+--T1	T1_PART_2015	T1_SUB_PART_2015_3	803
+--T1	T1_PART_2015	T1_SUB_PART_2015_4	800
+--T1	T1_PART_2016	T1_SUB_PART_2016_1	831
+--T1	T1_PART_2016	T1_SUB_PART_2016_2	846
+--T1	T1_PART_2016	T1_SUB_PART_2016_3	844
+--T1	T1_PART_2016	T1_SUB_PART_2016_4	856
+--T1	T1_PART_2017	T1_SUB_PART_2017_1	810
+--T1	T1_PART_2017	T1_SUB_PART_2017_2	851
+--T1	T1_PART_2017	T1_SUB_PART_2017_3	874
+--T1	T1_PART_2017	T1_SUB_PART_2017_4	825
+
+--check index on subpartitions
+SELECT index_name, partition_name, subpartition_name, status
+FROM   all_ind_subpartitions
+where index_owner='MY_USER'
+ORDER BY 1,2;
+--output 12 rows
+--T1_CREATED_DATE_IDX	T1_PART_2015	T1_SUB_PART_2015_1	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2015	T1_SUB_PART_2015_2	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2015	T1_SUB_PART_2015_3	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2015	T1_SUB_PART_2015_4	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2016	T1_SUB_PART_2016_1	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2016	T1_SUB_PART_2016_2	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2016	T1_SUB_PART_2016_4	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2016	T1_SUB_PART_2016_3	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2017	T1_SUB_PART_2017_1	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2017	T1_SUB_PART_2017_3	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2017	T1_SUB_PART_2017_2	USABLE
+--T1_CREATED_DATE_IDX	T1_PART_2017	T1_SUB_PART_2017_4	USABLE
+
+
+

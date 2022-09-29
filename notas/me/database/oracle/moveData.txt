@@ -98,3 +98,85 @@ ALTER TABLE MY_OWNDER.MY_TABLE MOVE LOB(MY_LOB_COLUMN) STORE AS (TABLESPACE MY_T
 --move partition
 alter table MY_OWNER.MY_TABLE move partition MY_PARTITION tablespace MY_TBS;
 ------------------------------
+--move data using scripts
+--move tables with lob
+BEGIN
+        FOR x IN
+        (
+                SELECT 'ALTER TABLE '||OWNER||'.'||TABLE_NAME||' MOVE LOB ('||COLUMN_NAME||') store as ( TABLESPACE MY_TBS_1M ) ' comm
+                FROM    dba_lobs
+                WHERE   owner in  ('MY_USER1', 'MY_USER2', 'MY_USER3', 'MY_USER3', 'MY_USER4', 'MY_USER5')
+                and tablespace_name='MY_TBS'
+        )
+        LOOP
+                dbms_output.put_line(x.comm);
+                EXECUTE immediate x.comm;
+        END LOOP;
+END;
+/
+
+BEGIN
+        FOR x IN
+        (
+                SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD ONLINE PARALLEL' comm
+                FROM    dba_indexes
+                WHERE   status = 'UNUSABLE'
+                UNION ALL
+                SELECT 'ALTER INDEX '||index_owner||'.'||index_name||' REBUILD PARTITION '||partition_name||' ONLINE PARALLEL'
+                FROM    dba_ind_PARTITIONS
+                WHERE   status = 'UNUSABLE'
+                UNION ALL
+                SELECT 'ALTER INDEX '||index_owner||'.'||index_name||' REBUILD SUBPARTITION '||subpartition_name||' ONLINE PARALLEL'
+                FROM    dba_ind_SUBPARTITIONS
+                WHERE   status = 'UNUSABLE'
+        )
+        LOOP
+                dbms_output.put_line(x.comm);
+                EXECUTE immediate x.comm;
+        END LOOP;
+END;
+/
+
+-----------------------------------------------------------
+--move tables
+BEGIN
+        FOR x IN
+        (
+                SELECT 'ALTER TABLE '||OWNER||'.'||TABLE_NAME||' MOVE TABLESPACE MY_TBS_1M ' comm
+                FROM    dba_tables
+                WHERE   owner in  ('MY_USER1', 'MY_USER2', 'MY_USER3', 'MY_USER4', 'MY_USER5', 'MY_USER6')
+                and tablespace_name='MY_TBS'
+                and table_name like 'A%'
+        )
+        LOOP
+                dbms_output.put_line(x.comm);
+                EXECUTE immediate x.comm;
+        END LOOP;
+END;
+/
+
+
+
+-- rebuild all unused indexes
+BEGIN
+        FOR x IN
+        (
+                SELECT 'ALTER INDEX '||OWNER||'.'||INDEX_NAME||' REBUILD ' comm
+                FROM    dba_indexes
+                WHERE   status = 'UNUSABLE'
+                UNION ALL
+                SELECT 'ALTER INDEX '||index_owner||'.'||index_name||' REBUILD PARTITION '||partition_name||' '
+                FROM    dba_ind_PARTITIONS
+                WHERE   status = 'UNUSABLE'
+                UNION ALL
+                SELECT 'ALTER INDEX '||index_owner||'.'||index_name||' REBUILD SUBPARTITION '||subpartition_name||' '
+                FROM    dba_ind_SUBPARTITIONS
+                WHERE   status = 'UNUSABLE'
+        )
+        LOOP
+                dbms_output.put_line(x.comm);
+                EXECUTE immediate x.comm;
+        END LOOP;
+END;
+/
+------------------------------------------------------
