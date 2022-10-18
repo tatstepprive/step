@@ -1,0 +1,29 @@
+--intersect
+SELECT 3 FROM DUAL
+   INTERSECT
+SELECT 3f FROM DUAL;
+--output 3
+----------------------
+--union
+SELECT 3 FROM DUAL
+   union 
+SELECT 3f FROM DUAL;
+--output 3 (1 row) = distict values applied, dublicates are removed
+-----------------------
+--union
+SELECT 3 FROM DUAL
+   union all
+SELECT 3f FROM DUAL;
+--output 3 (2 row) = no distict values applied, dublicates
+-----------------------
+--minus
+SELECT 3 FROM DUAL
+   minus 
+SELECT 3f FROM DUAL;
+--output no rows
+-----------------------
+SELECT 5 FROM DUAL
+   minus 
+SELECT 3f FROM DUAL;
+--output 5 (1 row)
+-----------------------

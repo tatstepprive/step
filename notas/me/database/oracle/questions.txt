@@ -111,3 +111,22 @@ select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,sessi
 RESP: select * from dba_autotask_job_history;
 72 How to see segment advisor advises?
 RESP 72: via query: select segment_name, segment_type, recommendations from table(dbms_space.asa_recommendations);
+73 can i move lob index to a different tablespace?
+73 RESP: the lob and lobindex are "bound" together. you control the placement of the lob  segment, you have NO control over the lob index, it is an internal structure and goes where it goes. the lob 
+index is considered "part of the lob" itself. For the LOB index for a non-partitioned table, then your specification of the tablespace is ignored and the LOB index is co-located with the LOB data.
+74 Why the table DBA_TAB_MODIFICATIONS differs from dba_objects object_type='TABLE' a lot?
+74 RESP: after analize on table and building statistics it will not be in DBA_TAB_MODIFICATIONS till it's used again. So the info from this table is not complete.
+75 Where does the database link SYS_HUB come? 
+select * from dba_db_links;
+--output
+--OWNER DB_LINK USERNAME HOST	CREATED	HIDDEN	SHARED_INTERNAL	VALID	INTRA_CDB	
+--SYS	SYS_HUB		 MY_SID	xx/xx/xx NO	NO		YES	NO
+75 RESP: The database link does exist in all Oracle 12.2.0.1, Oracle 18c and Oracle 19c databases. This database link comes in from the RAC side.
+76 The user SPATIAL_WFS_ADMIN_USR is missing in 19c?
+select username from dba_users@MYDB12C where oracle_maintained='Y'
+minus
+select username from dba_users where oracle_maintained='Y';
+--output
+--SPATIAL_CSW_ADMIN_USR
+--SPATIAL_WFS_ADMIN_USR
+76 RESP: Oracle Spatial and Graph - Version 12.2.0.1 and later: The user SPATIAL_WFS_ADMIN_USR is no longer needed.  

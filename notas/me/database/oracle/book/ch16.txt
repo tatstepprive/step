@@ -130,3 +130,11 @@ What in os audit trail:
  * connect attemps
  * alter system
  * alter database
+------------------------
+--Password never expire
+alter profile DEFAULT limit PASSWORD_REUSE_TIME unlimited;
+alter profile DEFAULT limit PASSWORD_LIFE_TIME  unlimited;
+--default 180 on 19c
+alter profile DEFAULT limit FAILED_LOGIN_ATTEMPTS  unlimited;
+--default 10 on 19c
+-----------------------

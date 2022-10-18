@@ -528,3 +528,6 @@ select to_char(1001.50, '9G999D99') from dual;
 select to_char(1001.50, '0G000D00') from dual;
 select to_char(1001.50, '9G909D99') from dual;
 ================================================
+#Features and Licensing
+https://apex.oracle.com/database-features/
+================================================

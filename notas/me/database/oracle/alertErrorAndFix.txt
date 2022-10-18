@@ -117,3 +117,26 @@ SQL> startup;
 SQL> show parameter db_files;
 -- output 500
 ---------------------------------------------------------------------------------
+Error: tbs sysaux is growing fast due table WRI$_ADV_OBJECTS
+--check the biggest object in tbs sysaux
+select segment_name,owner,tablespace_name,bytes/1024/1024 "SIZE(MB)",segment_type from dba_segments where tablespace_name='SYSAUX' order by bytes desc;
+--output (it takes almost 1.7G)
+--SEGMENT_NAME		OWNER	TABLESPACE_NAME SIZE(MB) SEGMENT_TYPE
+--WRI$_ADV_OBJECTS	SYS	SYSAUX		1728	 TABLE
+
+--Reason: Because in 12.2, a new feature was introduced: Optimizer statistics advisor. The optimizer statistics advisor runs daily in the Maintenance window, auto_stats_advisor_task multiple times, and 
+consumes a large amount of sysaux table space.
+
+--Fix: disable the task (1 sec to complete)
+declare
+  filter1 clob;
+begin
+  filter1 := dbms_stats.configure_advisor_rule_filter('AUTO_STATS_ADVISOR_TASK',
+                                                      'EXECUTE',
+                                                      NULL,
+                                                      'DISABLE');
+END;
+/
+----------------------------------------------------------------------------------
+
+

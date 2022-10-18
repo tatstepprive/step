@@ -180,3 +180,27 @@ BEGIN
 END;
 /
 ------------------------------------------------------
+--Move lob subpartition 
+--check structure
+SELECT TABLE_OWNER,TABLE_NAME,COLUMN_NAME,LOB_NAME,SUBPARTITION_NAME,LOB_PARTITION_NAME,LOB_SUBPARTITION_NAME, SECUREFILE,TABLESPACE_NAME
+FROM DBA_LOB_SUBPARTITIONS 
+WHERE TABLE_OWNER = 'MY_USER'
+order by SUBPARTITION_NAME;
+--output
+--MY_USER	T1	CONTENT	SYS_LOB0000139407C00006$$	T1_2012	SYS_LOB_P533	SYS_LOB_SUBP534	YES	MY_TBS_1G
+--MY_USER	T1	CONTENT	SYS_LOB0000139407C00006$$	T2_2013	SYS_LOB_P533	SYS_LOB_SUBP607	YES	MY_OTHER_TBS_1G
+
+--Move lob subpartition
+alter table MY_USER.T1 
+move subpartition T1_2012
+lob (CONTENT) store as securefile (tablespace MY_OTHER_TBS_1G STORAGE( INITIAL 1G NEXT 1G)) parallel 96;
+--TODO rebuild indexes after move 
+------------------------------------------------------
+--Move lob partition, without table partition
+ALTER TABLE MY_U1.MY_T1
+ MOVE 
+  PARTITION MY_PART1
+    NO INMEMORY
+    TABLESPACE MY_OLD_TBS1
+    LOB (CONTENT) STORE AS SECUREFILE (TABLESPACE MY_NEW_TBS_10M) parallel 96;
+-------------------------------------------------------
