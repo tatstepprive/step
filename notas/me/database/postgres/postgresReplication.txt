@@ -128,4 +128,8 @@ host repmgr repmgr <slave_ip>/32 md5
    repmgrd  -f /etc/repmgr/12/repmgr.conf
 12 Monitoring via query psql -x
    select * from pg_stat_replication;
+12a Monitoring on node via df -h and see data directory is growing on node
+#====================================================
+#when using: /usr/pgsql-12/bin/repmgr -h <primary_ip> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
+HINT: this may take some time; consider using the -c/--fast-checkpoint option
 #====================================================

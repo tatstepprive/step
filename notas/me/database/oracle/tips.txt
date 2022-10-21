@@ -42,3 +42,19 @@ where
 new_value != old_value
 order by 1,2;
 --------------------------------
+--correct procudere name in a scheduled job
+--new value: SYS.MON_2MANY_EXTENTS_PROC
+--old value: SYS.MON_2MANY_EXTENTS
+BEGIN
+  SYS.DBMS_SCHEDULER.SET_ATTRIBUTE
+    ( name      => 'SYS.MON_2MANY_EXTENTS'
+     ,attribute => 'JOB_ACTION'
+     ,value     => 'SYS.MON_2MANY_EXTENTS_PROC');
+END;
+/
+BEGIN
+  SYS.DBMS_SCHEDULER.ENABLE
+    (name => 'SYS.MON_2MANY_EXTENTS');
+END;
+/
+-------------------------------

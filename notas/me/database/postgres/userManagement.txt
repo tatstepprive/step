@@ -1,0 +1,19 @@
+# Lock an account
+ALTER USER someone WITH NOLOGIN;
+To unlock an account:
+
+# Un-lock an account
+ALTER USER someone WITH LOGIN;
+Check account is locked or not:
+
+select rolcanlogin from pg_roles where rolname='database_user';
+
+OUTPUT:
+rolcanlogin
+-------------
+ f
+(1 row)
+
+f = false # Can not login
+t = true # Can login
+--==============================================

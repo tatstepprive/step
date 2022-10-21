@@ -170,4 +170,23 @@ gzip -l filname
 #sync the content between 2 servers. To execute on my_host1
 rsync -azP my_user@my_host2:/var/lib/jenkins/jobs/ /var/lib/jenkins/jobs
 #====================================
+#remove last comma
+MY_I=123,
+MY_I=$(echo $MY_I|sed 's/,$//')
+#remove first comma
+MY_I=,456
+MY_I=$(echo $MY_I|sed 's/^,//')
+#====================================
+#to uppercase/lowercase
+name='alice'
+#first char to uppercase
+echo ${name^}
+#all to uppercase
+echo ${name^^}
+string="A FEW WORDS"
+#first char to lowercase
+echo "${string,}"
+#all to lowercase
+echo "${string,,}"
+#====================================
 

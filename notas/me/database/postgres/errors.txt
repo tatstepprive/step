@@ -65,3 +65,5 @@ select pg_stop_backup();
 #execute replication from zero on slave/replica
 /usr/pgsql-12/bin/repmgr -h <primary> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
 --------------------------------------
+WARNING: data checksums are not enabled and "wal_log_hints" is "off"
+--------------------------------------
