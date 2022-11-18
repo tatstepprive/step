@@ -28,3 +28,13 @@ scp all.dmp postgres@new_host:~
 ssh postgres@new_host
 psql -f all.dmp postgres
 #=====================================
+#Install on redhat 8 postgres 14
+sudo su
+export https_proxy="proxy_host:8282"
+export http_proxy="proxy_host:8282"
+dnf -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+yum install postgresql14.x86_64 postgresql14-server.x86_64 postgresql14-contrib.x86_64 postgresql14-libs.x86_64
+ls -alth /var/lib/pgsql/* -d
+# you will find version 14 as directory
+/usr/pgsql-14/bin/postgresql-14-setup initdb
+#=====================================

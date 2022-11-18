@@ -33,3 +33,10 @@ Enter it again:
 postgres=> ALTER ROLE my_role LOGIN;
 ALTER ROLE
 ==========================================
+Q11: dual does not exist in postgres. How to? 
+R11: Instead 
+select 1 from dual;
+use in postgres: 
+select 1; 
+Ex: select replace( 'abc' 'b' 'p');
+===========================================
