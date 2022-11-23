@@ -154,3 +154,148 @@ select session_user, current_user;
 #switch user
 set role <other_user>;
 =============================
+GRANT ALL PRIVILEGES ON DATABASE grants the CREATE, CONNECT, and TEMPORARY privileges on a database to a role (users are properly referred to as roles). None of those privileges actually permits a role 
+to read data from a table; SELECT privilege on the table is required for that.
+==============================
+
+The 'grant all privileges on all .. in .. to ..' works only on existing objects.
+GRANT ALL ON table_name TO role_name;
+GRANT ALL ON ALL TABLES TO role_name;
+GRANT ALL ON ALL TABLES IN SCHEMA schema_name TO role_name;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO new_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO your_user;
+--ALL TABLES also affects views and foreign tables
+For the existing objects using loop:
+see later
+The 'grant all privileges on all .. in .. to ..' works only on existing objects. If the owner creates a new object, the other user will be denied access.
+For the new future objects (to execute as owner myowner_acc of his future objects to give read-write access to myuser_rw_acc):
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO myuser_rw_acc;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO myuser_rw_acc;
+
+For the new future objects of certain owner (if multiple owners in db, or to not touch postgres objects), but executing as super user, like postgres:
+ALTER DEFAULT PRIVILEGES FOR USER myowner_acc IN SCHEMA public GRANT ALL ON SEQUENCES TO myuser_rw_acc;
+ALTER DEFAULT PRIVILEGES FOR USER myowner_acc IN SCHEMA public GRANT ALL ON TABLES TO myuser_rw_acc;
+===============================
+--Grants for the existing objects using loop:
+--Set rights to all existing tables:
+DO
+$$
+DECLARE
+    my_schemaname name :='public';
+    tbl name;
+    my_env TEXT :='_acc';
+    my_db_owner TEXT :='my_owner_user_acc';
+    my_admin_user TEXT :='my_owner_user_acc';
+    my_schema_owner TEXT :='postgres';
+    my_schema_ro_user TEXT :='my_user_ro_acc';
+    my_schema_rw_user TEXT :='my_suser_rw_acc';
+    my_table_owner TEXT :='my_owner_user_acc';
+    my_db TEXT :=current_database();
+BEGIN
+           raise info 'START setting tables grants schema=% schema_owner=% db=%',  my_schemaname, my_schema_owner, my_db;
+           FOR tbl IN SELECT tablename FROM pg_tables WHERE  schemaname=my_schemaname and tableowner=my_table_owner
+           LOOP
+             raise info 'START setting table grants tablename=%  schema=% table_owner=% ro=% db=%', tbl, my_schemaname, my_table_owner, my_schema_ro_user, my_db;
+             BEGIN
+             EXECUTE format('GRANT ALL ON TABLE %1$I.%2I TO %3$I;',  my_schemaname, tbl, my_schema_rw_user);
+             raise info 'OK setting table grants tablename=%  schema=% table_owner=% ro=% db=%', tbl, my_schemaname, my_table_owner, my_schema_ro_user, my_db;
+             EXCEPTION WHEN OTHERS THEN
+             raise info 'ERROR setting tables grants schema=% table_owner=% ro=% db=%',  my_schemaname, my_table_owner, my_schema_ro_user, my_db;
+             CONTINUE;
+             END;
+           END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+---Set rights to all existing sequences
+DO
+$$
+DECLARE
+    my_schemaname name :='public';
+    seqw name;
+    my_env TEXT :='_acc';
+    my_db_owner TEXT :='my_owner_user_acc';
+    my_admin_user TEXT :='my_user_acc';
+    my_schema_owner TEXT :='postgres';
+    my_schema_ro_user TEXT :='my_user_ro_acc';
+    my_schema_rw_user TEXT :='my_user_rw_acc';
+    my_seq_owner TEXT :='my_owner_user_acc';
+    my_db TEXT :=current_database();
+BEGIN
+           raise info 'START setting tables grants schema=% schema_owner=% db=%',  my_schemaname, my_schema_owner, my_db;
+           FOR seqw IN SELECT sequencename FROM pg_sequences WHERE  schemaname=my_schemaname and sequenceowner=my_seq_owner
+           LOOP
+             raise info 'START setting table grants tablename=%  schema=% seq_owner=% ro=% db=%', seqw, my_schemaname, my_seq_owner, my_schema_ro_user, my_db;
+             BEGIN
+             EXECUTE format('GRANT ALL ON SEQUENCE %1$I.%2I TO %3$I;',  my_schemaname, seqw, my_schema_rw_user);
+             raise info 'OK setting sequence grants seqname=%  schema=% seq_owner=% ro=% db=%', seqw, my_schemaname, my_seq_owner, my_schema_ro_user, my_db;
+             EXCEPTION WHEN OTHERS THEN
+             raise info 'ERROR setting sequence grants schema=% seq_owner=% ro=% db=%',  my_schemaname, my_seq_owner, my_schema_ro_user, my_db;
+             CONTINUE;
+             END;
+           END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+---Set rights to all existing views
+DO
+$$
+DECLARE
+    my_schemaname name :='public';
+    vw name;
+    my_env TEXT :='_acc';
+    my_db_owner TEXT :='my_owner_user_acc';
+    my_admin_user TEXT :='my_user_acc';
+    my_schema_owner TEXT :='postgres';
+    my_schema_ro_user TEXT :='my_user_ro_acc';
+    my_schema_rw_user TEXT :='my_user_rw_acc';
+    my_view_owner TEXT :='my_owner_user_acc';
+    my_db TEXT :=current_database();
+BEGIN
+           raise info 'START setting view grants schema=% schema_owner=% db=%',  my_schemaname, my_schema_owner, my_db;
+           FOR vw IN SELECT viewname FROM pg_views WHERE  schemaname=my_schemaname and viewowner=my_view_owner
+           LOOP
+             raise info 'START setting view grants viewname=%  schema=% view_owner=% ro=% db=%', vw, my_schemaname, my_view_owner, my_schema_ro_user, my_db;
+             BEGIN
+             EXECUTE format('GRANT ALL ON TABLE %1$I.%2I TO %3$I;',  my_schemaname, vw, my_schema_rw_user);
+             raise info 'OK setting view grants viewname=%  schema=% view_owner=% ro=% db=%', vw, my_schemaname, my_view_owner, my_schema_ro_user, my_db;
+             EXCEPTION WHEN OTHERS THEN
+             raise info 'ERROR setting view grants schema=% view_owner=% ro=% db=%',  my_schemaname, my_view_owner, my_schema_ro_user, my_db;
+             CONTINUE;
+             END;
+           END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+
+---Set rights to all existing views
+DO
+$$
+DECLARE
+    my_schemaname name :='public';
+    vw name;
+    my_env TEXT :='_acc';
+    my_db_owner TEXT :='my_owner_user_acc';
+    my_admin_user TEXT :='my_user_acc';
+    my_schema_owner TEXT :='postgres';
+    my_schema_ro_user TEXT :='my_user_ro_acc';
+    my_schema_rw_user TEXT :='my_user_rw_acc';
+    my_view_owner TEXT :='my_owner_user_acc';
+    my_db TEXT :=current_database();
+BEGIN
+           raise info 'START setting view grants schema=% schema_owner=% db=%',  my_schemaname, my_schema_owner, my_db;
+           FOR vw IN SELECT viewname FROM pg_views WHERE  schemaname=my_schemaname and viewowner=my_view_owner
+           LOOP
+             raise info 'START setting view grants viewname=%  schema=% view_owner=% ro=% db=%', vw, my_schemaname, my_view_owner, my_schema_ro_user, my_db;
+             BEGIN
+             EXECUTE format('GRANT ALL ON %1$I.%2I TO %3$I;',  my_schemaname, vw, my_schema_rw_user);
+             raise info 'OK setting view grants viewname=%  schema=% view_owner=% ro=% db=%', vw, my_schemaname, my_view_owner, my_schema_ro_user, my_db;
+             EXCEPTION WHEN OTHERS THEN
+             raise info 'ERROR setting view grants schema=% view_owner=% ro=% db=%',  my_schemaname, my_view_owner, my_schema_ro_user, my_db;
+             CONTINUE;
+             END;
+           END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+===========================================

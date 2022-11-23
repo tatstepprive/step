@@ -31,3 +31,7 @@ select '"'||usename||'"'||' '||'"'||passwd||'"' from pg_shadow;
 #reassign user when connecting to db
 REASSIGN OWNED BY old_user TO new_user;
 --===========================
+#change database owner
+ALTER DATABASE my_db OWNER TO new_owner;
+ALTER DATABASE my_db OWNER TO postgres;
+--===========================
