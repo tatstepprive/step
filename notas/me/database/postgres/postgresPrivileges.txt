@@ -299,3 +299,20 @@ BEGIN
     END;
 $$ LANGUAGE plpgsql;
 ===========================================
+--search path for a given role or database
+SELECT r.rolname, d.datname, rs.setconfig
+FROM   pg_db_role_setting rs
+LEFT   JOIN pg_roles      r ON r.oid = rs.setrole
+LEFT   JOIN pg_database   d ON d.oid = rs.setdatabase
+WHERE  r.rolname = 'myrole' OR d.datname = 'mydb';
+--search path for current user on current db
+show search_path ;
+--set search path for the current session
+set search_path = "$user", public, postgis;
+--set search path for db permanently 
+alter database mydb set search_path = "$user", public, postgis ;
+--set search path for role permanently
+alter role johnny set search_path = "$user", public, postgis ;
+--Attention: If there are entries in the search path for nonexistent schemas, then they are ignored.
+========================================
+

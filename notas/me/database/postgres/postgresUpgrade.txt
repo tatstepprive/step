@@ -30,3 +30,27 @@ upgrade:
   n) alternative for least downtime: pg_dumpall -p 5432 | psql -d postgres -p 5433
   o) testing (2 weeks)
   p) uninstall old version via script and additionally remove old data directory /var/lib/psql/12/data
+-------------------
+To upgrade from 12 to 14: needs upgrade replication first on version 12 from 5.0 to 5.3
+upgrade replication manager on acc:
+--stop old manager
+ systemctl status repmgr12
+ systemctl stop repmgr12
+ systemctl status repmgr12
+-- systemctl start repmgr12
+
+--restart db on primary
+systemctl status postgresql-12
+systemctl restart postgresql-12
+\c postgres and \c repmgr
+ALTER EXTENSION repmgr UPDATE;
+--update file
+/etc/repmgr/12
+mv repmgr.conf repmgr.conf.old.v5.0
+mv repmgr.conf.newconf repmgr.conf
+adapt only first lines
+--start manager
+systemctl status repmgr-12
+systemctl start repmgr-12
+systemctl enable repmgr-12
+-------------------
