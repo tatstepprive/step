@@ -53,7 +53,7 @@ fdisk -l /dev/sdb1
 # start extending
 # see group-disk relation (VG Name-PV Name)
 pvdisplay
-#see volume group (VG) name to extend and disk (PG)
+#see volume group (VG) name to extend and disk (PG), or see that some disk are gone and no available (error: read failed after, Input/output error, unknown device)
 pvs
 #see info about VG
 vgdisply my-vg

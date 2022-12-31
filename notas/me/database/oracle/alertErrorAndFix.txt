@@ -106,6 +106,13 @@ where tablespace_name='MY_TBS');
 
 SQL> DROP TABLESPACE MY_TBS INCLUDING CONTENTS AND DATAFILES;
 
+Fix2: -- without disabling constraints change the tbs for indexes in question
+select * from dba_indexes where tablespace='MY_TBS';
+--using the result
+ALTER INDEX my_owner.MY_IDX_NAME2_PK REBUILD TABLESPACE MY_OTHER_TBS;
+--or if partition index
+alter index my_owner.MY_IDX_NAME_FK rebuild partition TASKS_OPEN tablespace MY_OTHER_TBS STORAGE( INITIAL 1M NEXT 1M) ;
+
 --------------------------------------------------------------------------------
 Error: ORA-00059: maximum number of DB_FILES exceeded
 SQL> show parameter db_files;

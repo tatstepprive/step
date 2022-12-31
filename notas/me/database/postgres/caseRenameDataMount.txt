@@ -1,0 +1,28 @@
+#Rename data mount to support postgres major upgrades (12 to 13/14/15 etc)
+df -h 
+#Now:
+/dev/mapper/postgres-data  483G  139G  320G  31% /var/lib/pgsql/12/data
+#Need:
+/dev/mapper/postgres-data  483G  139G  320G  31% /var/lib/pgsql
+#howto as root
+systemctl status repmgr-12
+systemctl stop repmgr-12
+systemctl status postgresql-12
+systemctl stop postgresql-12
+#relocate temporary the data
+mkdir -p /opt/mnt/tmp
+date; mv /var/lib/pgsql/* /opt/mnt/tmp/ ; date;
+date; mv /var/lib/pgsql/.* /opt/mnt/tmp/ ; date; #n,n for . and ..
+nano /etc/fstab
+umount /var/lib/pgsql/12/data
+mount /var/lib/pgsql
+#set data back
+date; mv /opt/mnt/tmp/*  /var/lib/pgsql/ ; date;
+date; mv /opt/mnt/tmp/.*  /var/lib/pgsql/ ; date; #n,n for . and ..
+systemctl start postgresql-12
+systemctl status postgresql-12
+systemctl start repmgr-12
+#if on stb, register
+/usr/pgsql-12/bin/repmgr  -f /etc/repmgr/12/repmgr.conf standby register
+#if warning on standby, reclone on stb as postgres
+/usr/pgsql-12/bin/repmgr -h <prm_host> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F -c

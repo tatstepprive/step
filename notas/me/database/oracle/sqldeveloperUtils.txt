@@ -73,5 +73,8 @@ If tnsnames.ora location is set, then you can use Connection Type TNS , Network 
 #Add memory to sqldeveloper on windows
 C:\Users\${WINDOWS_USER_NAME}\AppData\Roaming\sqldeveloper\${SQL_DEVELOPER_VERSION}\product.conf
 #================================
-
+#Sqldeveloper disable autocommit
+Menu Tools, Preferences, in list expand Database, Advanced, Autocommit checkbox set off
+--Attention: it will be ignored when connecting to postgres database with sqldeveloper, you need to modify pgjdbc driver
+#================================ 
 

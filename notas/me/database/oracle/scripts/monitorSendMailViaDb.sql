@@ -965,3 +965,54 @@ auto_drop=>false);
 end;
 /
 -----------------------------------------------
+CREATE OR REPLACE PROCEDURE SYS.MON_2MANY_PRIVS_VIA_ROLES_PROC
+AS
+cursor curr is
+     select grantee, granted_role from dba_role_privs
+     where grantee in (select username from dba_users where oracle_maintained='N')
+     and granted_role not in ('RESOURCE','CONNECT')
+    order by 1,2;
+v_target_count number:=0;
+msg_str varchar2(12000);
+my_columns varchar2(200) :='GRANTEE'||chr(9)||'PRIVILEGE';
+my_db varchar2(30);
+my_host varchar2(64);
+my_subj varchar(150);
+begin
+   select DB_UNIQUE_NAME into my_db 
+   from v$database;
+   select host_name into my_host 
+   from v$instance;
+   my_subj:='ALERT too many privileges via roles '||my_db||chr(32)||my_host;
+   msg_str:='WARNING: too many privileges via roles';
+   msg_str:=msg_str||chr(10)||chr(13)||my_columns;
+   for curr_rec in curr 
+   loop
+   v_target_count:=v_target_count+1;
+   msg_str:=msg_str||chr(10)||chr(13)||curr_rec.grantee||chr(9)||curr_rec.granted_role;
+   end loop;
+   if v_target_count <> 0
+   then
+   dbms_output.put_line(my_subj);
+   dbms_output.put_line('Too many privileges via roles for user found');
+   dbms_output.put_line(msg_str);
+   SEND_MSG_PROC(my_subj, 'Hello dba,'||chr(10)||chr(13)||msg_str||chr(10)||chr(13)||'Have a nice day!');
+   else
+     dbms_output.put_line('NO '||my_subj);
+     dbms_output.put_line('No too many privileges via roles for user found');
+   end if;
+end;
+/
+
+begin
+dbms_scheduler.create_job(
+job_name=>'mon_2many_privs_via_roles',
+job_type=>'stored_procedure',
+job_action=>'SYS.MON_2MANY_PRIVS_VIA_ROLES_PROC',
+start_date=>sysdate,
+repeat_interval=>'freq=daily;byhour=8;byminute=15',
+enabled=>true,
+auto_drop=>false);
+end;
+/
+---------------------------
