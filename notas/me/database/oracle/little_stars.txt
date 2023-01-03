@@ -6,7 +6,7 @@
 6 ACID=automicity, consistency, isolation, durability (ACI undo + redo, D redo)
 7 incomplete transaction=uncommitted transaction; complete transaction=commited transaction
 8 not possible to nest transactions in SQL, but possible in PL/SQL
-9 DML (select, insert, update, delete, merge) DDL (create, alter, drop, truncate) DCL (grant, revoke)
+9 DML (select (because of select for update), insert, update, delete, merge) DDL (create, alter, drop, rename, truncate, comment) DCL (grant, revoke) Transaction control (commit, rollback, savepoint)
 10 TCS=transaction control statements (commit, rollback, savepoint)
 11 commit=LGWR flushes log buffer to disk and flags transaction complete, DBWn does nothing
 12 redo logs(LGWR) and data files(DBWn) contains committed and UNCOMMITED transactions (p150)
