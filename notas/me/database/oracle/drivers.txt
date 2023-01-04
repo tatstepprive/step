@@ -1,0 +1,13 @@
+Difference Between JDBC and ODBC
+JDBC= Java Database Community
+ODBC= Open Database Connectivity
+
+ODBC is a standard Microsoft Windows® interface that enables communication between database management systems and applications typically written in C or C++.
+
+JDBC is a standard interface that enables communication between database management systems and applications written in Oracle Java.
+
+Flexibility: - ODBC is a windows-specific technology - JDBC is specific to Java, and is therefore supported on whatever OS supports Java
+
+Language: - ODBC is procedural and language independent - JDBC is object oriented and language dependent (specific to java).
+
+Heavy load: - JDBC is faster - ODBC is slower
