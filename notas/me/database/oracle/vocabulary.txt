@@ -51,3 +51,4 @@ PCTFREE=percent free (reserved % of the block for row expansion)
 chained row = row cut across 2 or more blocks (block 8KB and row 20KB, row takes 3 blocks)
 migrated row = row changed his location because of growing (update from null or varchar2 variable length row). rowid is in original block and points to new block with row.
 HCC=Hybrid Columnar Compression f: data compression
+ASMM=Automatic Shared Memory management

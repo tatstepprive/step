@@ -320,3 +320,6 @@ select * from all_cons_columns;
 select * from user_tab_comments;
 select * from user_col_comments;
 #=======================================================
+#optimiser hint: parallel query
+select /*+ PARALLEL(emp,4) */ * FROM emp
+#======================================================
