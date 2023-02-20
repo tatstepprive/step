@@ -6,3 +6,8 @@ table bloat (excessive dead tuples)=fragmented table
 index cardinality=low cardinality = a lot of dublicate values in column (Attention: optimizer will ignore indexes with low cardinality and use seq scan)
 index cardinality=high cardinality = none of little dublicate values in column (ex id)
 cardinality=the uniqueness of all values in a column
+Vertical scaling (16G, 4cpu -> 64G, 8cpu)= add more resources cores and memories to machine to spread the load
+Horizontal scaling = add more machines to spread the load (preferred)
+Type horizontal scaling=Master/slave with read-write separation (physical or logical); Multi master (not recommended)
+sharding=split data horizontally, data in table is distributed accross many servers (in pg based on table partitioning but on different nodes/hosts). No high-availability (HA) support
+
