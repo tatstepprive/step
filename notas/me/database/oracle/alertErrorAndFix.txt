@@ -145,5 +145,17 @@ begin
 END;
 /
 ----------------------------------------------------------------------------------
+Error ORA-01033 oracle initialization or shutdown in progress 12c (with pdbs)
+--Fix: connect sys as sysdba to root db (show_conn (output CDB$ROOT) 
+create or replace TRIGGER pdb_startup
 
+AFTER STARTUP ON DATABASE
+
+BEGIN
+
+EXECUTE IMMEDIATE 'alter pluggable database all open';
+
+END;
+
+--------------------------------------------------------------------------------
 
