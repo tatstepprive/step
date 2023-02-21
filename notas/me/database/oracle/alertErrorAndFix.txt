@@ -158,4 +158,14 @@ EXECUTE IMMEDIATE 'alter pluggable database all open';
 END;
 
 --------------------------------------------------------------------------------
-
+ORA-12899: value too large
+fix:
+exec dbms_errlog.create_error_log('my_table_name')
+desc err$_my_table_name;
+insert into my_table_name
+select my_id, first_name||' '||last_name name
+from u1.u1_table_name
+log errors reject limit unlimited;
+select * from err$_my_table_name;
+--see ORA-12899: value too large...
+------------------------------------------
