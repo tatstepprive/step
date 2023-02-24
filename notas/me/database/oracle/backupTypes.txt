@@ -27,6 +27,13 @@ Backup types:
     * online
     * partial
 
+* Logical (data pump export)
+* Physical 
+   * No archive log mode (cold backup, offline database)
+   * Archive log mode
+        * cold backup, offline database
+        * hot backup, online database
+
 Recommendation:
 Monthly: closed, whole, full backup
 Daily: open, whole, incremental backup
