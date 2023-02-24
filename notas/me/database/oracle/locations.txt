@@ -56,9 +56,16 @@ $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/diag/rdbms/db_id/instance_id/hm/ 
 $ORACLE_BASE/diag/rdbms/orcl/orcl/hm/
 ------------------------------------------
+# controlfiles location
+select name from v$controlfile;
+------------------------------------------
 # datafiles location
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
+select file_name from dba_data_files;
+------------------------------------------
+# archive logs location (if db in archive mode)
+archive log list;
 ------------------------------------------
 # listener location
 $ORACLE_HOME/network/admin/listener.ora
