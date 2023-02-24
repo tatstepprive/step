@@ -155,5 +155,155 @@ ORDER BY 1,2;
 --T1_CREATED_DATE_IDX	T1_PART_2017	T1_SUB_PART_2017_2	USABLE
 --T1_CREATED_DATE_IDX	T1_PART_2017	T1_SUB_PART_2017_4	USABLE
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+--12.1 Partition existing table with clobs
+TMSH=U1
+MCONN=my_suser/my_pass@myhost.mydomain/MYSID
+create_interim_table_v3(){
+echo "Test create interim table on ${TMSH} with 9 partitions and 3 tbs with 3 partition per tbs"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+create table U1.FILMIFICATES_INTERIM
+TABLESPACE U1_DATA_FILMIFICATE
+STORAGE    (
+            INITIAL          100M
+            NEXT             100M
+           )
+partition by hash(FILM_ID)
+(
+           partition FILM_P01 tablespace U1_DATA_FILMIFICATE_PSET1,
+           partition FILM_P02 tablespace U1_DATA_FILMIFICATE_PSET1,
+           partition FILM_P03 tablespace U1_DATA_FILMIFICATE_PSET1,
+           partition FILM_P04 tablespace U1_DATA_FILMIFICATE_PSET2,
+           partition FILM_P05 tablespace U1_DATA_FILMIFICATE_PSET2,
+           partition FILM_P06 tablespace U1_DATA_FILMIFICATE_PSET2,
+           partition FILM_P07 tablespace U1_DATA_FILMIFICATE_PSET3,
+           partition FILM_P08 tablespace U1_DATA_FILMIFICATE_PSET3,
+           partition FILM_P09 tablespace U1_DATA_FILMIFICATE_PSET3
+          )
+as
+select * from U1.FILMIFICATES
+where 1=0;
+  exit;
+EOF
+echo "===================="
+}
+test_connect(){
+echo "Test connect to ${TMSH}"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+  ALTER SESSION SET nls_date_format='dd-mon-yyyy hh24:mi:ss';
+  select sysdate from dual;
+  exit;
+EOF
+echo "===================="
+}
+start_redef_table_v2(){
+echo "Test start_redef_table on ${TMSH}"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+alter session force parallel dml parallel 4;
+alter session force parallel query parallel 4;
+BEGIN
+  DBMS_REDEFINITION.START_REDEF_TABLE('U1','FILMIFICATES','FILMIFICATES_INTERIM');
+END;
+/
+  exit;
+EOF
+echo "===================="
+}
+copy_dependent_objects_v2(){
+echo "Test copy dependent objects on ${TMSH}"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+alter session force parallel dml parallel 4;
+alter session force parallel query parallel 4;
+DECLARE
+  num_errors PLS_INTEGER;
+BEGIN
+  DBMS_REDEFINITION.COPY_TABLE_DEPENDENTS ('U1',  'FILMIFICATES', 'FILMIFICATES_INTERIM',
+  DBMS_REDEFINITION.CONS_ORIG_PARAMS, TRUE, TRUE, TRUE, TRUE, num_errors);
+END;
+/
+  exit;
+EOF
+echo "===================="
+}
+finish_redef_table(){
+echo "Test finish_redef_tables on ${TMSH}"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+alter session force parallel dml parallel 2;
+alter session force parallel query parallel 2;
+BEGIN
+  DBMS_REDEFINITION.FINISH_REDEF_TABLE ('U1', 'FILMIFICATES', 'FILMIFICATES_INTERIM');
+END;
+/
+  exit;
+EOF
+echo "===================="
+}
+drop_table(){
+echo "Test drop table on ${TMSH}"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+ drop table U1.FILMIFICATES_INTERIM cascade constraints purge;
+  exit;
+EOF
+echo "===================="
+}
+#partitioning deel0 create new tbs
+CREATE TABLESPACE U1_DATA_FILMIFICATE_PSET1
+DATAFILE
+  '/ora01/MYSID/data/film_pset1_1.dbf' SIZE 10G AUTOEXTEND ON NEXT 500M MAXSIZE 31G
+LOGGING
+DEFAULT
+  NO INMEMORY
+ONLINE
+EXTENT MANAGEMENT LOCAL UNIFORM SIZE 100M
+BLOCKSIZE 8K
+SEGMENT SPACE MANAGEMENT AUTO
+FLASHBACK ON;
+CREATE TABLESPACE U1_DATA_FILMIFICATE_PSET2
+DATAFILE
+  '/ora01/MYSID/data/film_pset2_1.dbf' SIZE 10G AUTOEXTEND ON NEXT 500M MAXSIZE 31G
+LOGGING
+DEFAULT
+  NO INMEMORY
+ONLINE
+EXTENT MANAGEMENT LOCAL UNIFORM SIZE 100M
+BLOCKSIZE 8K
+SEGMENT SPACE MANAGEMENT AUTO
+FLASHBACK ON;
+CREATE TABLESPACE U1_DATA_FILMIFICATE_PSET3
+DATAFILE
+  '/ora01/MYSID/data/film_pset3_1.dbf' SIZE 10G AUTOEXTEND ON NEXT 500M MAXSIZE 31G
+LOGGING
+DEFAULT
+  NO INMEMORY
+ONLINE
+EXTENT MANAGEMENT LOCAL UNIFORM SIZE 100M
+BLOCKSIZE 8K
+SEGMENT SPACE MANAGEMENT AUTO
+FLASHBACK ON;
+#partitioning deel1
+test_connect
+create_interim_table_v3
+start_redef_table_v2
+#manually: select object_name, base_table_name, ddl_txt from DBA_REDEFINITION_ERRORS;--if no errors continue, if errors analyze before continue
+#partitioning deel2
+test_connect
+copy_dependent_objects_v2
+#partitioning deel3
+test_connect
+finish_redef_table
+#partitioning deel4
+test_connect
+drop_table
+#manually compile invalid objects on U1 or other dep schemas
+#manually drop original tbs if empty
+------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 
