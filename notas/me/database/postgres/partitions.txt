@@ -1,0 +1,219 @@
+#!/bin/bash
+my_analyze() {
+echo "=============START ANALIZE================="
+#===================================
+echo "Show version:"
+psql -w -U $PGUSER -c "select version();"
+#===================================
+echo "Show connection details:"
+psql -w -U $PGUSER -c "\conninfo"
+#===================================
+echo "Show databases:"
+psql -w -U $PGUSER -c "\l"
+#===================================
+echo "Show users:"
+psql -w -U $PGUSER -c "\du+"
+#===================================
+echo "Show extensions:"
+psql -w -U $PGUSER -c "\dx"
+#===================================
+echo "Show schemas:"
+psql -w -U $PGUSER -c "\dn+"
+#===================================
+echo "Show tables:"
+psql -w -U $PGUSER -c "\dt+ *.*" | grep -iv pg_catalog | grep -iv information_schema
+#===================================
+echo "Show indexes:"
+psql -w -U $PGUSER -c "\di+ *.*" | grep -iv pg_catalog | grep -iv information_schema
+#===================================
+echo "Show sequences:"
+psql -w -U $PGUSER -c "\ds+ *.*" | grep -iv pg_catalog | grep -iv information_schema
+#===================================
+echo "Show views:"
+psql -w -U $PGUSER -c "\dv+ *.*" | grep -iv pg_catalog | grep -iv information_schema
+#===================================
+echo "Show mat views:"
+psql -w -U $PGUSER -c "\dm+"
+#===================================
+echo "Show functions (except pg_catalog and information_schema):"
+psql -w -U $PGUSER -c "\df *.*" | grep -iv pg_catalog | grep -iv information_schema
+#===================================
+echo "Show trigger:"
+psql -w -U $PGUSER -c "\dy"
+#===================================
+echo "Show privileges:"
+psql -w -U $PGUSER -c "\z *.*"
+#===================================
+echo "=============END ANALIZE================="
+}
+my_redefine() {
+echo "=============START REDEFINE================="
+#===================================
+echo "Show row number in original table:"
+psql -w -U $PGUSER -c "select count(*) from film;"
+#===================================
+#===================================
+echo "Rename original table:"
+psql -w -U $PGUSER -c "ALTER TABLE film  RENAME TO film_old;"
+#===================================
+#===================================
+echo "Show row number in renamed table:"
+psql -w -U $PGUSER -c "select count(*) from film_old;"
+#===================================
+#===================================
+echo "Create temp table:"
+psql -w -U $PGUSER -c "create table film_tmp (like film_old including all);"
+#===================================
+#===================================
+echo "Alter temp table:"
+psql -w -U $PGUSER -c "alter table film_tmp drop constraint film_tmp_pkey, add primary key (id, time_stamp);"
+#===================================
+#===================================
+echo "Create new table from temp:"
+psql -w -U $PGUSER -c "create table film (like film_tmp including all)  partition by range (time_stamp);"
+#===================================
+echo "=============END REDEFINE================="
+}
+add_partitions() {
+#multiline works
+echo "INFO: add partitions"
+psql  <<EOF
+\x
+CREATE TABLE film_y2020m01 PARTITION OF film FOR VALUES FROM ('2020-01-01') TO ('2020-02-01');
+CREATE TABLE film_y2020m02 PARTITION OF film FOR VALUES FROM ('2020-02-01') TO ('2020-03-01');
+CREATE TABLE film_y2020m03 PARTITION OF film FOR VALUES FROM ('2020-03-01') TO ('2020-04-01');
+CREATE TABLE film_y2020m04 PARTITION OF film FOR VALUES FROM ('2020-04-01') TO ('2020-05-01');
+CREATE TABLE film_y2020m05 PARTITION OF film FOR VALUES FROM ('2020-05-01') TO ('2020-06-01');
+CREATE TABLE film_y2020m06 PARTITION OF film FOR VALUES FROM ('2020-06-01') TO ('2020-07-01');
+CREATE TABLE film_y2020m07 PARTITION OF film FOR VALUES FROM ('2020-07-01') TO ('2020-08-01');
+CREATE TABLE film_y2020m08 PARTITION OF film FOR VALUES FROM ('2020-08-01') TO ('2020-09-01');
+CREATE TABLE film_y2020m09 PARTITION OF film FOR VALUES FROM ('2020-09-01') TO ('2020-10-01');
+CREATE TABLE film_y2020m10 PARTITION OF film FOR VALUES FROM ('2020-10-01') TO ('2020-11-01');
+CREATE TABLE film_y2020m11 PARTITION OF film FOR VALUES FROM ('2020-11-01') TO ('2020-12-01');
+CREATE TABLE film_y2020m12 PARTITION OF film FOR VALUES FROM ('2020-12-01') TO ('2021-01-01');
+CREATE TABLE film_y2021m01 PARTITION OF film
+    FOR VALUES FROM ('2021-01-01') TO ('2021-02-01');
+CREATE TABLE film_y2021m02 PARTITION OF film
+    FOR VALUES FROM ('2021-02-01') TO ('2021-03-01');
+CREATE TABLE film_y2021m03 PARTITION OF film
+    FOR VALUES FROM ('2021-03-01') TO ('2021-04-01');
+CREATE TABLE film_y2021m04 PARTITION OF film
+    FOR VALUES FROM ('2021-04-01') TO ('2021-05-01');
+CREATE TABLE film_y2021m05 PARTITION OF film
+    FOR VALUES FROM ('2021-05-01') TO ('2021-06-01');
+CREATE TABLE film_y2021m06 PARTITION OF film
+    FOR VALUES FROM ('2021-06-01') TO ('2021-07-01');
+CREATE TABLE film_y2021m07 PARTITION OF film
+    FOR VALUES FROM ('2021-07-01') TO ('2021-08-01');
+CREATE TABLE film_y2021m08 PARTITION OF film
+    FOR VALUES FROM ('2021-08-01') TO ('2021-09-01');
+CREATE TABLE film_y2021m09 PARTITION OF film
+    FOR VALUES FROM ('2021-09-01') TO ('2021-10-01');
+CREATE TABLE film_y2021m10 PARTITION OF film
+    FOR VALUES FROM ('2021-10-01') TO ('2021-11-01');
+CREATE TABLE film_y2021m11 PARTITION OF film
+    FOR VALUES FROM ('2021-11-01') TO ('2021-12-01');
+CREATE TABLE film_y2021m12 PARTITION OF film
+    FOR VALUES FROM ('2021-12-01') TO ('2022-01-01');
+CREATE TABLE film_y2022m01 PARTITION OF film
+    FOR VALUES FROM ('2022-01-01') TO ('2022-02-01');
+CREATE TABLE film_y2022m02 PARTITION OF film
+    FOR VALUES FROM ('2022-02-01') TO ('2022-03-01');
+CREATE TABLE film_y2022m03 PARTITION OF film
+    FOR VALUES FROM ('2022-03-01') TO ('2022-04-01');
+CREATE TABLE film_y2022m04 PARTITION OF film
+    FOR VALUES FROM ('2022-04-01') TO ('2022-05-01');
+CREATE TABLE film_y2022m05 PARTITION OF film
+    FOR VALUES FROM ('2022-05-01') TO ('2022-06-01');
+CREATE TABLE film_y2022m06 PARTITION OF film
+    FOR VALUES FROM ('2022-06-01') TO ('2022-07-01');
+CREATE TABLE film_y2022m07 PARTITION OF film
+    FOR VALUES FROM ('2022-07-01') TO ('2022-08-01');
+CREATE TABLE film_y2022m08 PARTITION OF film
+    FOR VALUES FROM ('2022-08-01') TO ('2022-09-01');
+CREATE TABLE film_y2022m09 PARTITION OF film
+    FOR VALUES FROM ('2022-09-01') TO ('2022-10-01');
+CREATE TABLE film_y2022m10 PARTITION OF film
+    FOR VALUES FROM ('2022-10-01') TO ('2022-11-01');
+CREATE TABLE film_y2022m11 PARTITION OF film
+    FOR VALUES FROM ('2022-11-01') TO ('2022-12-01');
+CREATE TABLE film_y2022m12 PARTITION OF film
+    FOR VALUES FROM ('2022-12-01') TO ('2023-01-01');
+CREATE TABLE film_y2023m01 PARTITION OF film
+    FOR VALUES FROM ('2023-01-01') TO ('2023-02-01');
+CREATE TABLE film_y2023m02 PARTITION OF film
+    FOR VALUES FROM ('2023-02-01') TO ('2023-03-01');
+CREATE TABLE film_y2023m03 PARTITION OF film
+    FOR VALUES FROM ('2023-03-01') TO ('2023-04-01');
+CREATE TABLE film_y2023m04 PARTITION OF film
+    FOR VALUES FROM ('2023-04-01') TO ('2023-05-01');
+CREATE TABLE film_y2023m05 PARTITION OF film
+    FOR VALUES FROM ('2023-05-01') TO ('2023-06-01');
+CREATE TABLE film_y2023m06 PARTITION OF film
+    FOR VALUES FROM ('2023-06-01') TO ('2023-07-01');
+CREATE TABLE film_y2023m07 PARTITION OF film
+    FOR VALUES FROM ('2023-07-01') TO ('2023-08-01');
+CREATE TABLE film_y2023m08 PARTITION OF film
+    FOR VALUES FROM ('2023-08-01') TO ('2023-09-01');
+CREATE TABLE film_y2023m09 PARTITION OF film
+    FOR VALUES FROM ('2023-09-01') TO ('2023-10-01');
+CREATE TABLE film_y2023m10 PARTITION OF film
+    FOR VALUES FROM ('2023-10-01') TO ('2023-11-01');
+CREATE TABLE film_y2023m11 PARTITION OF film
+    FOR VALUES FROM ('2023-11-01') TO ('2023-12-01');
+CREATE TABLE film_y2023m12 PARTITION OF film
+    FOR VALUES FROM ('2023-12-01') TO ('2024-01-01');
+CREATE TABLE film_ybefore2006 PARTITION OF film
+    FOR VALUES FROM ('1970-01-01') TO ('2006-01-01');
+CREATE TABLE film_yafter2023 PARTITION OF film
+    FOR VALUES FROM ('2024-01-01') TO ('2999-01-01');
+EOF
+}
+my_copy_data() {
+echo "=============START COPY DATA================="
+#===================================
+echo "Transfer data to new table:"
+psql -w -U $PGUSER -c "insert into film (select * from film_old);"
+#===================================
+#===================================
+echo "Show row number in old table:"
+psql -w -U $PGUSER -c "select count(*) from film_old;"
+#===================================
+#===================================
+echo "Show row number in new table:"
+psql -w -U $PGUSER -c "select count(*) from film;"
+#===================================
+#===================================
+echo "Drop temp table:"
+psql -w -U $PGUSER -c "drop table film_tmp cascade;"
+#===================================
+echo "=============END COPY DATA================="
+}
+#for info
+#in the begin to avoid auto connections from applications and work under the username:
+#bad solution to change name because the pass is cleaned
+#ALTER USER film_user RENAME TO film_user_tmp;
+#and after:
+#ALTER USER film_user_tmp RENAME TO film_user;
+#--output Attention:
+#--output NOTICE:  MD5 password cleared because of role rename
+#good solution: close connections and change to temporary pass
+#\password film_user
+#--input: test
+#--second input: test
+#after reset pass
+#\password film_user
+#--input: test
+#--second input: test
+export PGUSER=film_user
+export PGDATABASE="film-db"
+#temporary pass
+export PGPASSWORD="test"
+echo "Show connection details:"
+psql -w -U $PGUSER -c "\conninfo"
+my_analyze
+my_redefine
+add_partitions
+my_copy_data
+my_analyze
+# TODO manually drop original table film_old after to avoid confusion and errors
