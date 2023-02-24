@@ -63,6 +63,7 @@ select name from v$controlfile;
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/oradata/orcl/orclpdb (sysaux01.dbf,system01.dbf,undotbs01.dbf, tempxxxxx.dbf as default datafiles)
 select file_name from dba_data_files;
+select name from v$datafile;
 ------------------------------------------
 # archive logs location (if db in archive mode)
 archive log list;
