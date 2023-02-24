@@ -1,5 +1,5 @@
 Backup types:
-* Closed=cold=consistent=offline=db shut down/by rman db in mount mode (control file read required)
+* Closed=cold=consistent=offline=db shut down/by rman db in mount mode (control file read required)=SCN (system change number) in db blocks and SCN in control file are same 
 * Open=hot=inconsistent=online=db open (in use)=>archive mode required
 
 * Whole=all data files and control files
