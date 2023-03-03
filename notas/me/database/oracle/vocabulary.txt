@@ -52,3 +52,23 @@ chained row = row cut across 2 or more blocks (block 8KB and row 20KB, row takes
 migrated row = row changed his location because of growing (update from null or varchar2 variable length row). rowid is in original block and points to new block with row.
 HCC=Hybrid Columnar Compression f: data compression
 ASMM=Automatic Shared Memory management
+HA=high availability (oracle solutions: Flashback, Dataguard (block2block copy), RAC (multiple instance and 1 db files))
+redundancy=copy
+MAA=maximum availability architecture (flashback, dataguard, rac implemented)
+PRM=prm=primary
+STB=stb=standby
+DG=dg=dataguard
+LNS=log network service
+RFB=remote fetch service
+LSS=LNS+RKB=log shipping service
+MRP=managed recovery process
+LAS=log apply service
+RL=redo log
+SRL=standby redo log
+ORLF=online redo log files
+SRLF=SRL=standby redo log files
+FAL=fetch archive log
+Failover=primary is not available, client is connecting to standby/replica/clone/slave
+Switchover=role switch, your primary becomes standby and your standby becomes primary, log shipping is changed direction (manually by dba, should be done every 3 month to test)
+InSync=log on prm is the same as log applied in stb
+Gap=prm and stb is not in sync, there is a problem with log shipping service or log apply service, or no problems and log apply delay is in use
