@@ -35,3 +35,37 @@ REASSIGN OWNED BY old_user TO new_user;
 ALTER DATABASE my_db OWNER TO new_owner;
 ALTER DATABASE my_db OWNER TO postgres;
 --===========================
+#using with like
+% match string of any length characters including zero
+_ match a single character
+--===========================
+#union removes all duplicate rows
+#union all keep all rows
+--==========================
+# find common data use intersect
+select c1,c2
+from t1
+where cond1
+intersect
+select c1,c2
+from t2
+where cond2;
+--=========================
+#find diff between tables, auto removes duplicates
+#what in t1 but not in t2
+select c1,c2
+from t1
+where cond1
+except
+select c1,c2
+from t2
+where cond2;
+#what in t2 but not in t1
+select c1,c2
+from t1
+where cond1
+except
+select c1,c2
+from t2
+where cond2;
+--=========================
