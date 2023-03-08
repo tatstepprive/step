@@ -1,0 +1,30 @@
+Boolean
+  True , yes, 1
+  False, no, 0
+  Null, empty
+Character
+  char(n)
+  varchar(n)
+  text
+Number
+  smallint = small integer
+  int = integer
+  serial = auto populate column
+  float(n)
+  real or float8
+  numeric or numeric(p,s)
+Temporal Data Type
+  date
+  time = time
+  timestamp = date and time
+  interval
+  timestamptz = timestamp and time zone
+Special
+  box
+  line
+  point
+  lseg
+  polygon
+  inet = ip4 address
+  macaddr = mac address
+Arrays
