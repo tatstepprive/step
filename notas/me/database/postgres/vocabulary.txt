@@ -12,3 +12,4 @@ Type horizontal scaling=Master/slave with read-write separation (physical or log
 sharding=split data horizontally, data in table is distributed accross many servers (in pg based on table partitioning but on different nodes/hosts). No high-availability (HA) support
 Aggregate function=return single value calculated from values in a column (exp: count(), min(), max(), avg(), sum(), first(), last()
 crud=create, read, update, delete
+view=stored query (select statement)=virtual table=logical table
