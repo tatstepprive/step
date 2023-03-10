@@ -1,0 +1,74 @@
+--Join types
+--1 inner join
+--2 left join
+--3 full outer join
+--4 cross join
+--5 natural join
+--=========================
+--Inner join:
+---------------------------
+--inner join meaning: intersection (doorsnede)
+--inner join meaning: some of both tables: t1 and t2 that matches condition of equality on column, if nothin matches no rows returned
+---------------------------
+--inner join syntax:
+select column_name(s)
+from t1
+inner join t2 ON t1.column_name=t2.column_name;
+---------------------------
+--=========================
+--Left join
+---------------------------
+--left join meaning: all from t1
+--left join meaning: all from t1 + info on matching from t2, if no matching only t1 with nulls for columns from t2
+---------------------------
+--inner join syntax:
+select column_name(s)
+from t1  
+left join t2 ON t1.column_name=t2.column_name;
+---------------------------
+--usage: find all what not in t1, but in t2
+select t1.c1, t2.c2
+from tbl1 t1
+left join t2 ON t1.c1=t2.c1
+where t2.c1 is null; --attention t2.c1, so matching column is null, t2.c2 can be also null even if row exist in t1
+--=========================
+--Full outer = Full (outer is optional)
+---------------------------
+--full outer join meaning: union
+--full outer join meaning: all from both tables t1 and t2
+--full outer join meaning: all from both tables t1 and t2, if no matching (row A in t1 but not in t2, or row B not in t1 but in t2 ) -  null values for columns
+---------------------------
+--inner join syntax:
+select column_name(s)
+from t1
+full outer join t2 ON t1.column_name=t2.column_name;
+---------------------------
+--usage: find all what not in t1, but in t2
+select t1.c1, t2.c2
+from tbl1 t1
+full outer join t2 ON t1.c1=t2.c1
+where t2.c1 is null; --attention t2.c1, so matching column is null, t2.c2 can be also null even if row exist in t1
+--------------------------
+--Attention: big result set, many many rows as result
+--=========================
+-Cross join = cartesian join (no matching columns required)
+---------------------------
+--cross join meaning: t1 row number=n and t2 row number=m, then number of rows in result n*m (exp 2*2=4), each row from t1 joins with each row of t2, so large result set
+---------------------------
+--cross join syntax:
+select column_name(s)
+from t1
+cross join t2;
+---------------------------
+--=========================
+--Natural join (inner join par default, but can be left/right/inner):
+---------------------------
+--natural join meaning: auto search for columns with the same name and joins on them
+---------------------------
+--natural join syntax:
+select column_name(s)
+from t1
+natural join t2;
+--Attention: natural join can give unexpected results
+---------------------------
+--=========================

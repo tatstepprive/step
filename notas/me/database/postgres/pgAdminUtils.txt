@@ -1,0 +1,12 @@
+In pgAdmin when dashboard tab is missing/gone we can reset view layout and get it back
+menu File,Reset Layout
+--========================================
+In pgAdmin in the result of select the column name and column type are visible like
+column_name
+column_type
+----------
+value
+--=========================================
+Fast query writing by select table R-mouse Script, Insert etc
+and change the value
+-==========================================
