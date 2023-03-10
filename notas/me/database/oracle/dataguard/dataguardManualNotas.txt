@@ -48,7 +48,11 @@ alter system set standby_file_management='AUTO';
 #4.PRM create standby log files srlf (stanby redo log files) (they needed when PRM become STB by manual switch if needed)
 select group#, member from v$logfile;
 --default 1,2,3 group, should be 1,2,3,4,5 => 5 redo groups
---add 6 standby redo=nr redo+1
+--if there is 3 redo groups, add more till 5 , for size check size used for other redo logs
+alter database add logfile group x '/path/name.log' size 50m;
+--add 6 standby redo=nr redo+1, for size check size redo logs
+alter database add STANDBY logfile group x '/path/name.log' size 50m;
+--show only standby logs
 select group#, thread#, sequence#, archived, status from v$standby_log;
 --status=UNASSIGNED (on PRM)
 #------------------------------
