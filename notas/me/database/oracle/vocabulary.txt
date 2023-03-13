@@ -72,3 +72,4 @@ Failover=primary is not available, client is connecting to standby/replica/clone
 Switchover=role switch, your primary becomes standby and your standby becomes primary, log shipping is changed direction (manually by dba, should be done every 3 month to test)
 InSync=log on prm is the same as log applied in stb
 Gap=prm and stb is not in sync, there is a problem with log shipping service or log apply service, or no problems and log apply delay is in use
+PITR=point in time recovery

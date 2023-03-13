@@ -13,3 +13,4 @@ sharding=split data horizontally, data in table is distributed accross many serv
 Aggregate function=return single value calculated from values in a column (exp: count(), min(), max(), avg(), sum(), first(), last()
 crud=create, read, update, delete
 view=stored query (select statement)=virtual table=logical table
+PITR=point in time recovery
