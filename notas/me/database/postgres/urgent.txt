@@ -1,3 +1,11 @@
 --reset the forgotten passw
-
 ALTER USER user_name WITH PASSWORD 'new_password';
+
+--show db version
+select version();
+
+--show databases size, use +
+\l+
+
+--show port using
+show port;
