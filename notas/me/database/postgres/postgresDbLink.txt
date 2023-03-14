@@ -1,0 +1,47 @@
+db link = to access data on remote host
+we need 2 postgres db on 2 hosts: target host and source host
+postgres_fdw (fdw=foreign data wrapper)
+
+We need access tbl city residing on ip1@target_db:target_user:city by ip2@source_db:source_user
+
+Target ip1
+Source ip2 : install postgresql13-contrib
+
+--Setup Target
+drop user target_user;
+drop database target_db;
+create user target_user password 'target_pass';
+create database target_db owner target_user;
+
+--Test connection
+--On target host in bash test connection to same host (local) using target ip:
+psql -h ip1 -d targe_db -U target_user
+--On source host in bash test connection to remote target host target using target ip:
+psql -h ip1 -d targe_db -U target_user
+
+--Create table on target host in target_db:
+CREATE TABLE city (city_id int, city_name text);
+INSERT INTO city (city_id, city_name) values (1, 'city_name1');
+SELECT * FROM city;
+----------------------------------
+--Setup Source
+drop user source_user;
+drop database source_db;
+create user source_user password 'source_pass';
+create database source_db owner source_user;
+
+--On source host in bash test connection to same host (local) using source ip:
+psql -h ip2 -d source_db -U source_user
+
+--On target host in bash test connection to remote host source using source ip:
+psql -h ip2 -d source_db -U source_user
+
+--in source_db setup db link:
+CREATE EXTENSION DBLINK;
+CREATE SERVER server_target_remote FOREIGN DATA WRAPPER dblink_fdw OPTIONS (host 'ip1', dbname 'target_db', port '5432');
+CREATE USER MAPPING FOR source_user SERVER server_target_remote (user 'target_user',password 'target_pass');
+GRANT USAGE ON FOREIGN SERVER server_target_remote TO source_user;
+--Establish connection
+SELECT dblink_connect('conn_db_link', 'server_target_remote');
+SELECT * FROM dblink ('conn_db_link', 'select * from city') as test (city_id int, city_name text);
+------------------------------------------------
