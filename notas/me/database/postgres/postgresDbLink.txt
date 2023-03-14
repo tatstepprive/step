@@ -64,4 +64,6 @@ CREATE FOREIGN TABLE city (city_id int, city_name text) SERVER db2foreign OPTION
 --xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 --Show servers
 \des+
+--Show user mappings
+\deu+
 --xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
