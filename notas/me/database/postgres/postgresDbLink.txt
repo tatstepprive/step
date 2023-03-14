@@ -45,3 +45,23 @@ GRANT USAGE ON FOREIGN SERVER server_target_remote TO source_user;
 SELECT dblink_connect('conn_db_link', 'server_target_remote');
 SELECT * FROM dblink ('conn_db_link', 'select * from city') as test (city_id int, city_name text);
 ------------------------------------------------
+--xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Usage: cross database quering
+pre-postgresql 9.1: dblink
+post-postgresql 9.1+: ro FDW (Foreign Data Wrapper)
+post-postgresql 9.3+: rw FDW (Foreign Data Wrapper)
+
+--Possible on the same host db1 and db2:
+--On db1 using dblink
+select * from dblink('dbname=db2', 'SELECT city_id, city_name') as (city_id int, city_name text);
+
+--On db1 using postgres_fdw 
+CREATE EXTENSION POSTGRES_FDW;
+CREATE SERVER db2foreign FOREIGN DATA WRAPPER dblink_fdw OPTIONS (host 'localhost', dbname 'target_db');
+CREATE USER MAPPING FOR u1 SERVER db2foreign (user 'u1');
+CREATE FOREIGN TABLE city (city_id int, city_name text) SERVER db2foreign OPTIONS (table_name 'city'); 
+
+--xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+--Show servers
+\des+
+--xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
