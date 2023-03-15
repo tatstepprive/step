@@ -315,4 +315,28 @@ alter database mydb set search_path = "$user", public, postgis ;
 alter role johnny set search_path = "$user", public, postgis ;
 --Attention: If there are entries in the search path for nonexistent schemas, then they are ignored.
 ========================================
+--Show default privileges
+select
+ pg_get_userbyid(d.defaclrole) as user,
+ n.nspname as schema,
+ case d.defaclobjtype
+   when 'r' then 'tables'
+   when 'f' then 'functions'
+   when 'S' then 'sequences'
+   when 'T' then 'type'
+   when 'n' then 'schema' end as object_type,
+   array_to_string(d.defaclacl, ' + ') as default_privileges
+from pg_catalog.pg_default_acl d
+left join pg_catalog.pg_namespace n on n.oid = d.defaclnamespace;
+--output
+user | schema | object_type | default_privileges
+u1   | public |tables       | u1_ro=rU/u1 + u2=arwdDxt/u1
+--Explaination
+user_which_objects | in_which_schema| which_object| which_other_user_who_recieve_grant=which_grants/grants_given_by + which_second_user_who_receive_grant=which_grants/grants_given_by
+--To give grant for the future objects (changing the default privileges): u1 is owner of tables, u3 is reciever of grants
+ALTER DEFAULT PRIVILEGES FOR USER u1 IN SCHEMA public GRANT SELECT ON TABLES TO u3;
+--To give grant for the future objects (changing the default privileges): u1 is owner of tables, u3 is reciever of grants. Attention: should be connected as u1 than we can skip 'FOR USER u1'!!!
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO u3;
+=========================================
+
 
