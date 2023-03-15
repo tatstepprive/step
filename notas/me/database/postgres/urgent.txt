@@ -9,3 +9,7 @@ select version();
 
 --show port using
 show port;
+
+--show connection info
+\conninfo
+
