@@ -133,3 +133,9 @@ host repmgr repmgr <slave_ip>/32 md5
 #when using: /usr/pgsql-12/bin/repmgr -h <primary_ip> -U repmgr -d repmgr -f /etc/repmgr/12/repmgr.conf standby clone -F
 HINT: this may take some time; consider using the -c/--fast-checkpoint option
 #====================================================
+#check cluster replication state and members
+/usr/pgsql-12/bin/repmgr  -f /etc/repmgr/12/repmgr.conf cluster show
+#check cluster replication events
+/usr/pgsql-12/bin/repmgr  -f /etc/repmgr/12/repmgr.conf cluster events
+#===================================================
+
