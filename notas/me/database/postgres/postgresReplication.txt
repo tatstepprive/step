@@ -40,6 +40,11 @@ Replication models:
    * >1 master 
    * bidirectional (data flows in both directions)
    * conflict resolution schemas employed
+
+Views to check:
+ *Logical replication
+    *pg_replicaton_slots;
+    *pg_stat_subscription;
 #===========================================================
 #Repmgr
 Repmgr=command line tool
