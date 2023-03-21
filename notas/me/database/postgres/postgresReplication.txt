@@ -18,7 +18,7 @@ Replication types:
   * all databases included (all or none)
   * no possible between 2 diff major versions
   * no possible between 2 diff platforms (windows vs linux)
-*Logical replication
+*Logical replication (publisher and subscriber model, master/source/primary=publisher slave/target/standby=subscriber)
   * data based (data objects and their changes)
   * table level is possible
 
@@ -45,6 +45,11 @@ Views to check:
  *Logical replication
     *pg_replicaton_slots;
     *pg_stat_subscription;
+
+Limitations of logical replication (version 13):
+  * tables must have pk or unique key
+  * DDL are not replicated (added/removed columns etc)
+  * can not replate schema
 #===========================================================
 #Repmgr
 Repmgr=command line tool
