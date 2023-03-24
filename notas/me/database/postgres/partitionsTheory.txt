@@ -1,0 +1,12 @@
+When to partition:
+1 Tbl is big (>2G, mill rows) 
+
+Keep in mind:
+1 equal data partitions 
+2 not to much partitions (maintenance overload)
+3 max level 2 for subpartitions (if more maintenance overload) 
+
+Partitions types:
+ * range = divide by a key column(s), no overlap between ranges, used for dates, numbers column (exp: tbl_2020, tbl_2021). Daily/Weekly/Monthly/Yearly partitions
+ * list = one or many columns, used for text, number columns or any type that allows equality comparisons (exp: country_us, country_be)
+ * hash = calculate modus and remainder, used for id, use when you can not logically divide your data
