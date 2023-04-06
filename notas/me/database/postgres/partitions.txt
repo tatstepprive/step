@@ -217,3 +217,13 @@ add_partitions
 my_copy_data
 my_analyze
 # TODO manually drop original table film_old after to avoid confusion and errors
+# To avoid errors add default partition: create table part_table_name partiton of parent_table_name default;
+
+add_default_partition() {
+#multiline works
+echo "INFO: add default partition"
+psql  <<EOF
+\x
+CREATE TABLE film_part_default PARTITION OF film DEFAULT;
+EOF
+}
