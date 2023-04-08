@@ -80,3 +80,6 @@ $ORACLE_HOME/network/admin/sqlnet.ora
 #opatch directory and show all patches
 cd $ORACLE_HOME/OPatch; ./opatch lspatches
 ====================================================== 
+#add database after oracle software install
+$ORACLE_HOME/bin/dbca
+======================================================
