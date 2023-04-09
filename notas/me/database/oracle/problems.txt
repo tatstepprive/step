@@ -5,3 +5,12 @@
 --temp is offline
 --fix
 ALTER DATABASE TEMPFILE '/ora/TESTDB/data/temp01.dbf' ONLINE;
+----------------------------------------------------------
+--remote host can not connect
+--test from remote host if port and service are available, if unable to connect, the port is not open or db is not accepting connections from remote
+telnet dbhost 1521
+--in $ORACLE_HOME/network/admin/listener.ora should be entry with dbhost exact name, not localhost or other
+(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))
+--test on dbhost self locally
+telnet dbhost 1521
+----------------------------------------------------------
