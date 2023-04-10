@@ -204,3 +204,22 @@ ALTER TABLE MY_U1.MY_T1
     TABLESPACE MY_OLD_TBS1
     LOB (CONTENT) STORE AS SECUREFILE (TABLESPACE MY_NEW_TBS_10M) parallel 96;
 -------------------------------------------------------
+--Move tablespaces (in 12.1)
+ALTER DATABASE MOVE DATAFILE '/ora01/MYDB/datafile/o1_mf_system_l35q9kmz_.dbf' TO '/ora01/MYDB/system/system.dbf';
+ALTER DATABASE MOVE DATAFILE '/ora01/MYDB/MYDB/datafile/o1_mf_sysaux_l35q9n8w_.dbf'  TO '/ora01/MYDB/system/sysaux.dbf';
+ALTER DATABASE MOVE DATAFILE '/ora01/MYDB/MYDB/datafile/o1_mf_undotbs1_l35q9p54_.dbf' TO '/ora01/MYDB/undo/undotbs1.dbf';
+--Move temp tablespace (in 12.1) multiple steps
+alter tablespace temp add tempfile '/ora01/MYDB/undo/temp01.dbf' size 10m autoextend on next 10m maxsize unlimited;
+alter database tempfile '/ora01/MYDB/MYDB/datafile/o1_mf_temp_l35q9q9g_.tmp' offline;
+alter database tempfile '/ora01/MYDB/MYDB/datafile/o1_mf_temp_l35q9q9g_.tmp' drop including datafiles;
+
+--if ORA-25152: TEMPFILE cannot be dropped at this time
+--then disconnect and connect
+--also clouse other connections using the old (to be moved) temp tbs
+SELECT b.tablespace,b.segfile#,b.segblk#,b.blocks,a.sid,a.serial#,
+ a.username,a.osuser, a.status
+ FROM v$session a,v$sort_usage b
+ WHERE a.saddr = b.session_addr;
+
+alter system kill session 'SID_NUMBER, SERIAL#' immediate;
+--------------------------------------------------------

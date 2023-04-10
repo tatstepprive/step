@@ -14,3 +14,14 @@ telnet dbhost 1521
 --test on dbhost self locally
 telnet dbhost 1521
 ----------------------------------------------------------
+--if temp file is made offline but you can not drop it
+ORA-25152: TEMPFILE cannot be dropped at this time
+--Fix:
+SELECT b.tablespace,b.segfile#,b.segblk#,b.blocks,a.sid,a.serial#,
+ a.username,a.osuser, a.status
+ FROM v$session a,v$sort_usage b
+ WHERE a.saddr = b.session_addr;
+
+alter system kill session 'SID_NUMBER, SERIAL#' immediate;
+--if its current session, close connection and reconnect
+-----------------------------------------------------------
