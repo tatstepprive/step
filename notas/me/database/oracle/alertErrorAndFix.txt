@@ -168,4 +168,19 @@ from u1.u1_table_name
 log errors reject limit unlimited;
 select * from err$_my_table_name;
 --see ORA-12899: value too large...
+--attention, you should use in statement 'log errors' to see content of err$_my_table_name; 
 ------------------------------------------
+--Feature to monitor select statement
+--on 12.1c using default audit
+audit select, delete on U1.T1;
+--issue no sql text audited, fix (attention, use no quotes in setting parameter audit_trail)
+ALTER SYSTEM SET audit_trail=DB,EXTENDED SCOPE=SPFILE;
+--System SET altered.
+--restart database via sqlplus 
+shutdown immediate;
+startup;
+--connect as U1 and execute select * from T1;
+--see result, see sqltext column is not empty
+select * from SYS.AUD$;
+------------------------------------------
+
