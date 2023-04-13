@@ -1,132 +1,214 @@
-1 How to create spfile if missing?
-2 why connect as sysdba and no user sysdba in cdb_users, dba_users?
-3 Diff between v$pdbs, v$container, v$services?
-4 How often create pfile from spfile to be safe?
-5 in pfile are more lines (no comment) then in v$system_parameter isdefault='FALSE', why?
-6 Listener can have '0 handler(s) for the service' after dropping pdb. How to fix? 
-6 RESP: restart listener after connect via ssh: lsnrctl stop; lsnrctl start
-7 Why multiple listeners?
-8 How long is listener running? When started?
-8 RESP: lsnrctl status and see 'Uptime' and 'Start Date' columns.
-9 Diff between dedicated and default server for listener configuration?
-10 What will happen when user has role and we do revoke of some privileges given by role?
-11 Meaning of role without sys privileges like select_catalog_role?
-12 Why do we have refs to deleted tablespaces in dba_users? How to cleanup?
-13 What is queue on database and how it works?
-14 What are oracle managed files (OMF)?
-14 RESP: OMF= oracle managed files are file for tablespaces where creation path and name can be given by database (unique),
+Q1 How to create spfile if missing?
+===========================================
+Q2 why connect as sysdba and no user sysdba in cdb_users, dba_users?
+===========================================
+Q3 Diff between v$pdbs, v$container, v$services?
+===========================================
+Q4 How often create pfile from spfile to be safe?
+===========================================
+Q5 in pfile are more lines (no comment) then in v$system_parameter isdefault='FALSE', why?
+===========================================
+Q6 Listener can have '0 handler(s) for the service' after dropping pdb. How to fix? 
+R6 RESP: restart listener after connect via ssh: lsnrctl stop; lsnrctl start
+===========================================
+Q7 Why multiple listeners?
+===========================================
+Q8 How long is listener running? When started?
+R8 RESP: lsnrctl status and see 'Uptime' and 'Start Date' columns.
+===========================================
+Q9 Diff between dedicated and default server for listener configuration?
+===========================================
+Q10 What will happen when user has role and we do revoke of some privileges given by role?
+===========================================
+Q11 Meaning of role without sys privileges like select_catalog_role?
+===========================================
+Q12 Why do we have refs to deleted tablespaces in dba_users? How to cleanup?
+===========================================
+Q13 What is queue on database and how it works?
+===========================================
+Q14 What are oracle managed files (OMF)?
+R14 RESP: OMF= oracle managed files are file for tablespaces where creation path and name can be given by database (unique),
 the size and size extension are managed automatically by db, server alerts generation based on thresholds  etc 
-14 RESP: OMF= oracle managed files, in dbca OMF are control file and redo logs
-15 What is view for avialable calendars? (default 'Gregorian')
-16 Temp tablespace recommended size? 
-16 RESP: set workarea_size_policy=auto or use (alter tablespace temp shrink space  <-- this would disallocate not in use extents and would reduce size of Temp file on harddisk)
-16 RESP:  50gb is the  recommended minimum size  for 11g
-16 RESP:  how much of TEMP is used (select USED_BLOCKS*8192/1024/1024 "MB USED" , FREE_BLOCKS*8192/1024/1024 "MB FREE" from v$sort_segment where TABLESPACE_NAME='TEMP' )
-16 RESP: Who is consuming the blocks of temp tablespace (
+R14 RESP: OMF= oracle managed files, in dbca OMF are control file and redo logs
+===========================================
+Q15 What is view for avialable calendars? (default 'Gregorian')
+===========================================
+Q16 Temp tablespace recommended size? 
+R16 RESP: set workarea_size_policy=auto or use (alter tablespace temp shrink space  <-- this would disallocate not in use extents and would reduce size of Temp file on harddisk)
+R16 RESP:  50gb is the  recommended minimum size  for 11g
+R16 RESP:  how much of TEMP is used (select USED_BLOCKS*8192/1024/1024 "MB USED" , FREE_BLOCKS*8192/1024/1024 "MB FREE" from v$sort_segment where TABLESPACE_NAME='TEMP' )
+R16 RESP: Who is consuming the blocks of temp tablespace (
 column username   format a10 
 column user       format a10 
 column tablespace format a20
 
 select username,user,tablespace,blocks*8192/1024/1024 "Blocks USed",sql_id,session_addr,sqladdr from V$TEMPSEG_USAGE 
 ) ref: https://community.oracle.com/mosc/discussion/3480975/recommended-temp-tablespace-size
-17 Show DBID?
-17 RESP: connect with rman and see output: connected to target database: <dbname> (DBID=xxxxxxx where x=1-9)
-17 RESP: select dbid from v$database; (DBID=xxxxxxx where x=1-9)
-18 Database vs instance in oracle?
-18 RESP: database is data on disk, instance is running db with memory SGA (=system global area) and background processes. Db mounted on instance, users connect to instance.
-19 How to execute a script in sqldeveloper or sqlplus from disk in windows and in linux?
-19 RESP1: in windows @Path\script.sql (exp: @C:\test.sql
-19 RESP2: go to dir where script located and execute 'sqlplus user/pass@db' and then '@test.sql' 
-19 RESP3: in sqldeveloper execute 'cd /home/oracle' and then '@test.sql'
-20 Can i rename index SYS_ILxxx (it's lob index)?
-21 Can i rename index SYS_NCxxx?
-22 How to check if spfile of pfile is used?
-22 RESP: show parameter spfile; (if value <> empty->spfile used, if query returns no rows then pfile is used; if query returns any value with a filename with its path then spfile is used by current running instance.
-23 Diff between index rebuild, index move, index shrink?
-24 Diff local and remote listener? 
-24 RESP: A local listener is a listener on the same host as the database instance. A remote listener is a listener on a different (remote) host from the database instance. Remote listeners are used in a RAC configuration.
-25 If set all scheduler jobs on disable and / or remove them, will bg process CJQ0 stop running?
-26 Why CJQn multiple job coordinators needed? Is CJQ0 not enough?
-27 How job works with arguments (NUMBER_OF_ARGUMENTS) parameter?
-28 Example of job running a shell program?
-29 For every 30 minutes why 'freq=minutely; byminute=30' and not 'freq=hourly; byminute=30'?
-30 When using logical export, the external table will be exported too? How it will be usable, if it's only metadata and imported db no file is available on os? Or external table will be skipped during export? Or not skipped and unusable after import?
-31 How to see oracle last execution time of trigger, procedure, funtion?
-32 How to see oracle last access time on table, view etc?
-33 Temp tablespace can be set per user? Or change will be for all users? Alter user u1 temporary tablespace temp1;
-34 ALL is for all privileges, can we use ALL for all objects in schema? Grant all on all to u1?
-35 What to do if SYS user locked? Use SYSTEM to unlock SYS?
-36 Alert system with email, howto?
-37 Show all configured alerts?
-38 Show all configured thresholds? 
-38 RESP: select * from dba_thresholds;
-39 Diff between transaction processing and query processing?
-39 RESP: query is only select, transactions are monifications (insert/update/delete)
-40 How to rename redo log memeber (file) (see v$logfile)?
-40 RESP: steps: shutdown; mv /diska/logs/log1a.rdo /diskc/logs/log1c.rdo; STARTUP MOUNT; ALTER DATABASE RENAME FILE '/diska/logs/log1a.rdo' TO '/diskc/logs/log1c.rdo';ALTER DATABASE OPEN; 
-41 Members of redo group used in parallel? Or there are there just for last survival, so security matter?
-41 RESP: not in parallel, one at the time, but when 1 memeber is corrupted trying to use another in the same group.
-42 Where archive log files names are configured?
-42 RESP: select * from v$parameter where name like 'log_archive_format';
-43 How to flashback one schema?
-44 Show all deprecated parameters in use without restart?
-45 ORA-01000: maximum open cursors exceeded is not in trace log. Why? 
-45 RESP: You shoud execute to trace it: --To enable ALTER SYSTEM SET EVENTS '1000 trace name errorstack level 3'; --To disable: alter system set events '1000 trace name context off';
-46 How to gather statistics in db?
-47 Which features are in use in db?
-47 RESP: see view v$option for Oracle Data Vault, Oracle Label Security or table dba_registry for OWD (oracle wharehous database for BI)
-48 If one spfile per instance where are the params for pdbs ara saved?
-49 To shrink table which column should be dropped LONG or CLOB?
-50 What is oracle Exadata?
-51 What is parallel server limit in source management?
-52 What autotask are available and when runned and their output?
-53 What is cursor_sharing?
-54 Example with subplans (non-CDB)?
-54 Example with multi level plans (non-CDB)?
-55 What is database replay?
-56 What is consolidation?
-57 How to export AWR snapshot?
-58 How to export SQL profile?
-59 How to export SQL tuning set?
-60 What is temporary tablespace group?
-61 Rman commands duplicate, switch, delete?
-62 What is diff between connect and set container as being in env in multitenant env?
-63 Where trail (unified or other) are written (view/table, os files)?
-64 DBAAS?
-65 What is relation between table and segment? 
-65 RESP:  Table and segment relationship: 
+===========================================
+Q17 Show DBID?
+R17 RESP: connect with rman and see output: connected to target database: <dbname> (DBID=xxxxxxx where x=1-9)
+R17 RESP: select dbid from v$database; (DBID=xxxxxxx where x=1-9)
+===========================================
+Q18 Database vs instance in oracle?
+R18 RESP: database is data on disk, instance is running db with memory SGA (=system global area) and background processes. Db mounted on instance, users connect to instance.
+===========================================
+Q19 How to execute a script in sqldeveloper or sqlplus from disk in windows and in linux?
+R19 RESP1: in windows @Path\script.sql (exp: @C:\test.sql
+R19 RESP2: go to dir where script located and execute 'sqlplus user/pass@db' and then '@test.sql' 
+R19 RESP3: in sqldeveloper execute 'cd /home/oracle' and then '@test.sql'
+===========================================
+Q20 Can i rename index SYS_ILxxx (it's lob index)?
+===========================================
+Q21 Can i rename index SYS_NCxxx?
+===========================================
+Q22 How to check if spfile of pfile is used?
+R22 RESP: show parameter spfile; (if value <> empty->spfile used, if query returns no rows then pfile is used; if query returns any value with a filename with its path then spfile is used by current running instance.
+===========================================
+Q23 Diff between index rebuild, index move, index shrink?
+===========================================
+Q24 Diff local and remote listener? 
+R24 RESP: A local listener is a listener on the same host as the database instance. A remote listener is a listener on a different (remote) host from the database instance. Remote listeners are used in a RAC configuration.
+===========================================
+Q25 If set all scheduler jobs on disable and / or remove them, will bg process CJQ0 stop running?
+===========================================
+Q26 Why CJQn multiple job coordinators needed? Is CJQ0 not enough?
+===========================================
+Q27 How job works with arguments (NUMBER_OF_ARGUMENTS) parameter?
+===========================================
+Q28 Example of job running a shell program?
+===========================================
+Q29 For every 30 minutes why 'freq=minutely; byminute=30' and not 'freq=hourly; byminute=30'?
+===========================================
+Q30 When using logical export, the external table will be exported too? How it will be usable, if it's only metadata and imported db no file is available on os? Or external table will be skipped during export? Or not skipped and unusable after import?
+===========================================
+Q31 How to see oracle last execution time of trigger, procedure, funtion?
+===========================================
+Q32 How to see oracle last access time on table, view etc?
+===========================================
+Q33 Temp tablespace can be set per user? Or change will be for all users? Alter user u1 temporary tablespace temp1;
+===========================================
+Q34 ALL is for all privileges, can we use ALL for all objects in schema? Grant all on all to u1?
+===========================================
+Q35 What to do if SYS user locked? Use SYSTEM to unlock SYS?
+===========================================
+Q36 Alert system with email, howto?
+===========================================
+Q37 Show all configured alerts?
+===========================================
+Q38 Show all configured thresholds? 
+R38 RESP: select * from dba_thresholds;
+===========================================
+Q39 Diff between transaction processing and query processing?
+R39 RESP: query is only select, transactions are monifications (insert/update/delete)
+===========================================
+Q40 How to rename redo log memeber (file) (see v$logfile)?
+R40 RESP: steps: shutdown; mv /diska/logs/log1a.rdo /diskc/logs/log1c.rdo; STARTUP MOUNT; ALTER DATABASE RENAME FILE '/diska/logs/log1a.rdo' TO '/diskc/logs/log1c.rdo';ALTER DATABASE OPEN; 
+===========================================
+Q41 Members of redo group used in parallel? Or there are there just for last survival, so security matter?
+R41 RESP: not in parallel, one at the time, but when 1 memeber is corrupted trying to use another in the same group.
+===========================================
+Q42 Where archive log files names are configured?
+R42 RESP: select * from v$parameter where name like 'log_archive_format';
+===========================================
+Q43 How to flashback one schema?
+===========================================
+R44 Show all deprecated parameters in use without restart?
+===========================================
+Q45 ORA-01000: maximum open cursors exceeded is not in trace log. Why? 
+R45 RESP: You shoud execute to trace it: --To enable ALTER SYSTEM SET EVENTS '1000 trace name errorstack level 3'; --To disable: alter system set events '1000 trace name context off';
+===========================================
+Q46 How to gather statistics in db?
+===========================================
+Q47 Which features are in use in db?
+R47 RESP: see view v$option for Oracle Data Vault, Oracle Label Security or table dba_registry for OWD (oracle wharehous database for BI)
+===========================================
+Q48 If one spfile per instance where are the params for pdbs ara saved?
+===========================================
+Q49 To shrink table which column should be dropped LONG or CLOB?
+===========================================
+Q50 What is oracle Exadata?
+===========================================
+Q51 What is parallel server limit in source management?
+===========================================
+Q52 What autotask are available and when runned and their output?
+===========================================
+Q53 What is cursor_sharing?
+===========================================
+Q54 Example with subplans (non-CDB)?
+R54 Example with multi level plans (non-CDB)?
+===========================================
+Q55 What is database replay?
+===========================================
+Q56 What is consolidation?
+===========================================
+Q57 How to export AWR snapshot?
+===========================================
+Q58 How to export SQL profile?
+===========================================
+Q59 How to export SQL tuning set?
+===========================================
+Q60 What is temporary tablespace group?
+===========================================
+Q61 Rman commands duplicate, switch, delete?
+===========================================
+Q62 What is diff between connect and set container as being in env in multitenant env?
+===========================================
+Q63 Where trail (unified or other) are written (view/table, os files)?
+===========================================
+Q64 DBAAS?
+===========================================
+Q65 What is relation between table and segment? 
+R65 RESP:  Table and segment relationship: 
           T:S (1:1);
           T:S (n:1) cluster: many tables in one segment
           T:S (1:n) partitioned table: each partion=segment, table has many partions
           T:S (1:0) deferred_segment_creation: table without segment:  table is empty and segment is not added because of parameter=true (create segment later, not create segment until objects contains some data)
           T:S (0:1) nested table: table is column in other table (not table self) and column is saved as segment
           Attention: deferred segment creation is ignored for SYS and SYSTEM and always segment created
-66 Why to use uniform size nK|M|G instead of autoallocate in extent management?
-66 RESP: uniform: smaller bitmap (bit/extent); autoallocate: bitmap is bigger (bit/extent) 64K (0-16 extents), 1M (17-n extents) 
-67 Can we use primary key as a part of unique constraint on table or it's useless? What are pro/contras? t1 (nr number primary key, name varchar2(10)); nr=pk nr+name=unique constraint
-68 How to find chained rows? p491
-69 How to find migrated rows?
-70 How to see that segment advisor is running and enabled? Default is enabled and running every night, but how to see it's not disabled?
-71 How to see all autotasks?
-RESP: select * from dba_autotask_job_history;
-72 How to see segment advisor advises?
-RESP 72: via query: select segment_name, segment_type, recommendations from table(dbms_space.asa_recommendations);
-73 can i move lob index to a different tablespace?
-73 RESP: the lob and lobindex are "bound" together. you control the placement of the lob  segment, you have NO control over the lob index, it is an internal structure and goes where it goes. the lob 
+===========================================
+Q66 Why to use uniform size nK|M|G instead of autoallocate in extent management?
+R66 RESP: uniform: smaller bitmap (bit/extent); autoallocate: bitmap is bigger (bit/extent) 64K (0-16 extents), 1M (17-n extents) 
+===========================================
+Q67 Can we use primary key as a part of unique constraint on table or it's useless? What are pro/contras? t1 (nr number primary key, name varchar2(10)); nr=pk nr+name=unique constraint
+===========================================
+Q68 How to find chained rows? p491
+===========================================
+Q69 How to find migrated rows?
+===========================================
+Q70 How to see that segment advisor is running and enabled? Default is enabled and running every night, but how to see it's not disabled?
+===========================================
+Q71 How to see all autotasks?
+R71 RESP: select * from dba_autotask_job_history;
+===========================================
+Q72 How to see segment advisor advises?
+R72 RESP 72: via query: select segment_name, segment_type, recommendations from table(dbms_space.asa_recommendations);
+===========================================
+Q73 can i move lob index to a different tablespace?
+R73 RESP: the lob and lobindex are "bound" together. you control the placement of the lob  segment, you have NO control over the lob index, it is an internal structure and goes where it goes. the lob 
 index is considered "part of the lob" itself. For the LOB index for a non-partitioned table, then your specification of the tablespace is ignored and the LOB index is co-located with the LOB data.
-74 Why the table DBA_TAB_MODIFICATIONS differs from dba_objects object_type='TABLE' a lot?
-74 RESP: after analize on table and building statistics it will not be in DBA_TAB_MODIFICATIONS till it's used again. So the info from this table is not complete.
-75 Where does the database link SYS_HUB come? 
+===========================================
+Q74 Why the table DBA_TAB_MODIFICATIONS differs from dba_objects object_type='TABLE' a lot?
+R74 RESP: after analize on table and building statistics it will not be in DBA_TAB_MODIFICATIONS till it's used again. So the info from this table is not complete.
+===========================================
+Q75 Where does the database link SYS_HUB come? 
 select * from dba_db_links;
 --output
 --OWNER DB_LINK USERNAME HOST	CREATED	HIDDEN	SHARED_INTERNAL	VALID	INTRA_CDB	
 --SYS	SYS_HUB		 MY_SID	xx/xx/xx NO	NO		YES	NO
-75 RESP: The database link does exist in all Oracle 12.2.0.1, Oracle 18c and Oracle 19c databases. This database link comes in from the RAC side.
-76 The user SPATIAL_WFS_ADMIN_USR is missing in 19c?
+R75 RESP: The database link does exist in all Oracle 12.2.0.1, Oracle 18c and Oracle 19c databases. This database link comes in from the RAC side.
+===========================================
+Q76 The user SPATIAL_WFS_ADMIN_USR is missing in 19c?
 select username from dba_users@MYDB12C where oracle_maintained='Y'
 minus
 select username from dba_users where oracle_maintained='Y';
 --output
 --SPATIAL_CSW_ADMIN_USR
 --SPATIAL_WFS_ADMIN_USR
-76 RESP: Oracle Spatial and Graph - Version 12.2.0.1 and later: The user SPATIAL_WFS_ADMIN_USR is no longer needed.  
+R76 RESP: Oracle Spatial and Graph - Version 12.2.0.1 and later: The user SPATIAL_WFS_ADMIN_USR is no longer needed.  
+===========================================
+Q77 How it can be possible to have big tables (exp 4G or more) with no rows: select * from U1.T1; --output no rows
+R77 1. It could be table containing the lob column (clob etc) where data is removed. Clob do not shrink and table stays on size 4GB. Solution to move table: alter table U1.T1 move tablespace MY_TBS1;
+    2. It could be when table is saved in tbs with uniform storage and initial 1G, so the table will be 1GB big, so use good storage.
+===========================================
+ 
+
