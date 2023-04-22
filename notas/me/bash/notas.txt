@@ -202,3 +202,42 @@ echo "${string,,}"
 #N=changes the direction of the search
 #q=quit the man pages
 #=====================================
+#Brace expansion (brace={})
+echo a{d,c,b}e
+#output
+ade ace abe
+#----------
+#create multiple files
+touch file{a,b,c}
+ls
+#output
+filea fileb filec
+#----------
+#remove multiple files
+rm -v file{a,b,c}
+#----------
+#create multiple dirs
+mkdir -v dir{1..5}
+ls
+#output
+dir1 dir2 dir3 dir4 dir5
+#------
+#remove multiple dirs
+rmdir -v dir{1..5}
+#=====================================
+#Question mark expansion ?=match one char
+ls dir?
+#output 
+dira dirb
+#=====================================
+#Square brackets [] expansion
+#set of chars [abc]: a or b or c 
+#range of chars [a-b]: all lower case chars
+echo a[dcb]e
+#touch and echo do not work to create multiple files
+#====================================
+#shell prompt string PS1 
+#to customize PS1='[\u@\h \W]\$'
+#to customize with color and git recognition 
+#PS1=\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]$(eval "echo ${MYPS}")\[\033[00m\]\[\e[0;36m\] $git_branch\[\e[0;31m\]$git_dirty\[\e[0m\]\$ 
+#===================================
