@@ -245,3 +245,16 @@ echo a[dcb]e
 #when login: /etc/profile, ~/.bash_profile, ~/.bash_login, ~/.bashrc, /etc/bashrc, ~/.profile
 #when logout: ~/.bash_logout
 #==================================
+#             File          Dir
+# 4 r  view, copy (cat,cp)  ls
+# 2 w  edit [if +r]         edit [if +x] (rm)
+# 1 e  exec script          navigate, show detail (cd, ls -l)
+#=================================
+#change group of the file
+chgrp file_name
+#================================
+#permission change symbolic mode: chmod who_operation_perm filename (who=u,g,o,a [user/owner,group,other,all] operation=+,-= [add,remove,exactly] perm=r,w,x,s (read,write,execute,exec as setgid setguid)
+chmod u+x my_script.sh
+chmod o-r my_file.txt
+chmod u=rw,g=r,o= my_file.txt
+#===============================  

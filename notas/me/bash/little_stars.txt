@@ -1,0 +1,4 @@
+1 You can give away a file of dir ownership that you cannot get back (true)
+2 sticky bit=t permission is set on /tmp dir to protect from deletion except by root, dir owner, file owner (root in this case) drwxrwxrwt 
+3 We can use s in stead of x permission on executable file (-rwsr-xr-x), so the file is executed with permisson of uid and guid where s is set
+4 Can permissions be --------- , answer yes, expl /etc/shadow
