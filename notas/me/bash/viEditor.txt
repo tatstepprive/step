@@ -1,0 +1,85 @@
+vi editor
+---------
+Navigation:
+G=go to end of the file
+g=to to top of the file
+H,left arrow, or Backspace=left one character
+L,right arrow, or space bar=right (forward) one character
+J or down arrow=down one line
+K or up arrow=up one line
+W=forward one word
+B=back one word
+E=to the end of the current word
+$=to the end of the line
+0 (zero)=to the beginning of the line
+^=to the first non-white space character on the line
+:n=to line n
+nG=to line n
+Ctl+F=forward one screen
+Ctl+B=up one screen
+Ctl+D=down half screen
+Ctl+U=up half screen
+Ctl+L=refresh screen
+Ctl+G=displays current buffer info
+--------
+Open file in read only mode:
+vi -R filename
+-------
+Editing:
+i=switch to insert mode
+esc=switch to command mode
+:wq!=in command mode save and exit
+:q!=in command mode exit, no save
+a=add text after the cursor
+A=add text at the end of the line
+i=add text after the cursor
+I=add text at the beginning of the line
+o=new line below the cursor
+O=new line above the cursor
+:r filename=insert content of another file into the current file below the the line containing the cursor
+dd=delete the line containing the cursor
+ndd=delete n lines beginning with the line containing the cursor
+D=delete line from the cursor to the right end of the line
+x=delete a character at the cursor
+nx=delete n characters beginning at the cursor
+dw=delete a word
+:x,yd=delete the linex range from x to y Exp: :5,10d
+~=to upper/lower case at the cursor
+u=undo the previous command
+U=undo all changes to the current line
+.=repeat the previous command
+------
+Search and replace
+/pattern=search forward
+?pattern=search backward
+n=next occurence
+N=previous occurence (use shift n to have N)
+:[%]s/oldstring/newstring/[g]=search string oldstring and replace with new string, in whole file if %, globally if g
+-----
+Copy_past (yank means copy):
+yy=copy (yank) line containing the cursor
+nyy=copy n lines
+P=past copied or deleted lines after the line containing the cursor
+p=past copied or deleted lines before the line containing the cursor
+:x,y co z=copies lines from x to y and past them after line z Exp: :1,3 co 5
+:x,y m z=moves lines from x to y after the line z Exp: :4,6 m 8
+----
+Configuration (change config file in home dir .vimrc or use set to change setting temporary in open file)
+:set nu=show line numbers
+:set number=show line numbers
+:set nonu=hide line numbers
+:set nonumber=hide line numbers
+:set ic=search ignore case
+:set noic=search case sensitive
+:set list=show invisible characters like ^I for Tab or $ for endline
+:set nolist=dont show invisible characters
+:set showmode=display current mode of operation
+:set noshowmode=hide current mode
+:set =show all vim vars that are set
+:set all=show all vim vars and their current value
+Edit .vimrc
+echo set number > .vimrc
+cat .vimrc
+--output
+set number
+---
