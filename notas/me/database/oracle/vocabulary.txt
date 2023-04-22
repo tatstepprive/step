@@ -1,9 +1,10 @@
 ODBS=open database connectivity (odbc functionality is sopported by an application, driver manager, driver and data source)
 DBMS=database management system
 RDBMS=relational database management system
-DDL=data definition language (create, drop etc)
-DML=data manipulation language (insert, update, delete)
+DDL=data definition language (create, drop, truncate, rename, alter)
+DML=data manipulation language (insert, update, delete, merge)
 DCL=data control language (grant, revoke)
+TC=transaction control (commit, rollback, savepoint)
 Pseudo column=column that behaves like table column that not stored in disk, the value of column can not be changed by insert, delete, update (ex: ROWNUM)
 OLTP=online transaction processing
 OLAP=online analytical processing
