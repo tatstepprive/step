@@ -1,0 +1,14 @@
+OUI=oui=oracle universal installer
+DBCA=dbca=database configuration assistant 
+DBUA=dbua=database upgrade assistant
+ONM=oracle network manager
+ONCA=oracle net configuration assistant
+OEM=oracle enterprise manager
+sqlplus=command line tool to manage db
+sql developer=gui tool to manage db
+RMAN=rman=recovery manager
+OSB=oracle secure backup
+empdp=oracle pump export
+impdp=oracle pump import
+sqlloader
+toad=gui tool to manage db

@@ -1,7 +1,7 @@
 ODBS=open database connectivity (odbc functionality is sopported by an application, driver manager, driver and data source)
 DBMS=database management system
 RDBMS=relational database management system
-DDL=data definition language (create, drop, truncate, rename, alter)
+DDL=data definition language (create, drop, truncate, rename, alter, comment)
 DML=data manipulation language (insert, update, delete, merge)
 DCL=data control language (grant, revoke)
 TC=transaction control (commit, rollback, savepoint)
