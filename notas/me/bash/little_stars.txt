@@ -3,3 +3,4 @@
 3 We can use s in stead of x permission on executable file (-rwsr-xr-x), so the file is executed with permisson of uid and guid where s is set
 4 Can permissions be --------- , answer yes, expl /etc/shadow
 5 Run script: 1. if in PATH: script_name 2. if not in PATH: /location/scriptname or ./scriptname 3. if not executable run: bash scriptname
+6 To run a script you need read and execute permissions, without execute permission you can use: bash scriptname, but without read permission will not run

@@ -2,3 +2,5 @@ WSL=Windows Subsystem for Linux
 ACL=access control list (standard set of access permissions at the fie/dir creation time)
 sticky bit=t=restriction to protect file/dir from deletion, except by root,dir owner, file owner; used for /tmp (drwxrwxrwt  18 root root       4096 Apr 22 13:24 tmp)
 clobbering=overwriting existing data (exp: date > timeline.txt) default, activate warning about not overwrite the data by setting shell option noclobber on: set -o noclobber, or off to disable(default): set +o noclobber
+shebang=#!= the first line in bash script, the combination of: #! Expl:/usr/bin/bash
+here document=<<OEF= to encapsulate the code, using: '<< EOF enter code enter EOF'
