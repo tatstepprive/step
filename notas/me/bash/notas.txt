@@ -47,6 +47,46 @@ mtr www.google.be
 #or define alias open=xdg-open in .bashrc and use open file.pdf
 xdg-open file.pdf
 #=========================
+#show list of aliases
+alias
+#define alias: alias alias_name="alias_commandos"
+alias info="uname; date;"
+alias c=clear
+alias rm="rm -iv"
+#show info for one alias
+alias rm
+#run alias
+rm my_file
+#run commando once without using alias
+\rm my_file
+#unset alias for future commands
+unalias rm
+#Diff between alias and function:
+#alias do not take args as function do
+#if command is defined as alias and function, alias takes precedence
+#=========================
+#show list of functions
+typeset -f
+#show list of functions names 
+typeset F
+#create function: function func_name [()] {commands;}
+function numb { who | wc -l; }
+#run function
+numb
+#remove function
+unset -f numb
+#add function permanently, edit .bash_profile
+#=========================
+#show shell options (about 27 different options)
+set -o
+#turn ON an option, use minus: set -o option_name
+set -o noclobber
+#turn OFF an option, use plus: set +o option_name
+set +o noclobber
+#temporary deactivate the noclobber option, use: >|
+date >| timeline.txt
+#to set options permanent edit .bashrc file
+#=========================
 #iptables (tip: add port to iptables after install centos server exp: to make connection in browser)
 iptables --lin -vnL
 iptables -t nat --lin -vnL
