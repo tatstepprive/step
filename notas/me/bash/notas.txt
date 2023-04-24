@@ -108,6 +108,9 @@ iptables --lin -vnL
 #==========================
 #show port usage
 netstat -tulpn | grep 8081
+ss -tulpn | grep ssh
+ss -tulpn | grep 22
+netstat -tulpn | grep -w 22
 #==========================
 #add sudo user centos commandline
 adduser username
@@ -161,6 +164,32 @@ tty: show current users pseudo terminal
 ps -ft pts/1: get process id for the pseudo terminal
 Kill the process: kill 28580
 Alternatively use pkill -t pts/1
+#=======================================
+#create archive: tar [options] archfile filenames
+#create archive, attention no '-' before the options cfv, it's optional
+tar cvf data.tar backup/
+#create archive with z compresson, attention no '-' before the options cfv
+tar cvzf data2.tar.gz backup/
+#create archive with j compresson, attention no '-' before the options cfv
+tar cvjf data3.tar.bz2 backup/
+#show data in archive
+tar tvf data.tar
+#extract archive, attention move archive data.tar in other dir and extract, if not it will overwrite the existing data
+#result backup dir is extracted with all files in it
+tar xvf data.tar
+tar xvf data.tar.gz
+#extract a single file
+tar xvf data.tar path_in_archive/myfile.txt
+#=======================================
+#Zip tools: gzip, bzip2 (linux), zip (linux,windows)
+#uncompress tools: gzip with d option, gunzip, unzip, bunzip2 
+gunzip myfile.gz;
+gzip -d myfile.gz; 
+unzip myfile.zip;
+bunzip2 myfile.bz2 
+#view: zcat, bzcat 
+zcat myfile.gz
+bzcat myfile.bz2
 #=======================================
 #encrypt zip
 echo "test"| gpg --batch --no-tty --yes --passphrase-fd 0 --force-mdc --symmetric bla.tar.gz

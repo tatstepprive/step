@@ -5,3 +5,5 @@
 5 Run script: 1. if in PATH: script_name 2. if not in PATH: /location/scriptname or ./scriptname 3. if not executable run: bash scriptname
 6 To run a script you need read and execute permissions, without execute permission you can use: bash scriptname, but without read permission will not run
 7 check value of exit script exit status: echo $?  Value=0(zero)OK, Value=1-255 NOK
+8 Compression and output files number: zip my.zip a b c (output 1 file my.zip), but with gzip a b c (output 3 files a.gz, b.gz, c.gz); with bzip2 a b c (output 3 files a.bz2, b.bz2, c.bz2)
+9 hostnamectl : show host info
