@@ -74,3 +74,5 @@ Switchover=role switch, your primary becomes standby and your standby becomes pr
 InSync=log on prm is the same as log applied in stb
 Gap=prm and stb is not in sync, there is a problem with log shipping service or log apply service, or no problems and log apply delay is in use
 PITR=point in time recovery
+EMCC=Oracle Enterprise Manager Cloud Control (f:management via url: monitoring, administration, maintenance and performance tuning)
+EM Express=Oracle Enterprise Manager Database Express (f:management via url: monitoring)
