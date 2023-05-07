@@ -87,4 +87,9 @@ Tree Connections, db_name, Database Configuration, Initialisation parameters
 #Memory usage in DBA panel 
 Tree Connectins, db_name, Instance Viewer, tab MEMORY/STORAGE
 #==============================
-
+#Manage control files in DBA panel
+Tree Connections, db_name, Storage, Control Files
+#==============================
+#Create a new schema (user) in DBA panel
+Tree Connections, db_name, Security, Users, Actions, Create new
+#==============================

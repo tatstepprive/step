@@ -154,6 +154,11 @@ SYSMAN (enterprise manager tasks)
 SYSKM (transparent data encryption TDE wallet operations)
 Tip: show sys users: select * from dba_users where username like 'SYS%' order by username;
 
+#Oracle sypplied education users (sample schemas)
+HR
+OE
+SH 
+
 # 7 Special system privileges for admin
 SYSDBA
 * startup and shutdown

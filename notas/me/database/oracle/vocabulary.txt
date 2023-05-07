@@ -77,3 +77,4 @@ Gap=prm and stb is not in sync, there is a problem with log shipping service or 
 PITR=point in time recovery
 EMCC=Oracle Enterprise Manager Cloud Control (f:management via url: monitoring, administration, maintenance and performance tuning)
 EM Express=Oracle Enterprise Manager Database Express (f:management via url: monitoring)
+Crosschecking=verifying whether the actual physical status of backup matches the record of backup in the rman repository
