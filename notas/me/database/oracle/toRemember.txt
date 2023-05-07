@@ -50,4 +50,7 @@ select * from DBA_TAB_MODIFICATIONS where table_owner not in ('SYS')
 order by timestamp desc;
 --show archive log and locations
 archive log list;
-
+--enable row movement on table (needed for flashback)
+alter table u1.t1 enable row movement;
+--remove oracle database software
+$ORACLE_HOME/deinstall/deinstall
