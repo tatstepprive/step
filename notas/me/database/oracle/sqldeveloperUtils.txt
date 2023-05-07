@@ -77,4 +77,14 @@ C:\Users\${WINDOWS_USER_NAME}\AppData\Roaming\sqldeveloper\${SQL_DEVELOPER_VERSI
 Menu Tools, Preferences, in list expand Database, Advanced, Autocommit checkbox set off
 --Attention: it will be ignored when connecting to postgres database with sqldeveloper, you need to modify pgjdbc driver
 #================================ 
+#Stop database via sqldevelop, start only via sqlplus
+R-mouse menu, Manage database, button shutdown
+#===============================
+#Manage init parameters in DBA panel by double click in cel and modify the value
+#Tip: in filter fied you can search by typing: "Parameter" like 'sga%' or "Parameter" like 'pga%'
+Tree Connections, db_name, Database Configuration, Initialisation parameters
+#===============================
+#Memory usage in DBA panel 
+Tree Connectins, db_name, Instance Viewer, tab MEMORY/STORAGE
+#==============================
 
