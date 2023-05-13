@@ -1,15 +1,17 @@
 OUI=oui=oracle universal installer
-DBCA=dbca=database configuration assistant=dbca 
+DBCA=dbca=database configuration assistant=dbca=f: gui to create, delete, configure database, manage template, manage pdb, manage rac 
 DBUA=dbua=database upgrade assistant=dbua
-ONM=oracle network manager=netmgr
-ONCA=oracle net configuration assistant=netca
+ONM=oracle network manager=netmgr=f: gui to manage listener, tnsnames [dont forget to save via menu File, Save Network configuration]
+ONCA=oracle net configuration assistant=netca=f: gui to manager listener, tnsnames, local naming config, directory config
 lsnrctl=listener control utility=lsnrctl [start|status|stop] <listener_name>
 OEM=oracle enterprise manager
 sqlplus=command line tool to manage db
 sql developer=gui tool to manage db=$ORACLE_HOME/sqldeveloper/sqldeveloper.sh
+SQLcl=sql developer command line
 RMAN=rman=recovery manager=rman
 OSB=oracle secure backup
 empdp=oracle pump export=$ORACLE_HOME/bin/empdp
 impdp=oracle pump import=$ORACLE_HOME/bin/impdp
 sqlloader
+adrci=diagnostic tool
 toad=gui tool to manage db

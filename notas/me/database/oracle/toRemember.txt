@@ -36,7 +36,7 @@ select * from user_errors;
 --play with time format in session
 alter session set nls_date_format ='dd/mm/yyyy hh24:mm:ss';
 to_timestamp('21/02/2022 18:05:10','dd/mm/yyyy hh24:mm:ss');
---show connection details (user)
+--show connection details (user), show current user, show current connected user
 show user;
 --show connection details (database) with no special permission needed like for: select name from v$database
 select * from global_name;
@@ -54,3 +54,5 @@ archive log list;
 alter table u1.t1 enable row movement;
 --remove oracle database software
 $ORACLE_HOME/deinstall/deinstall
+--call a script from command line
+sqlplus hr/hr@db @scrip.sql
