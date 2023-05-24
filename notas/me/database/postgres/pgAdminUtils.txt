@@ -10,3 +10,5 @@ value
 Fast query writing by select table R-mouse Script, Insert etc
 and change the value
 -==========================================
+In pgAdmin compare 2 schema's: menu Tools, Schema Diff
+--=========================================
