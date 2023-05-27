@@ -60,3 +60,12 @@ select * from dba_hist_sga_target_advice;
 select * from dba_hist_memory_target_advice;
 --empty
 -------------------------------------------------------
+--show enabled advisors (autotasks)
+select * from dba_autotask_client;
+-------------------------------------------------------
+--show maintenance windows
+select * from dba_autotask_schedule;
+-------------------------------------------------------
+--show advisor recommendations
+select * from dba_advisor_recommendations;
+-------------------------------------------------------
