@@ -244,6 +244,7 @@ END;
 EOF
 echo "===================="
 }
+
 drop_table(){
 echo "Test drop table on ${TMSH}"
 sqlplus ${MCONN} <<EOF
@@ -253,6 +254,17 @@ sqlplus ${MCONN} <<EOF
 EOF
 echo "===================="
 }
+
+remove_ref_to_old_tbs(){
+echo "Tablespace ref cleanup"
+sqlplus ${MCONN} <<EOF
+  set serveroutput on
+  ALTER TABLE U1.FILMIFICATES  MODIFY DEFAULT ATTRIBUTES TABLESPACE U1_DATA;
+  exit;
+EOF
+echo "===================="
+}
+
 #partitioning deel0 create new tbs
 CREATE TABLESPACE U1_DATA_FILMIFICATE_PSET1
 DATAFILE
@@ -302,6 +314,7 @@ finish_redef_table
 test_connect
 drop_table
 #manually compile invalid objects on U1 or other dep schemas
+remove_ref_to_old_tbs
 #manually drop original tbs if empty
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
