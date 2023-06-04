@@ -6,3 +6,26 @@ SQL Server, Sybase, MS Access, Teradata, Firebird, Apache Hive, Phoenix,
 Presto, etc.
 
 https://dbeaver.io/download/
+---------------------
+Free databases:
+MySQL (opensource community edition from oracle)
+Postgresql
+MariaDB (fork of MySQL) 
+MongoDB (nosql)
+Neo4j (nosql)
+OrientDB (nosql)
+Clickup
+Airtable
+AmazonRDS
+Informix
+SQLite
+CouchDB (apache)
+Firebirdsql
+--------------------
+NonFree databases:
+MySQL (standard edition from oracle)
+Oracle
+IBM DB2
+----------------------
+DB list:
+https://en.wikipedia.org/wiki/Comparison_of_relational_database_management_systems
