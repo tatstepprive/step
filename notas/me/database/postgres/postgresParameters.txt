@@ -13,6 +13,7 @@ f:  caching data
 work_mem = 4MB
 Fix: Total RAM * 0.25 / max_connections (4G is OK)
 f: provides the amount of memory to be used by internal sort operations and hash tables before writing to temporary disk files. Sort operations are used for order by, distinct, and merge join operations. Hash tables are used in hash joins and hash based aggregation.
+tip: can be set per user: alter user test set work_mem='4GB';
 
 max_connections= 100 (default)
 Fix: set higher
