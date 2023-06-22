@@ -1,3 +1,5 @@
+There are 64 base datatypes in postgres.
+--------------------------------------
 Boolean
   True , yes, 1
   False, no, 0
@@ -7,12 +9,15 @@ Character
   varchar(n)
   text
 Number
-  smallint = small integer
-  int = integer
+  smallint = small integer (2 bytes) range=-32768 to +32767 (32 thousand) 99 999 (5 digits)
+  int = integer (4 bytes) range=-2147483648 to +2147483647 (2 miljard eng:billion) 9 999 999 999 (10 digits)
+  bigint (8 bytes) range=-9223372036854775808 to +9223372036854775807 usage=candidate for primary key (19 digits)  
+  smallserial
   serial = auto populate column
+  bigserial
   float(n)
   real or float8
-  numeric or numeric(p,s)
+  numeric or numeric(p,s) (variable bytes) range=up to 131072 digits before the decimal point; up to 16383 digits after the decimal point (131072 digits,16383 digits)
 Temporal Data Type
   date
   time = time
@@ -28,3 +33,30 @@ Special
   inet = ip4 address
   macaddr = mac address
 Arrays
+------------------------------------
+--integer versus serial
+CREATE TABLE tablename (
+    colname SERIAL
+);
+-----is equivalent to specifying:
+
+CREATE SEQUENCE tablename_colname_seq AS integer;
+CREATE TABLE tablename (
+    colname integer NOT NULL DEFAULT nextval('tablename_colname_seq')
+);
+ALTER SEQUENCE tablename_colname_seq OWNED BY tablename.colname;
+--the sequence is marked as “owned by” the column, so that it will be dropped if the column or table is dropped.
+--------------------------------------
+--bigint versus bigserial
+CREATE TABLE tablename (
+    colname BIGSERIAL
+);
+-----is equivalent to specifying:
+
+CREATE SEQUENCE tablename_colname_seq AS bigint;
+CREATE TABLE tablename (
+    colname bigint NOT NULL DEFAULT nextval('tablename_colname_seq')
+);
+ALTER SEQUENCE tablename_colname_seq OWNED BY tablename.colname;
+--the sequence is marked as “owned by” the column, so that it will be dropped if the column or table is dropped.
+--------------------------------------
