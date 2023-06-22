@@ -1,0 +1,198 @@
+Top 10 mistakes when migrating from oracle to postgres:
+https://www.youtube.com/watch?v=xwKb-Ztklrg
+
+1 mistake 1: dual table
+
+oracle:
+select sysdate from dual;
+
+solution1: mocking the dual table in postgres
+create table dual (dummy varchar);
+insert into dual values ('X');
+select current_date from dual;
+
+solution2: create a dual view in postgres
+create view dual as select 'x'::varchar as dummy;
+select current_date from dual; 
+
+solution2: dont use dual table, 'FROM' is optional in postgresql, use correct syntax postgres related:
+select current_date;
+
+=====================
+2 mistake 2: tablespaces
+
+oracle (different tbs for indexes and tables):
+create tablespace ts_data1
+ logging 
+ datafile '/data/ts_data1.dbf'
+ size 32m
+ autoextend on next 32m maxsize 2048m
+ extent management local;
+
+postgres (no real benefit unless multiple mount points, volumes in filesystems, no real benefit, dont use tbs)
+create tablespace ts_data1
+ location '/data/ts_data1';
+======================
+3 mistake 3: case folding
+
+oracle: meta-data folds to uppercase
+desc people
+FNALE VARCHAR2(100);
+
+postgres: meta-data folds to lowercase
+\d people
+fname character varying(100)
+
+Some migration tools carry the uppercase from oracle to postgres (so you need double quote everything)
+\d "PEOPLE"
+FNAME character varying(100)
+
+select "FNAME" from "POEPLE";
+
+Advice: dont do this, use native case folding. For postgres it's lowercase
+====================
+4 mistake 4 fail back setup
+
+2servers:
+oracle -> postgres; postgres -> oracle
+
+3servers (2 oracle servers instead of 1):
+better oracle->postgres->oracle
+====================
+5 mistake 5: synonyms
+
+oracle: (synonyms are to avoid fully qualifying objects)
+create public synonym emp for scott.emp
+
+postgres: no synonyms
+
+solution: search_path
+
+show search_path;
+"$user", "public"
+
+set search_path=user1, user2, public;
+--search_path can be set on session level, user level, database level, global level
+=====================
+6 mistake 6: Nulls
+
+postgres and oracle handle nulls differently
+
+oracle:
+select coalesce('','A') res from dual;
+--output
+RES
+---
+A
+
+postgres:
+select coalesce('', 'A') res;
+--output
+RES
+---
+
+oracle treats null as empty string!!!
+coalesce (uitspraak koales)
+
+in postgres null + something=null
+
+in oracle:
+select fname||''||mname||''||lname from people;
+--10 rows returns 
+
+in postgres:
+--10 rows returns but 8 are empty
+
+Solution1 for postgres: coalesce function
+select coalesce(fname,'')||''||coalesce(mname,'')||''||coalesce((lname,'') from people;
+--output is like in oracle
+
+Solution2 for postgres: buildin function concat_ws
+select concat_ws('',fname,mname,lname) from people;
+--output is like in oracle
+
+Nulls - Unique constraints
+
+oracle:
+create unique index null_test_idx on null_test(c1,c2);
+insert into null_test(c1,c2) values (1, 'a');
+insert into null_test(c1) values (1);
+insert into null_test(c1) values (1);--second time insert unique constrain violation ORA-000001
+
+
+postgres: null is not equal null!!!!
+create unique index null_test_idx on null_test(c1,c2);
+insert into null_test(c1,c2) values (1, 'a');
+insert into null_test(c1) values (1);
+insert into null_test(c1) values (1);--no error! insert OK
+
+solved in postgresql 15 to have the same behavior as in oracle:
+create unique index null_test_idx on null_test(c1,c2) NULLS NOT DISTINCT;
+insert into null_test(c1,c2) values (1, 'a');
+insert into null_test(c1) values (1);
+insert into null_test(c1) values (1);--error = same behaviour as in oracle
+
+=================
+7 Mistake 7: Indexing
+
+Postgresql has additional types of indexes that Oracle does not:
+Btree
+Hash
+GIN
+Bloom
+GiST
+SP-Gist
+BRIN
+RUM
+
+postgres can use indexes on LIKE queries without complex full text search configuration
+
+create index idx_users_lname on users using gin (lname gin_trgm_ops);
+explain select * from users where lname LIKE '%ng%';
+
+--on full scan oracle will be faster (mentioned in video on time: 25:51)
+====================
+8 Mistake 8: native features
+not using postgres native feature like inet datatype etc
+====================
+9 Mistake 9: Exceptions
+postgres uses subtransactions to handle exceptions
+STRICT (mentioned in video on time: 34:40)
+====================
+10 Mistake 10: data types
+
+Oracle:
+VARCHAR2
+DATE
+NUMBER
+CLOB
+BLOB
+
+Postgres has 64 base data types and more extended
+
+Managing CLOBS is not the same as TEXT in PostgreSQL.
+oracle has special packages to manage LOBS:
+Length
+Substrings
+
+DBMS_LOB.GETLENGTH(x)
+
+In postgres VARCHAR and TEXT are equivalent and behave the same, for varchar you can give the max value to limit input. Postgres TEXT is not a 'CLOB'
+postgres no special packages, just function length(x) 
+TEXT is more performant, better to use, basically VARCHAR is a wrapper around TEXT (video min 38:30)
+
+oracle: Number(38) (up to 38 digits) vs postgres: Numeric (up to 131072 digits)
+Numeric can hold 131072 before the decimal point and 16383 after the decimal point
+
+Use bigint for primary keys
+
+
+
+
+
+
+
+
+
+
+
