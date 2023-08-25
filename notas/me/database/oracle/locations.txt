@@ -28,6 +28,12 @@ $ORACLE_HOME/bin
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/diag/rdbms/db_id/instance_id 
 (ex: $ORACLE_BASE/diag/rdbms/orcl/orcl)
+#or ADR_home=<diagnostic_dest>/diag/rdbms/<dbname>/<instance_name>
+<adr_home>/trace
+----------------------------------------
+#Dataguard trace files location
+#ADR_home=<diagnostic_dest>/diag/rdbms/<dbname>/<instance_name>
+<adr_home>/trace/drc<SID>
 ----------------------------------------
 #Alert log
 $ORACLE_BASE=/u01/app/oracle
