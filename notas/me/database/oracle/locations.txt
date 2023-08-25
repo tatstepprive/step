@@ -35,6 +35,11 @@ $ORACLE_BASE/diag/rdbms/db_id/instance_id
 #ADR_home=<diagnostic_dest>/diag/rdbms/<dbname>/<instance_name>
 <adr_home>/trace/drc<SID>
 ----------------------------------------
+#Dataguard configuration files (binary files)  default location
+$ORACLE_HOME/dbs/dr1<db_unique_name>.dat
+$ORACLE_HOME/dbs/dr2<db_unique_name>.dat
+#or path in parameter DG_BROKER_CONFIG_FILEn
+----------------------------------------
 #Alert log
 $ORACLE_BASE=/u01/app/oracle
 $ORACLE_BASE/diag/rdbms/db_id/instance_id/alert 
