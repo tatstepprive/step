@@ -59,6 +59,7 @@ END;
 /
 -------------------------------
 --Enable Unified Auditing:
+select value from v$option where parameter = 'Unified Auditing';
 shutdown immediate
 lsnrctl stop
 cd $ORACLE_HOME/rdbms/lib
