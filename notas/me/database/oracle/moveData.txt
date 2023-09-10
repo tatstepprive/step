@@ -1,4 +1,10 @@
 --Move data using export import
+===========================================
+--Full
+expdp system@PRODB FULL=Y DUMPFILE=proddb.dmp
+#tablespaces must be created before the import
+impdp system@PDBC FULL=Y DUMPFILE=proddb.dmp
+============================================
 --Existance and privileges on directories
 select * from dba_directories;
 --Tip: directories are owned by SYS, user can not drop them but can create if granted 'create any directory' priv
