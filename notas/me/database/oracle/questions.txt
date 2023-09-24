@@ -210,5 +210,14 @@ Q77 How it can be possible to have big tables (exp 4G or more) with no rows: sel
 R77 1. It could be table containing the lob column (clob etc) where data is removed. Clob do not shrink and table stays on size 4GB. Solution to move table: alter table U1.T1 move tablespace MY_TBS1;
     2. It could be when table is saved in tbs with uniform storage and initial 1G, so the table will be 1GB big, so use good storage.
 ===========================================
+Q78 Can segment live in multiple tablespaces? 
+R78 NO (see logical structure diagram)
+===========================================
+Q79 Can segment exist accross multiple data files? 
+R79 YES, tablespace to which segment belogns can have multiple data files (see logical structure diagram)
+===========================================
+Q80 Can extent exist in multiple data files?
+R80 NO, extent is CONTINIOUS blocks, continuity means in one data file, conituity is broken if multiple files are invoked.
+===========================================
  
 
