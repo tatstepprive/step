@@ -18,3 +18,26 @@ Solution the keys are disabled. Some of them are reassigned to other
 combination
 Ctrl-Alt-T         Ctrl-Alt-1
 Ctrl-Alt-L	   Ctrl-Alt-2
+========================================
+Transfer files from iphone to ubuntu (videos, photos)
+#as sudo
+apt-get install libimobiledevice-utils
+apt-get install ifuse
+mkdir /mnt/iphone
+chmod -R 777 /mnt/iphone
+#as user
+#attach iphone and trust
+idevicepair pair
+ifuse /mnt/iphone
+cd /mnt/iphone/
+ls
+cd DCIM/
+cd ~
+mkdir -p /home/my_user/iphone/videos
+mkdir -p /home/my_user/iphone/photos
+cd /home/my_user/iphone/videos
+#rsync -ah --progress source destination
+rsync -ah --progress /mnt/iphone/DCIM/*APPL*/*MOV .
+cd /home/my_user/iphone/photos
+rsync -ah --progress /mnt/iphone/DCIM/*APPL*/*JPG .
+================================================
