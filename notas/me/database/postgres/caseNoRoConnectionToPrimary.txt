@@ -1,0 +1,12 @@
+--On primary create marker user without login
+CREATE ROLE user_ro;
+--On primary edit nano pg_hba.conf end add line 
+--meaning members of group "user_ro" who may not connect to all databases 
+host    all              +user_ro 0.0.0.0/0         reject
+--connect as superuser and execute to reload changes
+SELECT pg_reload_conf();
+--try to connect with user myapp_ro_acc, connection should work
+--edit user to be member of rejected group
+GRANT user_ro TO myapp_ro_acc;
+--try to connect myapp_ro_acc and connection will be in failure
+--result: the membership can be applied on the fly and all read-only connections goes to replica
