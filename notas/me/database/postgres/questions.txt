@@ -28,7 +28,7 @@ Q9: Location  .psql_history in windows? in Linux /home/postgres or other home di
 ==========================================
 Q10: How to avoid the password in clear text in the logs?
 R10: There are 2 methods:
---1 method
+--1 method (only superuser can do: set log_statement='none'; show log_statement;)
 BEGIN;
 SET LOCAL log_statement = 'none';
 ALTER USER TEST WITH PASSWORD 'abc';
